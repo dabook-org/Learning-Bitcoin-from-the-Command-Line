@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_5_Sending_Coins_with_Automated_Raw_Transactions</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="sending-coins-with-automated-raw-transactions">4.5: Sending
+Coins with Automated Raw Transactions</h1>
+<p>This chapter lays out three ways to send funds via Bitcoin’s cli
+interface. <a href="04_1_Sending_Coins_The_Easy_Way.md">§4.1</a>
+described how to do so with a simple command, and <a
+href="04_4_Sending_Coins_with_a_Raw_Transaction.md">§4.4</a> detailed
+how to use a more dangerous raw transaction. This final section splits
+the difference by showing how to make raw transactions simpler and
+safer.</p>
+<h2 id="let-bitcoin-calculate-for-you">Let Bitcoin Calculate For
+You</h2>
+<p>The methodology for automated raw transactions is simple: you create
+a raw transaction, but you use the <code>fundrawtransaction</code>
+command to ask the bitcoind to run the calculations for you.</p>
+<p>In order to use this command, you’ll need to ensure that your
+~/.bitcoin/bitcoin.conf file contains rational variables for calculating
+transaction fees. Please see <a
+href="04_1_Sending_Coins_The_Easy_Way.md">§4.1: Sending Coins The Easy
+Way</a> for more information on this.</p>
+<p>For very conservative numbers, we suggested adding the following to
+the <code>bitcoin.conf</code>:</p>
+<pre><code>mintxfee=0.0001
+txconfirmtarget=6</code></pre>
+<p>To keep the tutorial moving along (and more generally to move money
+fast) we suggested the following:</p>
+<pre><code>mintxfee=0.001
+txconfirmtarget=1</code></pre>
+<h2 id="create-a-bare-bones-raw-transaction">Create a Bare Bones Raw
+Transaction</h2>
+<p>To use <code>fundrawtransaction</code> you first need to create a
+bare-bones raw transaction that lists <em>no</em> inputs and <em>no</em>
+change address. You’ll just list your recipient and how much you want to
+send them, in this case <code>$recipient</code> and <code>0.0002</code>
+BTC.</p>
+<pre><code>$ recipient=n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi
+$ unfinishedtx=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.0002 }&#39;&#39;&#39;)</code></pre>
+<h2 id="fund-your-bare-bones-transaction">Fund Your Bare Bones
+Transaction</h2>
+<p>You then tell <code>bitcoin-cli</code> to fund that bare-bones
+transaction:</p>
+<pre><code>$ bitcoin-cli -named fundrawtransaction hexstring=$unfinishedtx
+{
+  &quot;hex&quot;: &quot;02000000012db87641c6a21e5a68b20c226428544978e6ac44964d5d8060d7388000c584eb0100000000feffffff02204e0000000000001976a914e7c1345fc8f87c68170b3aa798a956c2fe6a9eff88ac781e0000000000001600140cc9cdcf45d4ea17f5227a7ead52367aad10a88400000000&quot;,
+  &quot;fee&quot;: 0.00022200,
+  &quot;changepos&quot;: 1
+}</code></pre>
+<p>That provides a lot of useful information, but once you’re confident
+with how it works, you’ll want to use JQ to save your hex to a variable,
+as usual:</p>
+<pre><code>$ rawtxhex3=$(bitcoin-cli -named fundrawtransaction hexstring=$unfinishedtx | jq -r &#39;.hex&#39;)</code></pre>
+<h2 id="verify-your-funded-transaction">Verify Your Funded
+Transaction</h2>
+<p>It seems like magic, so the first few times you use
+<code>fundrawtransaction</code>, you’ll probably want to verify it.</p>
+<p>Running <code>decoderawtransaction</code> will show that the raw
+transaction is now laid out correctly, using one or more of your UTXOs
+and sending excess funds back to a change address:</p>
+<pre><code>$ bitcoin-cli -named decoderawtransaction hexstring=$rawtxhex3
+{
+  &quot;txid&quot;: &quot;b3b4c2057dbfbef6690e975ede92fde805ddea13c730f58401939a52c9ac1b99&quot;,
+  &quot;hash&quot;: &quot;b3b4c2057dbfbef6690e975ede92fde805ddea13c730f58401939a52c9ac1b99&quot;,
+  &quot;version&quot;: 2,
+  &quot;size&quot;: 116,
+  &quot;vsize&quot;: 116,
+  &quot;weight&quot;: 464,
+  &quot;locktime&quot;: 0,
+  &quot;vin&quot;: [
+    {
+      &quot;txid&quot;: &quot;eb84c5008038d760805d4d9644ace67849542864220cb2685a1ea2c64176b82d&quot;,
+      &quot;vout&quot;: 1,
+      &quot;scriptSig&quot;: {
+        &quot;asm&quot;: &quot;&quot;,
+        &quot;hex&quot;: &quot;&quot;
+      },
+      &quot;sequence&quot;: 4294967294
+    }
+  ],
+  &quot;vout&quot;: [
+    {
+      &quot;value&quot;: 0.00020000,
+      &quot;n&quot;: 0,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;OP_DUP OP_HASH160 e7c1345fc8f87c68170b3aa798a956c2fe6a9eff OP_EQUALVERIFY OP_CHECKSIG&quot;,
+        &quot;hex&quot;: &quot;76a914e7c1345fc8f87c68170b3aa798a956c2fe6a9eff88ac&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;pubkeyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi&quot;
+        ]
+      }
+    },
+    {
+      &quot;value&quot;: 0.00007800,
+      &quot;n&quot;: 1,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;0 a782f4c6e1e75a5b24f3d675d6f11b5ebf3b2142&quot;,
+        &quot;hex&quot;: &quot;0014a782f4c6e1e75a5b24f3d675d6f11b5ebf3b2142&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;tb1q57p0f3hpuad9kf8n6e6adugmt6lnkg2zzr592r&quot;
+        ]
+      }
+    }
+  ]
+}</code></pre>
+<p>One thing of interest here is the change address, which is the second
+<code>vout</code>. Note that it’s a <code>tb1</code> address, which
+means that it’s Bech32; when we gave Bitcoin Core the total ability to
+manage our change, it did so using its default address type, Bech32, and
+it worked fine. That’s why our change to SegWit addresses in <a
+href="04_6_Creating_a_Segwit_Transaction.md">§4.6</a> really isn’t that
+big of a deal, but there are some gotchas for wider usage, which we’ll
+talk about there.</p>
+<p>Though we saw the fee in the <code>fundrawtransaction</code> output,
+it’s not visible here. However, you can verify it with the
+<code>txfee-calc.sh</code> JQ script created in the <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/04_2__Interlude_Using_JQ.md">JQ
+Interlude</a>:</p>
+<pre><code>$ ~/txfee-calc.sh $rawtxhex3
+.000222</code></pre>
+<p>Finally, you can use <code>getaddressinfo</code> to see that the
+generated change address really belongs to you:</p>
+<pre><code>$ bitcoin-cli -named getaddressinfo address=tb1q57p0f3hpuad9kf8n6e6adugmt6lnkg2zzr592r
+{
+  &quot;address&quot;: &quot;tb1q57p0f3hpuad9kf8n6e6adugmt6lnkg2zzr592r&quot;,
+  &quot;scriptPubKey&quot;: &quot;0014a782f4c6e1e75a5b24f3d675d6f11b5ebf3b2142&quot;,
+  &quot;ismine&quot;: true,
+  &quot;solvable&quot;: true,
+  &quot;desc&quot;: &quot;wpkh([d6043800/0&#39;/1&#39;/10&#39;]038a2702938e548eaec28feb92c7e4722042cfd1ea16bec9fc274640dc5be05ec5)#zpv26nar&quot;,
+  &quot;iswatchonly&quot;: false,
+  &quot;isscript&quot;: false,
+  &quot;iswitness&quot;: true,
+  &quot;witness_version&quot;: 0,
+  &quot;witness_program&quot;: &quot;a782f4c6e1e75a5b24f3d675d6f11b5ebf3b2142&quot;,
+  &quot;pubkey&quot;: &quot;038a2702938e548eaec28feb92c7e4722042cfd1ea16bec9fc274640dc5be05ec5&quot;,
+  &quot;ischange&quot;: true,
+  &quot;timestamp&quot;: 1592335137,
+  &quot;hdkeypath&quot;: &quot;m/0&#39;/1&#39;/10&#39;&quot;,
+  &quot;hdseedid&quot;: &quot;fdea8e2630f00d29a9d6ff2af7bf5b358d061078&quot;,
+  &quot;hdmasterfingerprint&quot;: &quot;d6043800&quot;,
+  &quot;labels&quot;: [
+  ]
+}</code></pre>
+<p>Note the <code>ismine</code> results.</p>
+<h2 id="send-your-funded-transaction">Send Your Funded Transaction</h2>
+<p>At this point you can sign and send the transaction as usual.</p>
+<pre><code>$ signedtx3=$(bitcoin-cli -named signrawtransactionwithwallet hexstring=$rawtxhex3 | jq -r &#39;.hex&#39;)
+$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx3
+8b9dd66c999966462a3d88d6ac9405d09e2aa409c0aa830bdd08dbcbd34a36fa</code></pre>
+<p>In several minutes, you’ll have your change back:</p>
+<pre><code>$ bitcoin-cli listunspent
+[
+  {
+    &quot;txid&quot;: &quot;8b9dd66c999966462a3d88d6ac9405d09e2aa409c0aa830bdd08dbcbd34a36fa&quot;,
+    &quot;vout&quot;: 1,
+    &quot;address&quot;: &quot;tb1q57p0f3hpuad9kf8n6e6adugmt6lnkg2zzr592r&quot;,
+    &quot;scriptPubKey&quot;: &quot;0014a782f4c6e1e75a5b24f3d675d6f11b5ebf3b2142&quot;,
+    &quot;amount&quot;: 0.00007800,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;wpkh([d6043800/0&#39;/1&#39;/10&#39;]038a2702938e548eaec28feb92c7e4722042cfd1ea16bec9fc274640dc5be05ec5)#zpv26nar&quot;,
+    &quot;safe&quot;: true
+  }
+]</code></pre>
+<h2 id="summary-sending-coins-with-automated-raw-transactions">Summary:
+Sending Coins with Automated Raw Transactions</h2>
+<p>If you must send funds with raw transactions then
+<code>fundrawtransaction</code> gives you a nice alternative where fees,
+inputs, and outputs are calculated for you, so you don’t accidentally
+lose a bunch of money.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of sending coins with automated
+raw transactions?</em></strong></p>
+</blockquote>
+<blockquote>
+<p><em>The advantages.</em> It provides a nice balance. If you’re
+sending funds by hand and <code>sendtoaddress</code> doesn’t offer
+enough control for whatever reason, you can get some of the advantages
+of raw transactions without the dangers. This methodology should be used
+whenever possible if you’re sending raw transactions by hand.</p>
+</blockquote>
+<blockquote>
+<p><em>The disadvantages.</em> It’s a hodge-podge. Though there are a
+few additional options for the <code>fundrawtransaction</code> command
+that weren’t mentioned here, your control is still limited. You’d
+probably never want to use this method if you were writing a program
+where the whole goal is to know exactly what’s going on.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Complete your “Sending of Bitcoin Transactions” with <a
+href="04_6_Creating_a_Segwit_Transaction.md">§4.6: Creating a Segwit
+Transaction</a>.</p>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>TODO-30</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="todo-list-for-v3.0-of-learning-bitcoin">Todo List for v3.0 of
+Learning Bitcoin</h1>
+<p>The following TODO items are intended for a 3.0 version of Learning
+Bitcoin from the Command Line</p>
+<h2 id="medium-scale-updates">Medium-Scale Updates</h2>
+<p>The following updates involve updates or the creation of new
+chapters, but their additions are generally bounded and known.</p>
+<ol type="1">
+<li>General Update: Consider replacing testnet with signet</li>
+<li>New Interlude: Creating QR Codes (after 3.3)
+<ul>
+<li>New Subsection: Creating a QR</li>
+<li>New Subsection: Creating a Quick Connect QR</li>
+</ul></li>
+<li>Revise Section: Understanding the Descriptor (3.5)
+<ul>
+<li>New Content: Descriptor Wallets</li>
+<li>New Content: Complex Descriptors</li>
+<li>Consider: Breaking into Two Sections</li>
+</ul></li>
+<li>New Interlude: Creating Animated QR Codes (after 7.1)
+<ul>
+<li>New Subsection: Understanding Uniform Resources</li>
+<li>New Subsection: Creating an Animated QR</li>
+<li>New Subsection: Creating an Animated QR of a PSBT</li>
+</ul></li>
+<li>New Chapter: Using Other Command-Line Tools (between 8+9)
+<ul>
+<li>9.1: Using seedtool</li>
+<li>9.2: Using keytool</li>
+<li>9.3: Using bytewords-cli</li>
+</ul></li>
+<li>Revise Section: Understanding Timelock Options (11.1)
+<ul>
+<li>Explanation: Better distinguish differences</li>
+<li>Reference: consider chart at in
+https://prestwi.ch/bitcoin-time-locks/</li>
+</ul></li>
+<li>New Chapter: Using Miniscript Command-Line Tools (between 13+14)
+<ul>
+<li>15.1: Using miniscript</li>
+<li>15.2: Using Bitcoin Dev Kit (BDK)</li>
+<li>15.3: Planning for the Future</li>
+</ul></li>
+<li>New Content: Expand the PSBT Libwally Content (17.4) into Two
+Sections
+<ul>
+<li>17.4: Signing PSBTs in Libwally
+<ul>
+<li>Explanation: Contains the current info on importing a PSBT, and
+shows how to sign it</li>
+</ul></li>
+<li>17.5: Creating PSBTs in Libwally
+<ul>
+<li>Explanation: Contains the current info on creating a PSBT, and shows
+how to export it</li>
+</ul></li>
+</ul></li>
+<li>New Chapter: Talking to Bitcoind with Swift (between 17+18)
+<ul>
+<li>19.1: Accessing Bitcoind with Swift (existing section)</li>
+<li>19.2: Using Swift with Bitcoin Lib [Wolf’s library]</li>
+<li>19.3: Using Swift with Libwally [Wolf’s shim]</li>
+</ul></li>
+</ol>
+<h2 id="large-scale-updates">Large-Scale Updates</h2>
+<p>The following updates involve the large-scale work done on Schnorr
+and Taproot in Bitcoin Core 0.21 and 22. This represents a first cut at
+how to layout the work, but revision and expansion will likely be needed
+as everyone’s understanding of these new technologies matures.</p>
+<p><strong>Chapter X: Expanding Bitcoin Transactions with
+Schnorr</strong> (probably between chapters 6+7)</p>
+<ul>
+<li>New Section X.1: Understanding Schnorr Signatures
+<ul>
+<li>New Subsection: Understanding the Math of Schnorr
+<ul>
+<li>Explanation: Add + subtract for one signature</li>
+</ul></li>
+<li>New Subsection: Supporting MuSig</li>
+<li>New Subsection: Understanding the Use of Adapter Signatures</li>
+<li>New Subsection: Knowing the Advantages of Schnorr
+<ul>
+<li>Explanation: size, 64 bytes vs 72, better for multisigs</li>
+<li>Explanation: speed, linear, validate a million-sig multisig in 2
+minutes</li>
+<li>Explanation: privacy, no difference between MuSig and sig, no
+detection of Lightning</li>
+<li>Explanation: also better security, non-malleability</li>
+<li>Reference:
+https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki</li>
+</ul></li>
+</ul></li>
+<li>New Section X.2: Using Schnorr Signatures
+<ul>
+<li>New Subsection: Signing with Schnorr</li>
+<li>New Subsection: Adding a Schnorr Signature</li>
+<li>New Subsection: Reading a Schnorr Signature</li>
+<li>New Subsection: Using Schnorr with Taproot<br />
+</li>
+</ul></li>
+<li>Update Chapter 6 (Multisigs) to Integrate with Schnorr</li>
+</ul>
+<p><strong>Chapter Y: Improving Bitcoin Scripts with Taproot</strong>
+(probably between chapters 13+14, possibly expanding to two
+chapters)</p>
+<ul>
+<li>New Section Y.1: Understanding MAST
+<ul>
+<li>New Subsection: Improving Privacy with MAST</li>
+<li>New Subsection: Laying out a Script in MAST</li>
+<li>New Subsection: Knowing the Advantages of MAST
+<ul>
+<li>Explanation: larger scripts</li>
+<li>Explanation: hidden branches of scripts</li>
+<li>Explanation: fungibility</li>
+<li>https://github.com/bitcoin/bips/blob/master/bip-0114.mediawiki</li>
+</ul></li>
+</ul></li>
+<li>New Section Y.2: Understanding Taproot
+<ul>
+<li>New Subsection: Integrating MAST with Taproot
+<ul>
+<li>Explanation: Expanding Segwit</li>
+<li>Explanation: Integrating Schnorr Signatures</li>
+</ul></li>
+<li>New Subsection: KNowing the Advantages of Taproot
+<ul>
+<li>Explanation: even more privacy; scripts and other addresses are
+indistinbuishable</li>
+<li>Reference:
+https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki</li>
+<li>Reference:
+https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki</li>
+</ul></li>
+</ul></li>
+<li>New Subsection Y.3: Creating a Taproot Script
+<ul>
+<li>New Subsection: Defining a Taproot Script
+<ul>
+<li>Explanation: Segwit v1, 32-byte program, not P2SH wrapped, leaf
+version is 0xc0</li>
+</ul></li>
+<li>New Codes: OP_CHECKSIGADD and OP_SUCCESS</li>
+<li>Cut Codes: OP_CHECKMULTISIG and OP_CHECKMULTISIGVERIFY</li>
+<li>Reference:
+https://twitter.com/pwuille/status/1459778730369368067</li>
+</ul></li>
+<li>New Subsection Y.4: Importing a tr Desciptor</li>
+<li>New Subsection Y.5: Using Taproot in Practice
+<ul>
+<li>New Subsection: Making a Taproot Payment</li>
+<li>New Subsection: Validating a Taproot Script</li>
+</ul></li>
+<li>Update Chapter 9 to Integrate with Taproot
+<ul>
+<li>Mention Taproot in 9.1 or 9.2</li>
+<li>Add New Section 9.6: Scripting a P2TR (mostly a pointer to Chapter
+Y)</li>
+</ul></li>
+</ul>
+<h2 id="further-updates">Further Updates</h2>
+<p>The following updates could be part of v3.0 or could be further
+future, depending on interest and funding.</p>
+<ol type="1">
+<li>New Graphics: Animated GIFs for key demos.
+<ul>
+<li>Reference: https://github.com/faressoft/terminalizer</li>
+</ul></li>
+<li>New Chapter: Talking to Lightningd with C (after chapter 20)
+<ul>
+<li>22.1: Creating a Lightning Channel with C</li>
+<li>22.2: Creating a Payment Request with C</li>
+<li>22.3: Paying an Invoice with C</li>
+<li>22.4: Closing a Lightning Channel with C
+<ul>
+<li>Alternatives: Consider Swift instead of C, depending on Lightning
+support</li>
+<li>Reference:
+https://diyhpl.us/wiki/transcripts/blockstream-webinars/2019-07-31-rusty-russell-getting-started-with-c-lightning/</li>
+<li>Reference:
+https://twitter.com/roasbeef/status/1389649064753471488_</li>
+</ul></li>
+</ul></li>
+</ol>
+</body>
+</html>

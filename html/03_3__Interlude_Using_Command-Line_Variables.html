@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>03_3__Interlude_Using_Command-Line_Variables</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="interlude-using-command-line-variables">Interlude: Using
+Command-Line Variables</h1>
+<p>The previous section demonstrated a number of command-line commands
+used without obfuscation or interference. However, that’s often not the
+best way to run Bitcoin from the command line. Because you’re dealing
+with long, complex, and unreadable variables, it’s easy to make a
+mistake if you’re copying those variables around (or, satoshi forfend,
+if you’re typing them in by hand). Because those variables can mean the
+difference between receiving and losing real money, you don’t
+<em>want</em> to make mistakes. For these reasons, we strongly suggest
+using command-line variables to save addresses, signatures, or other
+long strings of information whenever it’s reasonable to do so.</p>
+<p>If you’re using <code>bash</code>, you can save information to a
+variable like this:</p>
+<pre><code>$ VARIABLE=$(command)</code></pre>
+<p>That’s a simple command substitution, the equivalent to
+<code>VARIABLE=`command`</code>. The command inside the parentheses is
+run, then assigned to the VARIABLE.</p>
+<p>To create a new address would then look like this:</p>
+<pre><code>$ unset NEW_ADDRESS_1
+$ NEW_ADDRESS_1=$(bitcoin-cli getnewaddress &quot;&quot; legacy)</code></pre>
+<p>These commands clear the NEW_ADDRESS_1 variable, just to be sure,
+then fill it with the results of the
+<code>bitcoin-cli getnewaddress</code> command.</p>
+<p>You can then use your shell’s <code>echo</code> command to look at
+your (new) address:</p>
+<pre><code>$ echo $NEW_ADDRESS_1
+mi25UrzHnvn3bpEfFCNqJhPWJn5b77a5NE</code></pre>
+<p>Because you have your address in a variable, you can now easily sign
+a message for that address, without worrying about mistyping the
+address. You’ll of course save that signature into a variable too!</p>
+<pre><code>$ NEW_SIG_1=$(bitcoin-cli signmessage $NEW_ADDRESS_1 &quot;Hello, World&quot;)
+$ echo $NEW_SIG_1
+IPYIzgj+Rg4bxDwCyoPiFiNNcxWHYxgVcklhmN8aB2XRRJqV731Xu9XkfZ6oxj+QGCRmTe80X81EpXtmGUpXOM4=</code></pre>
+<p>The rest of this tutorial will use this style of saving information
+to variables when it’s practical.</p>
+<blockquote>
+<p>:book: <strong><em>When is it not practical to use command-line
+variables?</em></strong> Command-line variables aren’t practical if you
+need to use the information somewhere other than on the command line.
+For example, saving your signature may not actually be useful if you’re
+just going to have to send it to someone else in an email. In addition,
+some future commands will output JSON objects instead of simple
+information, and variables can’t be used to capture that information …
+at least not without a <em>little</em> more work.</p>
+</blockquote>
+<h2 id="summary-using-command-line-variables">Summary: Using
+Command-Line Variables</h2>
+<p>Shell variables can be used to hold long Bitcoin strings, minimizing
+the chances of mistakes.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Understanding Your Bitcoin Setup” with <a
+href="03_4_Receiving_a_Transaction.md">§3.4: Receiving a
+Transaction</a>.</p>
+</body>
+</html>

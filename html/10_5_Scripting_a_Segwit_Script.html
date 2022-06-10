@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>10_5_Scripting_a_Segwit_Script</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="scripting-a-segwit-script">10.5: Scripting a Segwit Script</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>Segwit introduced a number of new options for address (and thus
+scripting) types. <a href="09_5_Scripting_a_P2WPKH.md">§9.5: Scripting a
+P2WPKH</a> explained how the new Bech32 address type varied the standard
+scripts found in most traditional transactions. This chapter looks at
+the three other sorts of scripts introduced by the Segwit upgrade: the
+P2SH-Segwit (which was the transitional “nested Segwit” address, as
+Segwit came into usage), the P2WSH (which is the Segwit equivalent of
+the P2SH address, just like P2WPKH is the Segwit equivalent of the P2PKH
+address), and the nested P2WSH address.</p>
+<p>This is another situation where you won’t really have to worry about
+these nuances while working with <code>bitcoin-cli</code>, but it’s
+useful to know how it all works.</p>
+<h2 id="understand-a-p2sh-segwit-script">Understand a P2SH-Segwit
+Script</h2>
+<p>The P2SH-Segwit address is a dying breed. It was basically a stopgap
+measure while Bitcoin was transitioning to Segwit that allowed a user to
+create a Segwit address and then have someone with a non-Segwit-enabled
+exchange or wallet fund that address.</p>
+<p>If you ever need to use one, there’s an option to create a
+P2SH-Segwit address using <code>getnewaddress</code>:</p>
+<pre><code>$ bitcoin-cli getnewaddress -addresstype p2sh-segwit
+2NEzBvokxh4ME4ahdT18NuSSoYvvhS7EnMU</code></pre>
+<p>The address starts with a <code>2</code> (or a <code>3</code>)
+revealing it as a script</p>
+<blockquote>
+<p>:book: <strong><em>Why can’t old nodes send to native Segwit
+addresses?</em></strong> <a
+href="10_1_Understanding_the_Foundation_of_P2SH.md">§10.1</a> noted that
+there were a set number of “standard” Bitcoin transactions. You can’t
+actually lock a transaction with a script that isn’t one of those
+standard types. Segwit is now recognized as one of those standards, but
+an old node won’t know that, and so it will refuse to send on such a
+transaction for the protection of the sender. Wrapping a Segwit address
+inside a standard script hash resolves the problem.</p>
+</blockquote>
+<p>When you look at a UTXO sent to that address, you can see the
+<code>desc</code> is different, revealing a WPKH address wrapped in a
+script:</p>
+<pre><code>$ bitcoin-cli listunspent
+  {
+    &quot;txid&quot;: &quot;ed752673bfd4338ccf0995983086da846ad652ae0f28280baf87f9fd44b3c45f&quot;,
+    &quot;vout&quot;: 1,
+    &quot;address&quot;: &quot;2NEzBvokxh4ME4ahdT18NuSSoYvvhS7EnMU&quot;,
+    &quot;redeemScript&quot;: &quot;001443ab2a09a1a5f2feb6c799b5ab345069a96e1a0a&quot;,
+    &quot;scriptPubKey&quot;: &quot;a914ee7aceea0865a05a29a28d379cf438ac5b6cd9c687&quot;,
+    &quot;amount&quot;: 0.00095000,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;sh(wpkh([f004311c/0&#39;/0&#39;/3&#39;]03bb469e961e9a9cd4c23db8442d640d9b0b11702dc0126462ac9eb88b64a4dd48))#p29e839h&quot;,
+    &quot;safe&quot;: true
+  }</code></pre>
+<p>More importantly, there’s a <code>redeemScript</code>, which decodes
+to
+<code>OP_0 OP_PUSHDATA (20 bytes) 3ab2a09a1a5f2feb6c799b5ab345069a96e1a0a</code>.
+This should look familiar, because it’s an <code>OP_0</code> followed by
+20-byte hexcode of a public key hash. In other words, a P2SH-SegWit is
+just a SegWit <code>scriptPubKey</code> jammed into a script. That’s all
+there is to it. It precisely matches how modern multisigs are a multsig
+placed inside a P2SH, as discussed in <a
+href="10_4_Scripting_a_Multisig.md">§10.4: Scripting a Multisig</a>.</p>
+<p>Conversely, when we spend this transaction, it looks exactly like a
+P2SH:</p>
+<pre><code>$ bitcoin-cli getrawtransaction ed752673bfd4338ccf0995983086da846ad652ae0f28280baf87f9fd44b3c45f 1
+{
+  &quot;txid&quot;: &quot;ed752673bfd4338ccf0995983086da846ad652ae0f28280baf87f9fd44b3c45f&quot;,
+  &quot;hash&quot;: &quot;aa4b1c2bde86ea446c9a9db2f77e27421316f26a8d88869f5b195f03b1ac4f23&quot;,
+  &quot;version&quot;: 2,
+  &quot;size&quot;: 247,
+  &quot;vsize&quot;: 166,
+  &quot;weight&quot;: 661,
+  &quot;locktime&quot;: 1781316,
+  &quot;vin&quot;: [
+    {
+      &quot;txid&quot;: &quot;59178b02cfcbdee51742a4b2658df35b63b51115a53cf802bc6674fd94fa593a&quot;,
+      &quot;vout&quot;: 1,
+      &quot;scriptSig&quot;: {
+        &quot;asm&quot;: &quot;00149ef51fb1f5adb44e20eff758d34ae64fa781fa4f&quot;,
+        &quot;hex&quot;: &quot;1600149ef51fb1f5adb44e20eff758d34ae64fa781fa4f&quot;
+      },
+      &quot;txinwitness&quot;: [
+        &quot;3044022069a23fcfc421b44c622d93b7639a2152f941dbfd031970b8cef69e6f8e97bd46022026cb801f38a1313cf32a8685749546a5825b1c332ee4409db82f9dc85d99086401&quot;,
+        &quot;030aec1384ae0ef264718b8efc1ef4318c513403d849ea8466ef2e4acb3c5ccce6&quot;
+      ],
+      &quot;sequence&quot;: 4294967294
+    }
+  ],
+  &quot;vout&quot;: [
+    {
+      &quot;value&quot;: 8.49029534,
+      &quot;n&quot;: 0,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;OP_HASH160 b4b656f4c4b14ee0d098299d1d6eb42d2e22adcd OP_EQUAL&quot;,
+        &quot;hex&quot;: &quot;a914b4b656f4c4b14ee0d098299d1d6eb42d2e22adcd87&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;scripthash&quot;,
+        &quot;addresses&quot;: [
+          &quot;2N9ik3zihJ91VGNF55sZFe9GiCAXh2cVKKW&quot;
+        ]
+      }
+    },
+    {
+      &quot;value&quot;: 0.00095000,
+      &quot;n&quot;: 1,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;OP_HASH160 ee7aceea0865a05a29a28d379cf438ac5b6cd9c6 OP_EQUAL&quot;,
+        &quot;hex&quot;: &quot;a914ee7aceea0865a05a29a28d379cf438ac5b6cd9c687&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;scripthash&quot;,
+        &quot;addresses&quot;: [
+          &quot;2NEzBvokxh4ME4ahdT18NuSSoYvvhS7EnMU&quot;
+        ]
+      }
+    }
+  ],
+  &quot;hex&quot;: &quot;020000000001013a59fa94fd7466bc02f83ca51511b5635bf38d65b2a44217e5decbcf028b175901000000171600149ef51fb1f5adb44e20eff758d34ae64fa781fa4ffeffffff029e299b320000000017a914b4b656f4c4b14ee0d098299d1d6eb42d2e22adcd87187301000000000017a914ee7aceea0865a05a29a28d379cf438ac5b6cd9c68702473044022069a23fcfc421b44c622d93b7639a2152f941dbfd031970b8cef69e6f8e97bd46022026cb801f38a1313cf32a8685749546a5825b1c332ee4409db82f9dc85d9908640121030aec1384ae0ef264718b8efc1ef4318c513403d849ea8466ef2e4acb3c5ccce6442e1b00&quot;,
+  &quot;blockhash&quot;: &quot;0000000069cbe44925fab2d472870608c7e1e241a1590fd78be10c63388ed6ee&quot;,
+  &quot;confirmations&quot;: 282952,
+  &quot;time&quot;: 1595360859,
+  &quot;blocktime&quot;: 1595360859
+}</code></pre>
+<p>Each <code>vout</code> is of the form
+<code>OP_HASH160 &lt;HASH&gt; OP_EQUAL</code>. That’s a normal P2SH per
+<a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/82ca897286aac612804ae849b260750229fa3a52/10_2_Building_the_Structure_of_P2SH.md">§10.2</a>,
+which means that it’s only when the redeem script is run that the magic
+occurs. Just as with a P2WPKH, an old node wil see
+<code>OP_0 OP_PUSHDATA (20 bytes) 3ab2a09a1a5f2feb6c799b5ab345069a96e1a0a</code>
+in the redeem script and verify it automatically, while a new node will
+see that, know it’s a P2WPKH, and so go out to the
+<code>witnesses</code>. See <a href="09_5_Scripting_a_P2WPKH.md">§9.5:
+Scripting a P2WPKH</a>.</p>
+<blockquote>
+<p>:book: <strong><em>What are the disadvantages of nested Segwit
+transactions?</em></strong> They’re bigger than native Segwit
+transactions, so you get some of advantages of Segwit, but not all of
+them.</p>
+</blockquote>
+<h2 id="understand-a-p2wsh-script">Understand a P2WSH Script</h2>
+<p>Contrariwise, the P2WSH transactions should be ever-increasing in
+usage, since they’re the native Segwit replacement for P2SH, offering
+all the same advantages of blocksize that were created with native
+Segwit P2WPKH transactions.</p>
+<p>This is example of P2WSH address: <a
+href="https://blockstream.info/testnet/address/tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7">https://blockstream.info/testnet/address/tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7</a></p>
+<p>The details show that a UTXO sent to this address is locked with a
+<code>scriptPubKey</code> like this:</p>
+<pre><code>OP_0 OP_PUSHDATA (32 bytes) 1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262</code></pre>
+<p>This works just like a P2WPKH address, the only difference being that
+instead of a 20-byte public-key-hash, the UTXO includes a 32-byte
+script-hash. Just as with a P2WPKH, old nodes just verify this, while
+new nodes recognize this is a P2WSH and so internally verify the script
+as described in previous sections, but using the <code>witness</code>
+data, which now includes the redeem script.</p>
+<p>There is also one more variant, a P2WSH script embedded in a P2SH
+script, which works much like the P2SH-Segwit described above, but for
+nested P2WSH scripts. (Whew!)</p>
+<h2 id="summary-scripting-a-segwit-script">Summary: Scripting a Segwit
+Script</h2>
+<p>There are two sorts of P2SH scripts that relate to Segwit.</p>
+<p>The P2SH-Segwit address is a nested Segwit address that embed the
+simple Segwit <code>scriptPubkey</code> inside a Script, just like
+multisigs are embedded in scripts nowadays: the Segwit-style key is
+unwound, and then parsed like normal on a machine that understands
+Segwit. The purpose is backward compatibility to old nodes that might
+not otherwise be able to send to native Segwit addresses.</p>
+<p>The P2WSH address is a Segwit variant of P2SH, just as P2WPKH is a
+Segwit variant of P2WSH. It works with the same logic, and is identified
+by having a 32-byte hash instead of a 20-byte hash. The purpose is to
+extend the advantages of Segwit to other sorts of scripts.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Embedding Bitcoin Scripts” with <a
+href="10_6_Spending_a_P2SH_Transaction.md">§10.6: Spending a P2SH
+Transaction</a>.</p>
+</body>
+</html>

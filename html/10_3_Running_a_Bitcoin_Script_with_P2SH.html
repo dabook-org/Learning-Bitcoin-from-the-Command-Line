@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>10_3_Running_a_Bitcoin_Script_with_P2SH</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="running-a-bitcoin-script-with-p2sh">10.3: Running a Bitcoin
+Script with P2SH</h1>
+<p>Now that you know the theory and practice behind P2SH addresses,
+you’re ready to turn a non-standard Bitcoin Script into an actual
+transaction. We’ll be reusing the simple locking script from <a
+href="09_2_Running_a_Bitcoin_Script.md">§9.2: Running a Bitcoin
+Script</a>, <code>OP_ADD 99 OP_EQUAL</code>.</p>
+<h2 id="create-a-p2sh-transaction">Create a P2SH Transaction</h2>
+<p>To lock a transaction with this Script, do the following:</p>
+<ol type="1">
+<li>Serialize <code>OP_ADD 99 OP_EQUAL</code>:
+<ol type="1">
+<li>OP_ADD = 0x93 — a simple opcode translation</li>
+<li>99 = 0x01, 0x63 — this opcode pushes one byte onto the stack, 99
+(hex: 0x63)
+<ul>
+<li>No worries about endian conversion because it’s only one byte</li>
+</ul></li>
+<li>OP_EQUAL = 0x87 — a simple opcode translation</li>
+<li><code>&lt;serialized99Equal&gt;</code> = “93016387”</li>
+</ol></li>
+</ol>
+<pre><code>$ btcc OP_ADD 99 OP_EQUAL
+93016387</code></pre>
+<ol start="2" type="1">
+<li>Save <code>&lt;serialized99Equal&gt;</code> for future reference as
+the <code>redeemScript</code>.
+<ol type="1">
+<li><code>&lt;redeemScript&gt;</code> = “93016387”</li>
+</ol></li>
+<li>SHA-256 and RIPEMD-160 hash the serialized script.
+<ol type="1">
+<li><code>&lt;hashed99Equal&gt;</code> =
+“3f58b4f7b14847a9083694b9b3b52a4cea2569ed”</li>
+</ol></li>
+<li>Produce a P2SH locking script that includes the
+<code>&lt;hashed99Equal&gt;</code>.
+<ol type="1">
+<li><code>scriptPubKey</code> =
+“a9143f58b4f7b14847a9083694b9b3b52a4cea2569ed87”</li>
+</ol></li>
+</ol>
+<p>You can then create a transaction using this
+<code>scriptPubKey</code>, probably via an API.</p>
+<h2 id="unlock-the-p2sh-transaction">Unlock the P2SH Transaction</h2>
+<p>To unlock this transaction requires that the recipient produce a
+<code>scriptSig</code> that prepends two constants totalling ninety-nine
+to the serialized script:
+<code>1 98 &lt;serialized99Equal&gt;</code>.</p>
+<h3 id="run-the-first-round-of-validation">Run the First Round of
+Validation</h3>
+<p>The process of unlocking the P2SH transaction then begins with a
+first round of validation, which checks that the redeem script matches
+the hashed value in the locking script.</p>
+<p>Concatenate <code>scriptSig</code> and <code>scriptPubKey</code> and
+execute them, as normal:</p>
+<pre><code>Script: 1 98 &lt;serialized99Equal&gt; OP_HASH160 &lt;hashed99Equal&gt; OP_EQUAL
+Stack: []
+
+Script: 98 &lt;serialized99Equal&gt; OP_HASH160 &lt;hashed99Equal&gt; OP_EQUAL
+Stack: [ 1 ]
+
+Script: &lt;serialized99Equal&gt; OP_HASH160 &lt;hashed99Equal&gt; OP_EQUAL
+Stack: [ 1 98 ]
+
+Script: OP_HASH160 &lt;hashed99Equal&gt; OP_EQUAL
+Stack: [ 1 98 &lt;serialized99Equal&gt; ]
+
+Script: &lt;hashed99Equal&gt; OP_EQUAL
+Running: &lt;serialized99Equal&gt; OP_HASH160
+Stack: [ 1 98 &lt;hashed99Equal&gt; ]
+
+Script: OP_EQUAL
+Stack: [ 1 98 &lt;hashed99Equal&gt; &lt;hashed99Equal&gt; ]
+
+Script: 
+Running: &lt;hashed99Equal&gt; &lt;hashed99Equal&gt; OP_EQUAL
+Stack: [ 1 98 True ]</code></pre>
+<p>The Script ends with a <code>True</code> on top of the stack, and so
+it succeeds … even though there’s other cruft below it.</p>
+<p>However, because this was a P2SH script, the execution isn’t
+done.</p>
+<h3 id="run-the-second-round-of-validation">Run the Second Round of
+Validation</h3>
+<p>For the second round of validation, verify that the values in the
+unlocking script satisfy the <code>redeemScript</code>: deserialize the
+<code>redeemScript</code> (“93016387” = “OP_ADD 99 OP_EQUAL”), then
+execute it using the items in the <code>scriptSig</code> prior to the
+serialized script:</p>
+<pre><code>Script: 1 98 OP_ADD 99 OP_EQUAL
+Stack: [ ]
+
+Script: 98 OP_ADD 99 OP_EQUAL
+Stack: [ 1 ]
+
+Script: OP_ADD 99 OP_EQUAL
+Stack: [ 1 98 ]
+
+Script: 99 OP_EQUAL
+Running: 1 98 OP_ADD
+Stack: [ 99 ]
+
+Script: OP_EQUAL
+Stack: [ 99 99 ]
+
+Script: 
+Running: 99 99 OP_EQUAL
+Stack: [ True ]</code></pre>
+<p>With that second validation <em>also</em> true, the UTXO can now be
+spent!</p>
+<h2 id="summary-building-a-bitcoin-script-with-p2sh">Summary: Building a
+Bitcoin Script with P2SH</h2>
+<p>Once you know the technique of building P2SHes, any Script can be
+embedded in a Bitcoin transaction; and once you understand the technique
+of validating P2SHes, it’s easy to run the scripts in two rounds.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Embedding Bitcoin Scripts” with <a
+href="10_4_Scripting_a_Multisig.md">§10.4: Scripting a Multisig</a>.</p>
+</body>
+</html>

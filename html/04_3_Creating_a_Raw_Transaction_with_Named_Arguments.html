@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_3_Creating_a_Raw_Transaction_with_Named_Arguments</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="creating-a-raw-transaction-with-named-arguments">4.3 Creating a
+Raw Transaction with Named Arguments</h1>
+<p>It can sometimes be daunting to figure out the right order for the
+arguments to a bitcoin-cli command. Fortunately, you can use <em>named
+arguments</em> as an alternative.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> This is an innovation
+from Bitcoin Core v 0.14.0. If you used our setup scripts, that’s what
+you should have, but double-check your version if you have any problems.
+There is also a bug in the <code>createrawtransaction</code> command’s
+use of named arguments that will presumably be fixed in 0.14.1.</p>
+</blockquote>
+<h2 id="create-a-named-argument-alias">Create a Named Argument
+Alias</h2>
+<p>To use a named argument you must run <code>bitcoin-cli</code> with
+the <code>-named</code> argument. If you plan to do this regularly,
+you’ll probably want to create an alias:</p>
+<pre><code>alias bitcoin-cli=&quot;bitcoin-cli -named&quot;</code></pre>
+<p>As usual, that’s for your ease of use, but we’ll continue using the
+whole commands to maintain clarity.</p>
+<h2 id="test-out-a-named-argument">Test Out a Named Argument</h2>
+<p>To learn what the names are for the arguments of a command, consult
+<code>bitcoin-cli help</code>. It will list the arguments in their
+proper order, but will now also give names for each of them.</p>
+<p>For example, <code>bitcoin-cli help getbalance</code> lists these
+arguments:</p>
+<ol type="1">
+<li>dummy [used to be account]</li>
+<li>minconf</li>
+<li>include_watchonly</li>
+<li>avoid_reuse</li>
+</ol>
+<p>The following shows a traditional, unintuitive usage of
+<code>getbalance</code> using the minimum confirmation argument:</p>
+<pre><code>$ bitcoin-cli getbalance &quot;*&quot; 1</code></pre>
+<p>With named arguments, you can clarify what you’re doing, which also
+minimizes mistakes:</p>
+<pre><code>$ bitcoin-cli -named getbalance minconf=1</code></pre>
+<h2 id="test-out-a-raw-transaction">Test Out a Raw Transaction</h2>
+<p>Here’s what the commands for sending a raw transaction would look
+like with named arguments:</p>
+<pre><code>$ utxo_txid=$(bitcoin-cli listunspent | jq -r &#39;.[0] | .txid&#39;) 
+$ utxo_vout=$(bitcoin-cli listunspent | jq -r &#39;.[0] | .vout&#39;)
+$ recipient=&quot;n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi&quot;
+
+$ rawtxhex=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.00001 }&#39;&#39;&#39;)
+$ bitcoin-cli -named decoderawtransaction hexstring=$rawtxhex 
+{
+  &quot;txid&quot;: &quot;2b59c31bc232c0399acee4c2a381b564b6fec295c21044fbcbb899ffa56c3da5&quot;,
+  &quot;hash&quot;: &quot;2b59c31bc232c0399acee4c2a381b564b6fec295c21044fbcbb899ffa56c3da5&quot;,
+  &quot;version&quot;: 2,
+  &quot;size&quot;: 85,
+  &quot;vsize&quot;: 85,
+  &quot;weight&quot;: 340,
+  &quot;locktime&quot;: 0,
+  &quot;vin&quot;: [
+    {
+      &quot;txid&quot;: &quot;ca4898d8f950df03d6bfaa00578bd0305d041d24788b630d0c4a32debcac9f36&quot;,
+      &quot;vout&quot;: 0,
+      &quot;scriptSig&quot;: {
+        &quot;asm&quot;: &quot;&quot;,
+        &quot;hex&quot;: &quot;&quot;
+      },
+      &quot;sequence&quot;: 4294967295
+    }
+  ],
+  &quot;vout&quot;: [
+    {
+      &quot;value&quot;: 0.00001000,
+      &quot;n&quot;: 0,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;OP_DUP OP_HASH160 e7c1345fc8f87c68170b3aa798a956c2fe6a9eff OP_EQUALVERIFY OP_CHECKSIG&quot;,
+        &quot;hex&quot;: &quot;76a914e7c1345fc8f87c68170b3aa798a956c2fe6a9eff88ac&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;pubkeyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi&quot;
+        ]
+      }
+    }
+  ]
+}
+
+$ signedtx=$(bitcoin-cli -named signrawtransactionwithwallet hexstring=$rawtxhex | jq -r &#39;.hex&#39;)
+$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx
+e70dd2aa13422d12c222481c17ca21a57071f92ff86bdcffd7eaca71772ba172</code></pre>
+<p>Voila! You’ve sent out another raw transaction, but this time using
+named arguments for clarity and to reduce errors.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> There is where the bug in
+Bitcoin Core 0.14 shows up: the ‘inputs’ argument for
+‘createrawtransaction’ is misnamed ‘transactions’. So, if you’re on
+Bitcoin Core 0.14.0, substitute the named argument ‘inputs’ with
+‘transactions’ for this and future examples. However, as of Bitcoin Core
+0.14.1, this code should work as shown.</p>
+</blockquote>
+<h2
+id="summary-creating-a-raw-transaction-with-named-arguments">Summary:
+Creating a Raw Transaction with Named Arguments</h2>
+<p>By running <code>bitcoin-cli</code> with the <code>-named</code>
+flag, you can use named arguments rather than depending on ordered
+arguments. <code>bitcoin-cli help</code> will always show you the right
+name for each argument. This can result in more robust, easier-to-read,
+less error-prone code.</p>
+<p><em>These docs will use named arguments for all future examples, for
+clarity and to establish best practices. However, it will also show all
+arguments in the correct order. So, if you prefer not to use named args,
+just strip out the ‘-named’ flag and all of the “name=”s and the
+examples should continue to work correctly.</em></p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Sending Bitcoin Transactions” with <a
+href="04_4_Sending_Coins_with_a_Raw_Transaction.md">§4.4: Sending Coins
+with Raw Transactions</a>.</p>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>A2_0_Compiling_Bitcoin_from_Source</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="appendix-ii-compiling-bitcoin-from-source">Appendix II:
+Compiling Bitcoin from Source</h1>
+<p>This course presumes that you will use a script to create a Bitcoin
+environment, either using Bitcoin Standup for Linode per <a
+href="02_1_Setting_Up_a_Bitcoin-Core_VPS_with_StackScript.md">§2.1</a>,
+or via some other means per <a
+href="02_2_Setting_Up_Bitcoin_Core_Other.md">§2.2</a>. However, you may
+prefer to compile Bitcoin by hand.</p>
+<p>This has the following benefits:</p>
+<ol type="1">
+<li>You will always be up-to-date with the latest release. Caveat: Being
+always updated is not necessary for Bitcoin Core since the software is
+always backwards compatible, meaning an old version of Bitcoin Core will
+still be able to participate in the Bitcoin network, though you may not
+have the latest features. You should always check the features of a new
+release before updating.</li>
+<li>You won’t need to depend on pre-compiled Bitcoin Core binaries. This
+requires less trust. Even though the maintainers of Bitcoin Core do a
+great job of maintaining the integrity of the code, a pre-compiled
+binary is a few steps removed from source code. When you compile from
+the source code, the code can be inspected before compilation.</li>
+<li>You can customize the build, doing things such as disabling the
+wallet or the GUI.</li>
+</ol>
+<h2 id="prepare-your-environment">Prepare your Environment</h2>
+<p>This tutorial uses Debian 10.4.kv0 OS on an amd64 architecture(64-bit
+computers), but you can use this tutorial on any Debian based system
+(e.g. Ubuntu, Mint, etc.). For other Linux systems, you can adapt the
+following steps with the package manager for that system.</p>
+<p>You can have basic or no familiarity with the command line as long as
+you have enthusiasm. The terminal is your most powerful ally, not
+something to be feared. You can simply copy and paste the following
+commands to compile bitcoin. (A command with a “$” is a normal user
+command, and one with a “#” is a super-user/root command.)</p>
+<p>If your user is not in the sudoers list then do the following:</p>
+<pre><code>$ su root
+&lt;enter root passwd&gt;
+# apt-get install sudo
+# usermod -aG sudo &lt;username&gt;
+# reboot</code></pre>
+<h2 id="install-bitcoin">Install Bitcoin</h2>
+<h3 id="step-1-update-your-system">Step 1: Update Your System</h3>
+<p>First, update the system using:</p>
+<pre><code>$ sudo apt-get update</code></pre>
+<h3 id="step-2-install-git-and-dependencies">Step 2: Install Git and
+Dependencies</h3>
+<p>Install <code>git</code>, which will allow you to download the source
+code, and <code>build-essential</code>, which compiles the code:</p>
+<pre><code>$ sudo apt-get install git build-essential -y</code></pre>
+<p>Afterward, install remaining dependencies:</p>
+<pre><code>$ sudo apt-get install libtool autotools-dev automake pkg-config bsdmainutils python3 libssl-dev libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev libzmq3-dev libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler ccache -y</code></pre>
+<h3 id="step-3-download-the-source-code">Step 3: Download the Source
+Code</h3>
+<p>Once the dependencies are installed, download the repository (repo)
+containing the Bitcoin source code from github:</p>
+<pre><code>$ git clone https://github.com/bitcoin/bitcoin.git</code></pre>
+<p>Check the contents of the repo:</p>
+<pre><code>$ ls bitcoin</code></pre>
+<p>It should approximately match the following contents:</p>
+<figure>
+<img src="./public/LBftCLI-compiling_bitcoin-git.png"
+alt="cloning the repo" />
+<figcaption aria-hidden="true">cloning the repo</figcaption>
+</figure>
+<h3 id="step-4-install-berkley-db-v4.8">Step 4: Install Berkley DB
+v4.8</h3>
+<ol type="1">
+<li>Enter <code>contrib</code> directory:
+<code>$ cd bitcoin/contrib/</code></li>
+<li>Run the following command:
+<code>$ ./install_db4.sh `pwd`</code></li>
+</ol>
+<p>Once it’s downloaded you should see the following output. Take note
+of the output, you will use it to configure bitcoin while building:</p>
+<figure>
+<img src="./public/LBftCLI-compiling_bitcoin-db4.png" alt="db4" />
+<figcaption aria-hidden="true">db4</figcaption>
+</figure>
+<h3 id="step-5-compile-bitcoin-core">Step 5: Compile Bitcoin Core</h3>
+<p>It is recommended that you compile from a tagged branch, which is
+more stable, unless you want to try the bleeding edge of bitcoin
+development. Run the following command to get the list of tags, ordered
+from the most recent:</p>
+<pre><code>$ git tag -n | sort -V</code></pre>
+<p>Then choose a tag such as <code>v0.20.0</code>:</p>
+<pre><code>$ git checkout &lt;TAG&gt;</code></pre>
+<p>Once you’ve selected a tag branch, execute the following from inside
+the <code>bitcoin</code> directory. The <code>&lt;PATH-TO&gt;</code>
+should be the output of the <code>install_db4.sh</code> script.</p>
+<pre><code>$ ./autogen.sh
+$ export BDB_PREFIX=&#39;&lt;PATH-TO&gt;/db4&#39;
+$ ./configure BDB_LIBS=&quot;-L${BDB_PREFIX}/lib -ldb_cxx-4.8&quot; BDB_CFLAGS=&quot;-I${BDB_PREFIX}/include&quot;
+$ make  # build bitcoin core</code></pre>
+<h3 id="step-6-test-the-build">Step 6: Test the Build</h3>
+<p>If you want to check your build (which is a good idea), run the
+following tests:</p>
+<ol type="1">
+<li><code>$ make check</code> will run Unit Tests, which should all
+return <code>PASS</code>.</li>
+<li><code>$ test/functional/test_runner.py --extended</code> will run
+extended functional tests. Omit <code>--extended</code> flag if you want
+to skip a few tests. This will take a while.</li>
+</ol>
+<h3 id="step-7-run-or-install-bitcoin-core">Step 7: Run or Install
+Bitcoin Core</h3>
+<p>Now that you have compiled Bitcoin Core from source, you can start
+using it or install it for global availability.</p>
+<h4 id="run-bitcoin-core-without-installing">Run Bitcoin Core without
+Installing</h4>
+<p>To just run Bitcoin Core:</p>
+<p><code>$ src/qt/bitcoin-qt</code> to launch the GUI.
+<code>$ src/bitcoind</code> to run bitcoin on the command line.</p>
+<h3 id="install-bitcoin-core">Install Bitcoin Core</h3>
+<p>To install:</p>
+<p><code>$ sudo make install</code> will install bitcoin core globally.
+Once installed you can then run bitcoin from anywhere in the command
+line, just as any other software like so: <code>$ bitcoin-qt</code> for
+the GUI or <code>bitcoind</code> and then <code>bitcoin-cli</code> for
+command line.</p>
+<h2 id="finalize-your-system">Finalize Your System</h2>
+<p>By compiling Bitcoin from source, you’ve increased the trustlessness
+of your setup. However, you’re far short of all the additional security
+provided by a Bitcoin Standup setup. To resolve this, you may want to
+walk through the entire <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup-Scripts/blob/master/Scripts/LinodeStandUp.sh">Linode
+Stackscript</a> and step-by-step run all the commands. The only place
+you need to be careful is in Step 6, which installs Bitcoin. Skip just
+past where you’ve verified your binaries, and continue from there.</p>
+<h2 id="summary-compiling-bitcoin-from-source">Summary: Compiling
+Bitcoin from Source</h2>
+<p>If you wanted the increased security of installing Bitcoin from
+source, you should now have that. Hopefully, you’ve also gone through
+the Linode Stackscript to set up a more secure server.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>If you were in the process of creating a Bitcoin node for use in this
+course, you should continue on with <a
+href="03_0_Understanding_Your_Bitcoin_Setup.md">Chapter 3: Understanding
+Your Bitcoin Setup</a>.</p>
+<p>If you are reading through the appendices, continue with <a
+href="A3_0_Using_Bitcoin_Regtest.md">Appendix III: Using Bitcoin
+Regtest</a>.</p>
+</body>
+</html>

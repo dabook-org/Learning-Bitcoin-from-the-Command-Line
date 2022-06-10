@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>README</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="learning-bitcoin-from-the-command-line-2.2.0">Learning Bitcoin
+from the Command Line 2.2.0</h1>
+<h3 id="by-christopher-allen-and-shannon-appelcline"><em>by Christopher
+Allen and Shannon Appelcline</em></h3>
+<p><img
+src="https://www.blockchaincommons.com/images/projects/lbtc-screen.png" /></p>
+<p>Learning Bitcoin from the Command Line is a tutorial for working with
+Bitcoin (and Lightning) that teaches direct interaction with the servers
+themselves, as the most robust and secure way to begin cryptocurrency
+work.</p>
+<blockquote>
+<p>NOTE: This is a draft in progress, so that I can get some feedback
+from early reviewers. It is not yet ready for use.</p>
+</blockquote>
+<p><em>This tutorial assumes that you have some minimal background of
+how to use the command line interface. If not, there are many tutorials
+available, and I have one for Mac users at
+https://github.com/ChristopherA/intro-mac-command-line.</em></p>
+<h2 id="translations">Translations</h2>
+<ul>
+<li><a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/tree/portuguese-translation/pt/README.md">Portuguese</a>
+— v2.0.1 translation</li>
+<li><a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/tree/spanish-translation/es/README.md">Spanish</a>
+- v2.0.1 translation</li>
+</ul>
+<p>If you’d like to make your own translation, please see <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/tree/master#contributing">Contributing</a>,
+below.</p>
+<h2 id="table-of-contents">Table of Contents</h2>
+<h3 id="part-one-preparing-for-bitcoin">PART ONE: PREPARING FOR
+BITCOIN</h3>
+<p><strong>Status:</strong> Finished. Updated for 0.20.</p>
+<ul>
+<li><a href="01_0_Introduction.md">1.0: Introduction to Programming with
+Bitcoin Core and Lightning</a>
+<ul>
+<li><a href="01_1_Introducing_Bitcoin.md">Interlude: Introducing
+Bitcoin</a></li>
+</ul></li>
+<li><a href="02_0_Setting_Up_a_Bitcoin-Core_VPS.md">2.0: Setting Up a
+Bitcoin-Core VPS</a>
+<ul>
+<li><a
+href="02_1_Setting_Up_a_Bitcoin-Core_VPS_with_StackScript.md">2.1:
+Setting Up a Bitcoin-Core VPS with Bitcoin Standup</a></li>
+<li><a href="02_2_Setting_Up_Bitcoin_Core_Other.md">2.2: Setting Up a
+Bitcoin-Core Machine via Other Means</a></li>
+</ul></li>
+</ul>
+<h3 id="part-two-using-bitcoin-cli">PART TWO: USING BITCOIN-CLI</h3>
+<p><strong>Status:</strong> Finished. Updated for 0.20.</p>
+<ul>
+<li><a href="03_0_Understanding_Your_Bitcoin_Setup.md">3.0:
+Understanding Your Bitcoin Setup</a>
+<ul>
+<li><a href="03_1_Verifying_Your_Bitcoin_Setup.md">3.1: Verifying Your
+Bitcoin Setup</a></li>
+<li><a href="03_2_Knowing_Your_Bitcoin_Setup.md">3.2: Knowing Your
+Bitcoin Setup</a></li>
+<li><a href="03_3_Setting_Up_Your_Wallet.md">3.3: Setting Up Your
+Wallet</a>
+<ul>
+<li><a href="03_3__Interlude_Using_Command-Line_Variables.md">Interlude:
+Using Command-Line Variables</a></li>
+</ul></li>
+<li><a href="03_4_Receiving_a_Transaction.md">3.4: Receiving a
+Transaction</a></li>
+<li><a href="03_5_Understanding_the_Descriptor.md">3.5: Understanding
+the Descriptor</a></li>
+</ul></li>
+<li><a href="04_0_Sending_Bitcoin_Transactions.md">4.0: Sending Bitcoin
+Transactions</a>
+<ul>
+<li><a href="04_1_Sending_Coins_The_Easy_Way.md">4.1: Sending Coins the
+Easy Way</a></li>
+<li><a href="04_2_Creating_a_Raw_Transaction.md">4.2: Creating a Raw
+Transaction</a>
+<ul>
+<li><a href="04_2__Interlude_Using_JQ.md">Interlude: Using JQ</a></li>
+</ul></li>
+<li><a
+href="04_3_Creating_a_Raw_Transaction_with_Named_Arguments.md">4.3:
+Creating a Raw Transaction with Named Arguments</a></li>
+<li><a href="04_4_Sending_Coins_with_a_Raw_Transaction.md">4.4: Sending
+Coins with Raw Transactions</a>
+<ul>
+<li><a href="04_4__Interlude_Using_Curl.md">Interlude: Using
+Curl</a></li>
+</ul></li>
+<li><a href="04_5_Sending_Coins_with_Automated_Raw_Transactions.md">4.5:
+Sending Coins with Automated Raw Transactions</a></li>
+<li><a href="04_6_Creating_a_Segwit_Transaction.md">4.6: Creating a
+Segwit Transaction</a></li>
+</ul></li>
+<li><a href="05_0_Controlling_Bitcoin_Transactions.md">5.0: Controlling
+Bitcoin Transactions</a>
+<ul>
+<li><a href="05_1_Watching_for_Stuck_Transactions.md">5.1 Watching for
+Stuck Transactions</a></li>
+<li><a href="05_2_Resending_a_Transaction_with_RBF.md">5.2: Resending a
+Transaction with RBF</a></li>
+<li><a href="05_3_Funding_a_Transaction_with_CPFP.md">5.3: Funding a
+Transaction with CPFP</a></li>
+</ul></li>
+<li><a href="06_0_Expanding_Bitcoin_Transactions_Multisigs.md">6.0:
+Expanding Bitcoin Transactions with Multisigs</a>
+<ul>
+<li><a href="06_1_Sending_a_Transaction_to_a_Multisig.md">6.1: Sending a
+Transaction with a Multisig</a></li>
+<li><a href="06_2_Spending_a_Transaction_to_a_Multisig.md">6.2: Spending
+a Transaction with a Multisig</a></li>
+<li><a href="06_3_Sending_an_Automated_Multisig.md">6.3: Sending &amp;
+Spending an Automated Multisig</a></li>
+</ul></li>
+<li><a href="07_0_Expanding_Bitcoin_Transactions_PSBTs.md">7.0:
+Expanding Bitcoin Transactions with PSBTs</a>
+<ul>
+<li><a
+href="07_1_Creating_a_Partially_Signed_Bitcoin_Transaction.md">7.1:
+Creating a Partially Signed Bitcoin Transaction</a></li>
+<li><a href="07_2_Using_a_Partially_Signed_Bitcoin_Transaction.md">7.2:
+Using a Partially Signed Bitcoin Transaction</a></li>
+<li><a href="07_3_Integrating_with_Hardware_Wallets.md">7.3: Integrating
+with Hardware Wallets</a></li>
+</ul></li>
+<li><a href="08_0_Expanding_Bitcoin_Transactions_Other.md">8.0:
+Expanding Bitcoin Transactions in Other Ways</a>
+<ul>
+<li><a href="08_1_Sending_a_Transaction_with_a_Locktime.md">8.1: Sending
+a Transaction with a Locktime</a></li>
+<li><a href="08_2_Sending_a_Transaction_with_Data.md">8.2: Sending a
+Transaction with Data</a></li>
+</ul></li>
+</ul>
+<h3 id="part-three-bitcoin-scripting">PART THREE: BITCOIN SCRIPTING</h3>
+<p><strong>Status:</strong> Finished. Updated for 0.20 and btcdeb.</p>
+<ul>
+<li><a href="09_0_Introducing_Bitcoin_Scripts.md">9.0: Introducing
+Bitcoin Scripts</a>
+<ul>
+<li><a href="09_1_Understanding_the_Foundation_of_Transactions.md">9.1:
+Understanding the Foundation of Transactions</a></li>
+<li><a href="09_2_Running_a_Bitcoin_Script.md">9.2: Running a Bitcoin
+Script</a></li>
+<li><a href="09_3_Testing_a_Bitcoin_Script.md">9.3: Testing a Bitcoin
+Script</a></li>
+<li><a href="09_4_Scripting_a_P2PKH.md">9.4: Scripting a P2PKH</a></li>
+<li><a href="09_5_Scripting_a_P2WPKH.md">9.5: Scripting a
+P2WPKH</a></li>
+</ul></li>
+<li><a
+href="10_0_Embedding_Bitcoin_Scripts_in_P2SH_Transactions.md">10.0:
+Embedding Bitcoin Scripts in P2SH Transactions</a>
+<ul>
+<li><a href="10_1_Understanding_the_Foundation_of_P2SH.md">10.1:
+Understanding the Foundation of P2SH</a></li>
+<li><a href="10_2_Building_the_Structure_of_P2SH.md">10.2: Building the
+Structure of P2SH</a></li>
+<li><a href="10_3_Running_a_Bitcoin_Script_with_P2SH.md">10.3: Running a
+Bitcoin Script with P2SH</a></li>
+<li><a href="10_4_Scripting_a_Multisig.md">10.4: Scripting a
+Multisig</a></li>
+<li><a href="10_5_Scripting_a_Segwit_Script.md">10.5: Scripting a Segwit
+Script</a></li>
+<li><a href="10_6_Spending_a_P2SH_Transaction.md">10.6: Spending a P2SH
+Transaction</a></li>
+</ul></li>
+<li><a href="11_0_Empowering_Timelock_with_Bitcoin_Scripts.md">11.0:
+Empowering Timelock with Bitcoin Scripts</a>
+<ul>
+<li><a href="11_1_Understanding_Timelock_Options.md">11.1: Understanding
+Timelock Options</a></li>
+<li><a href="11_2_Using_CLTV_in_Scripts.md">11.2: Using CLTV in
+Scripts</a></li>
+<li><a href="11_3_Using_CSV_in_Scripts.md">11.3: Using CSV in
+Scripts</a></li>
+</ul></li>
+<li><a href="12_0_Expanding_Bitcoin_Scripts.md">12.0: Expanding Bitcoin
+Scripts</a>
+<ul>
+<li><a href="12_1_Using_Script_Conditionals.md">12.1: Using Script
+Conditionals</a></li>
+<li><a href="12_2_Using_Other_Script_Commands.md">12.2: Using Other
+Script Commands</a></li>
+</ul></li>
+<li><a href="13_0_Designing_Real_Bitcoin_Scripts.md">13.0: Designing
+Real Bitcoin Scripts</a>
+<ul>
+<li><a href="13_1_Writing_Puzzle_Scripts.md">13.1: Writing Puzzles
+Scripts</a></li>
+<li><a href="13_2_Writing_Complex_Multisig_Scripts.md">13.2: Writing
+Complex Multisig Scripts</a></li>
+<li><a href="13_3_Empowering_Bitcoin_with_Scripts.md">13.3: Empowering
+Bitcoin with Scripts</a></li>
+</ul></li>
+</ul>
+<h3 id="part-four-privacy">PART FOUR: PRIVACY</h3>
+<p><strong>Status:</strong> Finished.</p>
+<ul>
+<li><a href="14_0_Using_Tor.md">14.0: Using Tor</a>
+<ul>
+<li><a href="14_1_Verifying_Your_Tor_Setup.md">14.1: Verifying Your Tor
+Setup</a></li>
+<li><a href="14_2_Changing_Your_Bitcoin_Hidden_Services.md">14.2:
+Changing Your Bitcoin Hidden Services</a></li>
+<li><a href="14_3_Adding_SSH_Hidden_Services.md">14.3: Adding SSH Hidden
+Services</a></li>
+</ul></li>
+<li><a href="15_0_Using_i2p.md">15.0: Using i2p</a>
+<ul>
+<li><a href="15_1_i2p_service.md">15.1: Bitcoin Core as an I2P
+(Invisible Internet Project) service</a></li>
+</ul></li>
+</ul>
+<h3 id="part-five-programming-with-rpc">PART FIVE: PROGRAMMING WITH
+RPC</h3>
+<p><strong>Status:</strong> Finished.</p>
+<ul>
+<li><a href="16_0_Talking_to_Bitcoind.md">16.0: Talking to Bitcoind with
+C</a>
+<ul>
+<li><a href="16_1_Accessing_Bitcoind_with_C.md">16.1: Accessing Bitcoind
+in C with RPC Libraries</a></li>
+<li><a href="16_2_Programming_Bitcoind_with_C.md">16.2: Programming
+Bitcoind in C with RPC Libraries</a></li>
+<li><a href="16_3_Receiving_Bitcoind_Notifications_with_C.md">16.3:
+Receiving Notifications in C with ZMQ Libraries</a></li>
+</ul></li>
+<li><a href="17_0_Programming_with_Libwally.md">17.0: Programming
+Bitcoin with Libwally</a>
+<ul>
+<li><a href="17_1_Setting_Up_Libwally.md">17.1: Setting Up
+Libwally</a></li>
+<li><a href="17_2_Using_BIP39_in_Libwally.md">17.2: Using BIP39 in
+Libwally</a></li>
+<li><a href="17_3_Using_BIP32_in_Libwally.md">17.3: Using BIP32 in
+Libwally</a></li>
+<li><a href="17_4_Using_PSBTs_in_Libwally.md">17.4: Using PSBTs in
+Libwally</a></li>
+<li><a href="17_5_Using_Scripts_in_Libwally.md">17.5: Using Scripts in
+Libwally</a></li>
+<li><a href="17_6_Using_Other_Functions_in_Libwally.md">17.6: Using
+Other Functions in Libwally</a></li>
+<li><a href="17_7_Integrating_Libwally_and_Bitcoin-CLI.md">17.7:
+Integrating Libwally and Bitcoin-CLI</a></li>
+</ul></li>
+<li><a href="18_0_Talking_to_Bitcoind_Other.md">18.0: Talking to
+Bitcoind with Other Languages</a>
+<ul>
+<li><a href="18_1_Accessing_Bitcoind_with_Go.md">18.1: Accessing
+Bitcoind with Go</a></li>
+<li><a href="18_2_Accessing_Bitcoind_with_Java.md">18.2: Accessing
+Bitcoind with Java</a></li>
+<li><a href="18_3_Accessing_Bitcoind_with_NodeJS.md">18.3: Accessing
+Bitcoind with Node JS</a></li>
+<li><a href="18_4_Accessing_Bitcoind_with_Python.md">18.4: Accessing
+Bitcoind with Python</a></li>
+<li><a href="18_5_Accessing_Bitcoind_with_Rust.md">18.5: Accessing
+Bitcoind with Rust</a></li>
+<li><a href="18_6_Accessing_Bitcoind_with_Swift.md">18.6: Accessing
+Bitcoind with Swift</a></li>
+</ul></li>
+</ul>
+<h3 id="part-six-using-lightning-cli">PART SIX: USING LIGHTNING-CLI</h3>
+<p><strong>Status:</strong> Finished.</p>
+<ul>
+<li><a href="19_0_Understanding_Your_Lightning_Setup.md">19.0:
+Understanding Your Lightning Setup</a>
+<ul>
+<li><a href="19_1_Verifying_Your_Lightning_Setup.md">19.1: Verifying
+Your c-lightning Setup</a></li>
+<li><a href="19_2_Knowing_Your_lightning_Setup.md">19.2: Knowing Your
+c-lightning Setup</a>
+<ul>
+<li><a
+href="19_2__Interlude_Accessing_a_Second_Lightning_Node.md">Interlude:
+Accessing a Second Lightning Node</a></li>
+</ul></li>
+<li><a href="19_3_Setting_Up_a_Channel.md">19.3: Creating a Lightning
+Channel</a></li>
+</ul></li>
+<li><a href="20_0_Using_Lightning.md">20.0: Using Lightning</a>
+<ul>
+<li><a href="20_1_Generate_a_Payment_Request.md">20.1: Generating a
+Payment Request</a></li>
+<li><a href="20_2_Paying_a_Invoice.md">20.2: Paying an Invoice</a></li>
+<li><a href="(20_3_Closing_a_Channel.md)">20.3: Closing a Lighnting
+Channel</a></li>
+<li><a href="20_4_Lightning_Network_Review.md">20.4: Expanding the
+Lightning Network</a></li>
+</ul></li>
+</ul>
+<h3 id="appendices">APPENDICES</h3>
+<p><strong>Status:</strong> Finished.</p>
+<ul>
+<li><a href="A0_Appendices.md">Appendices</a>
+<ul>
+<li><a href="A1_0_Understanding_Bitcoin_Standup.md">Appendix I:
+Understanding Bitcoin Standup</a></li>
+<li><a href="A2_0_Compiling_Bitcoin_from_Source.md">Appendix II:
+Compiling Bitcoin from Source</a></li>
+<li><a href="A3_0_Using_Bitcoin_Regtest.md">Appendix III: Using Bitcoin
+Regtest</a></li>
+</ul></li>
+</ul>
+<h2 id="status---beta">Status - Beta</h2>
+<p>v2.1.0 of <strong>Learning Bitcoin from the Command Line</strong> is
+feature complete and has undergone full editing and integration. It is
+ready for learning</p>
+<p>We are also tentatively considering what we could include in a <a
+href="TODO-30.md">v3.0</a> of the course. If you’d like to support work
+of that sort, become a <a
+href="https://github.com/sponsors/BlockchainCommons">GitHub Sponsor</a>
+or support us at our <a
+href="https://btcpay.blockchaincommons.com/">BTCPay Server</a>, and let
+us know that <strong>Learning Bitcoin</strong> was the reason why. ###
+Version History</p>
+<h4 id="november-17-2021">2.2.0 (November 17, 2021)</h4>
+<ul>
+<li><a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/tree/master/pt">Portuguese
+translation</a></li>
+<li><a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/tree/master/es">Spanish
+translation</a></li>
+</ul>
+<h4 id="october-12-2021">2.1.0 (October 12, 2021)</h4>
+<ul>
+<li>New chapter 15 (i2p).</li>
+<li>Added fixes to wallet usage from 0.21</li>
+<li>Updated install to new Bitcoin Scripts for 22.0</li>
+<li>Incorporated numerous fixes revealed by first translation
+projects</li>
+</ul>
+<h4 id="june-15-2021">2.0.1 (June 15, 2021)</h4>
+<ul>
+<li>Numerous small patches following 2.0</li>
+<li>Intended as baseline for translations (2.2.0), but 2.1.0 material on
+i2p slipped in</li>
+</ul>
+<h4 id="november-3-2020">2.0.0 (November 3, 2020)</h4>
+<ul>
+<li>Second major release of Learning Bitcoin</li>
+<li>Added material on Segwit, Tor, hardware wallets, lightning,
+regtest</li>
+<li>Completely previous unfinished work on programming using a variety
+of languages</li>
+</ul>
+<h4 id="pre-2020">1.0.0 (pre-2020)</h4>
+<ul>
+<li>Original, extensive but incomplete version</li>
+<li>Contained comprehensive sections on setup, bitcoin-cli, and
+scripting</li>
+</ul>
+<h2 id="origin-authors-copyright-licenses">Origin, Authors, Copyright
+&amp; Licenses</h2>
+<p>Unless otherwise noted (either in this <a
+href="./README.md">/README.md</a> or in the file’s header comments) the
+contents of this repository are Copyright © 2020 by Blockchain Commons,
+LLC, and are licensed under <a
+href="./LICENSE-CC-BY-4.0.md">CC-BY</a>.</p>
+<h2 id="financial-support">Financial Support</h2>
+<p><em>Learning Bitcoin from the Command Line</em> is a project of <a
+href="https://www.blockchaincommons.com/">Blockchain Commons</a>. We are
+proudly a “not-for-profit” social benefit corporation committed to open
+source &amp; open development. Our work is funded entirely by donations
+and collaborative partnerships with people like you. Every contribution
+will be spent on building open tools, technologies, and techniques that
+sustain and advance blockchain and internet security infrastructure and
+promote an open web.</p>
+<p>To financially support further development of <em>Learning Bitcoin
+from the Command Line</em> and other projects, please consider becoming
+a Patron of Blockchain Commons through ongoing monthly patronage as a <a
+href="https://github.com/sponsors/BlockchainCommons">GitHub Sponsor</a>.
+You can also support Blockchain Commons with bitcoins at our <a
+href="https://btcpay.blockchaincommons.com/">BTCPay Server</a>.</p>
+<h2 id="contributing">Contributing</h2>
+<p>We encourage public contributions through issues and pull requests!
+Please review <a href="./CONTRIBUTING.md">CONTRIBUTING.md</a> for
+details on our development process. All contributions to this repository
+require a GPG signed <a href="./CLA.md">Contributor License
+Agreement</a>.</p>
+<p>if you would like to provide a translation of Learning Bitcoin into
+another language, please additionally see <a
+href="./TRANSLATING.md">TRANSLATING.md</a>.</p>
+<h3 id="discussions">Discussions</h3>
+<p>The best place to talk about Blockchain Commons and its projects is
+in our GitHub Discussions areas.</p>
+<p><a
+href="https://github.com/BlockchainCommons/Community/discussions"><strong>Blockchain
+Commons Discussions</strong></a>. For developers, interns, and patrons
+of Blockchain Commons, please use the discussions area of the <a
+href="https://github.com/BlockchainCommons/Community">Community repo</a>
+to talk about general Blockchain Commons issues, the intern program, or
+topics other than the <a
+href="https://github.com/BlockchainCommons/Gordian/discussions">Gordian
+System</a> or the <a
+href="https://github.com/BlockchainCommons/AirgappedSigning/discussions">wallet
+standards</a>, each of which have their own discussion areas.</p>
+<h3 id="other-questions-problems">Other Questions &amp; Problems</h3>
+<p>As an open-source, open-development community, Blockchain Commons
+does not have the resources to provide direct support of our projects.
+Please consider the discussions area as a locale where you might get
+answers to questions. Alternatively, please use this repository’s <a
+href="../../issues">issues</a> feature. Unfortunately, we can not make
+any promises on response time.</p>
+<p>If your company requires support to use our projects, please feel
+free to contact us directly about options. We may be able to offer you a
+contract for support from one of our contributors, or we might be able
+to point you to another entity who can offer the contractual support
+that you need.</p>
+<h3 id="credits">Credits</h3>
+<p>The following people directly contributed to this repository. You can
+add your name here by getting involved. The first step is learning how
+to contribute from our <a href="./CONTRIBUTING.md">CONTRIBUTING.md</a>
+documentation.</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 28%" />
+<col style="width: 21%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Role</th>
+<th>Github</th>
+<th>Email</th>
+<th>GPG Fingerprint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Christopher Allen</td>
+<td>Lead Author</td>
+<td><a href="https://github.com/ChristopherA"><span class="citation"
+data-cites="ChristopherA">@ChristopherA</span></a></td>
+<td>&lt;ChristopherA@LifeWithAlacrity.com&gt;</td>
+<td>FDFE 14A5 4ECB 30FC 5D22 74EF F8D3 6C91 3574 05ED</td>
+</tr>
+<tr class="even">
+<td>Shannon Appelcline</td>
+<td>Lead Author</td>
+<td><a href="https://github.com/shannona"><span class="citation"
+data-cites="shannona">@shannona</span></a></td>
+<td>&lt;shannon.appelcline@gmail.com&gt;</td>
+<td>7EC6 B928 606F 27AD</td>
+</tr>
+</tbody>
+</table>
+<p>Additional contributions are listed below:</p>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Role</th>
+<th>Names</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><em>Contributors:</em></strong></td>
+<td><a href="https://github.com/gg2001">gg2001</a> (Go, Node.js
+sections), <a href="https://github.com/gorazdko">gorazdko</a> (Rust
+section), <a href="https://github.com/javiervargas">Javier Vargas</a>
+(C, Java, Lightning, Tor sections), <a
+href="https://github.com/jodobear">jodobear</a> (Appendix: Compiling
+Bitcoin, Python section), <a
+href="https://github.com/prayank23">Prayank</a> (i2p sections)</td>
+</tr>
+<tr class="even">
+<td><strong><em>Reviewers:</em></strong></td>
+<td>Glen Willem <a href="https://github.com/gwillem"><span
+class="citation" data-cites="gwillem">@gwillem</span></a></td>
+</tr>
+<tr class="odd">
+<td><strong><em>Sponsors:</em></strong></td>
+<td>Blockstream Corporation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="translation-credits">Translation Credits</h3>
+<p>Thanks to the volunteers who spent extensive time writing and
+reviewing other-language translations of the original English-language
+course.</p>
+<h4 id="portuguese-translation">Portuguese Translation</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 22%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Role</th>
+<th>Github</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Namcios</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/namcios"><span class="citation"
+data-cites="namcios">@namcios</span></a></td>
+</tr>
+<tr class="even">
+<td>Korea</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/KoreaComK"><span class="citation"
+data-cites="KoreaComK">@KoreaComK</span></a></td>
+</tr>
+<tr class="odd">
+<td>Luke Pavsky</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/lukedevj"><span class="citation"
+data-cites="lukedevj">@lukedevj</span></a></td>
+</tr>
+<tr class="even">
+<td>hgrams</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/hgrams"><span class="citation"
+data-cites="hgrams">@hgrams</span></a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="spanish-translation">Spanish Translation</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 26%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Role</th>
+<th>GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ian Culp</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/icculp"><span class="citation"
+data-cites="icculp">@icculp</span></a></td>
+</tr>
+<tr class="even">
+<td>Maxi Goyheneche</td>
+<td>Translator</td>
+<td><a href="https://github.com/maxcrowar"><span class="citation"
+data-cites="maxcrowar">@maxcrowar</span></a></td>
+</tr>
+<tr class="odd">
+<td>Said Rahal</td>
+<td>Translator</td>
+<td><a href="https://github.com/srahalh"><span class="citation"
+data-cites="srahalh">@srahalh</span></a></td>
+</tr>
+<tr class="even">
+<td>César A. Vallero</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/csralvall"><span class="citation"
+data-cites="csralvall">@csralvall</span></a></td>
+</tr>
+<tr class="odd">
+<td>Javier Vargas</td>
+<td>Translator &amp; Reviewer</td>
+<td><a href="https://github.com/javiervargas"><span class="citation"
+data-cites="javiervargas">@javiervargas</span></a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="responsible-disclosure">Responsible Disclosure</h2>
+<p>We want to keep all of our software safe for everyone. If you have
+discovered a security vulnerability, we appreciate your help in
+disclosing it to us in a responsible manner. We are unfortunately not
+able to offer bug bounties at this time.</p>
+<p>We do ask that you offer us good faith and use best efforts not to
+leak information or harm any user, their data, or our developer
+community. Please give us a reasonable amount of time to fix the issue
+before you publish it. Do not defraud our users or us in the process of
+discovery. We promise not to bring legal action against researchers who
+point out a problem provided they do their best to follow the these
+guidelines.</p>
+<h3 id="reporting-a-vulnerability">Reporting a Vulnerability</h3>
+<p>Please report suspected security vulnerabilities in private via email
+to ChristopherA@BlockchainCommons.com (do not use this email for
+support). Please do NOT create publicly viewable issues for suspected
+security vulnerabilities.</p>
+<p>The following keys may be used to communicate sensitive information
+to developers:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Fingerprint</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Christopher Allen</td>
+<td>FDFE 14A5 4ECB 30FC 5D22 74EF F8D3 6C91 3574 05ED</td>
+</tr>
+</tbody>
+</table>
+<p>You can import a key by running the following command with that
+individual’s fingerprint:
+<code>gpg --recv-keys "&lt;fingerprint&gt;"</code> Ensure that you put
+quotes around fingerprints that contain spaces.</p>
+</body>
+</html>

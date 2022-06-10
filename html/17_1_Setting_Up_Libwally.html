@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>17_1_Setting_Up_Libwally</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="setting-up-libwally">17.1: Setting Up Libwally</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This first section will explain how to download the Libwally C
+Library and get it working.</p>
+<blockquote>
+<p>:book: <strong><em>What is Libwally?</em></strong> Libwally is a
+library of primitives helpful for the creation of wallets that is
+cross-platform and cross-language, so that the same functions can be
+used everywhere. There are <a
+href="https://wally.readthedocs.io/en/latest/">online docs</a>. Libwally
+is made available as part of Blockstream’s <a
+href="https://github.com/ElementsProject">Elements Project</a>.</p>
+</blockquote>
+<h2 id="install-libwally">Install Libwally</h2>
+<p>As usual, you’ll need some packages on your system:</p>
+<pre><code>$ sudo apt-get install git
+$ sudo apt-get install dh-autoreconf</code></pre>
+<p>You can then download Libwally from its Git repo:</p>
+<pre><code>$ git clone https://github.com/ElementsProject/libwally-core</code></pre>
+<p>Afterward, you can begin the configuration process:</p>
+<pre><code>$ ./tools/autogen.sh</code></pre>
+<p>As with <code>libbitcoinrpc</code>, you may wish to install this in
+<code>/usr/include</code> and <code>/usr/lib</code> for ease of usage.
+Just modify the appropriate line in the <code>configure</code>
+program:</p>
+<pre><code>&lt; ac_default_prefix=/usr
+---
+&gt; ac_default_prefix=/usr/local</code></pre>
+<p>Afterward you can finish your prep:</p>
+<pre><code>$ ./configure
+$ make</code></pre>
+<p>You can then verify that tests are working:</p>
+<pre><code>$ make check
+Making check in src
+make[1]: Entering directory &#39;/home/standup/libwally-core/src&#39;
+Making check in secp256k1
+make[2]: Entering directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+make  check-TESTS
+make[3]: Entering directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+make[4]: Entering directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+============================================================================
+Testsuite summary for libsecp256k1 0.1
+============================================================================
+# TOTAL: 0
+# PASS:  0
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+============================================================================
+make[4]: Leaving directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+make[3]: Leaving directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+make[2]: Leaving directory &#39;/home/standup/libwally-core/src/secp256k1&#39;
+make[2]: Entering directory &#39;/home/standup/libwally-core/src&#39;
+make  check-TESTS check-local
+make[3]: Entering directory &#39;/home/standup/libwally-core/src&#39;
+make[4]: Entering directory &#39;/home/standup/libwally-core/src&#39;
+PASS: test_bech32
+PASS: test_psbt
+PASS: test_psbt_limits
+PASS: test_tx
+============================================================================
+Testsuite summary for libwallycore 0.7.8
+============================================================================
+# TOTAL: 4
+# PASS:  4
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+============================================================================
+make[4]: Leaving directory &#39;/home/standup/libwally-core/src&#39;
+make[3]: Nothing to be done for &#39;check-local&#39;.
+make[3]: Leaving directory &#39;/home/standup/libwally-core/src&#39;
+make[2]: Leaving directory &#39;/home/standup/libwally-core/src&#39;
+make[1]: Leaving directory &#39;/home/standup/libwally-core/src&#39;
+make[1]: Entering directory &#39;/home/standup/libwally-core&#39;
+make[1]: Nothing to be done for &#39;check-am&#39;.
+make[1]: Leaving directory &#39;/home/standup/libwally-core&#39;</code></pre>
+<p>Finally, you can install:</p>
+<pre><code>$ sudo make install</code></pre>
+<h2 id="prepare-for-libwally">Prepare for Libwally</h2>
+<p>So how do you use Libwally in a program? As usual, you’ll need to
+include appropriate files and link appropriate libraries for your
+code.</p>
+<h3 id="include-the-files">Include the Files</h3>
+<p>There are a considerable number of possible include files:</p>
+<pre><code>$ ls /usr/include/wally*
+/usr/include/wally_address.h  /usr/include/wally_bip39.h   /usr/include/wally_elements.h  /usr/include/wally_script.h
+/usr/include/wally_bip32.h    /usr/include/wally_core.h    /usr/include/wally.hpp     /usr/include/wally_symmetric.h
+/usr/include/wally_bip38.h    /usr/include/wally_crypto.h  /usr/include/wally_psbt.h      /usr/include/wally_transaction.h</code></pre>
+<p>Fortunately, the file names largely match the sections in the <a
+href="https://wally.readthedocs.io/en/latest/">docs</a>, so you should
+be able to include the correct files based on what you’re doing, after
+including the ubiquitous <code>wally_core.h</code>.</p>
+<h3 id="link-the-libraries">Link the Libraries</h3>
+<p>You also will need to link appropriate libraries:</p>
+<pre><code>$ ls /usr/lib/libsecp* /usr/lib/libwally*
+/usr/lib/libsecp256k1.a   /usr/lib/libwallycore.la  /usr/lib/libwallycore.so.0
+/usr/lib/libsecp256k1.la  /usr/lib/libwallycore.so  /usr/lib/libwallycore.so.0.0.0</code></pre>
+<p>Mostly, you’ll be using <code>libwallycore</code>.</p>
+<h2 id="set-up-a-libwally-program">Set Up a Libwally Program</h2>
+<p>Compared to some of the previous libraries, Libwally is ridiculously
+easy to initialize:</p>
+<pre><code>lw_response = wally_init(0);</code></pre>
+<p>And then when you’re done, there’s a handy function to clean up any
+allocated memory:</p>
+<pre><code>wally_cleanup(0);</code></pre>
+<p>In both cases, the argument is for flags, but is currently set to
+<code>0</code>.</p>
+<h2 id="test-a-test-libwally-program">Test a Test Libwally Program</h2>
+<p>The src directory contains <a
+href="src/17_1_testwally.c">testwally.c</a>, which just shows how the
+initialize and cleanup functions work.</p>
+<p>You can compile it as follows:</p>
+<pre><code>$ cc testwally.c -lwallycore -o testwally</code></pre>
+<p>Afterward you can run it:</p>
+<pre><code>$ ./testwally
+Startup: 0</code></pre>
+<p>The “Startup” value is the return from <code>wally_init</code>. The
+<code>0</code> value may initially appear discouraging, but it’s’s what
+you want to see:</p>
+<pre><code>include/wally_core.h:#define WALLY_OK      0 /** Success */</code></pre>
+<h2 id="install-libsodium">Install Libsodium</h2>
+<p>You should also install Libsodium to get access to a high quality
+random number generator for testing purposes.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> The generation of random numbers
+can be one of the greatest points of vulnerability in any Bitcoin
+software. If you do it wrong, you expose your users to attacks because
+they end up with insecure Bitcoin keys, and this isn’t a <a
+href="https://github.com/BlockchainCommons/SmartCustodyBook/blob/master/manuscript/03-adversaries.md#adversary-systemic-key-compromise">theoretical
+problem</a>. BlockchainInfo once incorrectly generated 0.0002% of their
+keys, which resulted in the temporary loss of 250 Bitcoins. Bottom line:
+make sure you’re totally comfortable with your random number generation.
+It might be Libsodium, or it might be an even more robust TRNG
+method.</p>
+</blockquote>
+<p>You can download a <a
+href="https://download.libsodium.org/libsodium/releases/">Libsodium
+tarball</a> and then follow the instructions at <a
+href="https://doc.libsodium.org/installation">Libsodium installation</a>
+to install.</p>
+<p>First, untar:</p>
+<pre><code>$ tar xzfv /tmp/libsodium-1.0.18-stable.tar.gz </code></pre>
+<p>Then, adjust the <code>configure</code> file exactly as you have the
+other libraries to date:</p>
+<pre><code>&lt; ac_default_prefix=/usr
+---
+&gt; ac_default_prefix=/usr/local</code></pre>
+<p>Finally, <code>make</code>, <code>check</code>, and
+<code>install</code>:</p>
+<pre><code>$ make
+$ make check
+...
+============================================================================
+Testsuite summary for libsodium 1.0.18
+============================================================================
+# TOTAL: 77
+# PASS:  77
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+============================================================================
+...
+$ sudo make install</code></pre>
+<p>This course will only use <code>libsodium</code> for one small (but
+crucial!) bit of entropy generation, but watch for it in the next
+section.</p>
+<h2 id="summary-setting-up-libwally">Summary: Setting Up Libwally</h2>
+<p>By installing the Libwally (and Libsodium) includes and libraries,
+you gain access to a number of cryptographic and wallet functions, which
+can complement your RPC and ZMQ libraries (or your command-line
+<code>bitcoin-cli</code>).</p>
+<p>So what precisely can you do now? That’s what the rest of this
+chapter is about.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Programming Bitcoin with Libwally” in <a
+href="17_2_Using_BIP39_in_Libwally.md">17.2: Using BIP39 in
+Libwally</a>.</p>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_4_Sending_Coins_with_a_Raw_Transaction</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="sending-coins-with-raw-transactions">4.4: Sending Coins with Raw
+Transactions</h1>
+<p>As noted at the start of this chapter, the <code>bitcoin-cli</code>
+interface offers three major ways to send coins. <a
+href="04_1_Sending_Coins_The_Easy_Way.md">§4.1</a> talked about sending
+them the first way, using the <code>sendtoaddress</code> command. Since
+then, we’ve been building details on how to send coins a second way,
+with raw transactions. <a
+href="04_2_Creating_a_Raw_Transaction.md">§4.2</a> taught how to create
+a raw transaction, an <a
+href="04_2__Interlude_Using_JQ.md">Interlude</a> explained JQ, and <a
+href="04_3_Creating_a_Raw_Transaction_with_Named_Arguments.md">§4.3</a>
+demonstrated named arguments.</p>
+<p>We can now put those together and actually send funds using a raw
+transaction.</p>
+<h2 id="create-a-change-address">Create a Change Address</h2>
+<p>Our sample raw transaction in section §4.2 was very simplistic: we
+sent the entirety of a UTXO to a new address. More frequently, you’ll
+want to send someone an amount of money that doesn’t match a UTXO. But,
+you’ll recall that the excess money from a UTXO that’s not sent to your
+recipient just becomes a transaction fee. So, how do you send someone
+just part of a UTXO, while keeping the rest for yourself?</p>
+<p>The solution is to <em>send</em> the rest of the funds to a second
+address, a change address that you’ve created in your wallet
+specifically to receive them:</p>
+<pre><code>$ changeaddress=$(bitcoin-cli getrawchangeaddress legacy)
+$ echo $changeaddress
+mk9ry5VVy8mrA8SygxSQQUDNSSXyGFot6h</code></pre>
+<p>Note that this uses a new function: <code>getrawchangeaddress</code>.
+It’s largely the same as <code>getnewaddress</code> but is optimized for
+use as a change address in a raw transaction, so it doesn’t do things
+like make entries in your address book. We again selected the
+<code>legacy</code> address, instead of going with the default of
+<code>bech32</code>, simply for consistency. This is a situation where
+it would have been entirely safe to generate a default Bech32 address,
+just by using <code>bitcoin-cli getrawchangeaddress</code>, because it
+would being sent and received by you on your Bitcoin Core node which
+fully supports this. But, hobgoblins; we’ll shift this over to Bech32 as
+well in <a href="04_6_Creating_a_Segwit_Transaction.md">§4.6</a>.</p>
+<p>You now have an additional address inside your wallet, so that you
+can receive change from a UTXO! In order to use it, you’ll need to
+create a raw transaction with two outputs.</p>
+<h2 id="pick-sufficient-utxos">Pick Sufficient UTXOs</h2>
+<p>Our sample raw transaction was simple in another way: it assumed that
+there was enough money in a single UTXO to cover the transaction. Often
+this will be the case, but sometimes you’ll want to create transactions
+that spends more money than you have in a single UTXO. To do so, you
+must create a raw transaction with two (or more) inputs.</p>
+<h2 id="write-a-real-raw-transaction">Write a Real Raw Transaction</h2>
+<p>To summarize: creating a real raw transaction to send coins will
+sometimes require multiple inputs and will almost always require
+multiple outputs, one of which is a change address. We’ll be creating
+that sort of more realistic transaction here, in a new example that
+shows a real-life example of sending funds via Bitcoin’s second
+methodology, raw transactions.</p>
+<p>We’re going to use our 0th and 2nd UTXOs:</p>
+<pre><code>$ bitcoin-cli listunspent
+[
+[
+  {
+    &quot;txid&quot;: &quot;0619fecf6b2668fab1308fbd7b291ac210932602a6ac6b8cc11c7ae22c43701e&quot;,
+    &quot;vout&quot;: 1,
+    &quot;address&quot;: &quot;mwJL7cRiW2bUnY81r1thSu3D4jtMmwyU6d&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a914ad1ed1c5971b2308f89c1362d4705d020a40e8e788ac&quot;,
+    &quot;amount&quot;: 0.00899999,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/4&#39;]03eae28c93035f95a620dd96e1822f2a96e0357263fa1f87606a5254d5b9e6698f)#wwnfx2sp&quot;,
+    &quot;safe&quot;: true
+  },
+  {
+    &quot;txid&quot;: &quot;91261eafae15ea53dedbea7c1db748c52bbc04a85859ffd0d839bda1421fda4c&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a9142d573900aa357a38afd741fbf24b075d263ea6e088ac&quot;,
+    &quot;amount&quot;: 0.00022000,
+    &quot;confirmations&quot;: 15,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/3&#39;]0278608b54b8fb0d8379d3823d31f03a7c6ab0adffb07dd3811819fdfc34f8c132)#nhjc3f8y&quot;,
+    &quot;safe&quot;: true
+  },  
+  {
+    &quot;txid&quot;: &quot;0df23a9dba49e822bbc558f15516f33021a64a5c2e48962cec541e0bcc79854d&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;mwJL7cRiW2bUnY81r1thSu3D4jtMmwyU6d&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a914ad1ed1c5971b2308f89c1362d4705d020a40e8e788ac&quot;,
+    &quot;amount&quot;: 0.00100000,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/4&#39;]03eae28c93035f95a620dd96e1822f2a96e0357263fa1f87606a5254d5b9e6698f)#wwnfx2sp&quot;,
+    &quot;safe&quot;: true
+   }
+]
+</code></pre>
+<p>In our example, we’re going to send .009 BTC, which is (barely)
+larger than either of our UTXOs. This requires combining them, then
+using our change address to retrieve the unspent funds.</p>
+<h3 id="set-up-your-variables">Set Up Your Variables</h3>
+<p>We already have <code>$changeaddress</code> and
+<code>$recipient</code> variables from previous examples:</p>
+<pre><code>$ echo $changeaddress
+mk9ry5VVy8mrA8SygxSQQUDNSSXyGFot6h
+$ echo $recipient
+n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi</code></pre>
+<p>We also need to record the txid and vout for each of our two UTXOs.
+Having identified the UTXOs that we want to spend, we can use our JQ
+techniques to make sure accessing them is error free:</p>
+<pre><code>$ utxo_txid_1=$(bitcoin-cli listunspent | jq -r &#39;.[0] | .txid&#39;)
+$ utxo_vout_1=$(bitcoin-cli listunspent | jq -r &#39;.[0] | .vout&#39;)
+$ utxo_txid_2=$(bitcoin-cli listunspent | jq -r &#39;.[2] | .txid&#39;)
+$ utxo_vout_2=$(bitcoin-cli listunspent | jq -r &#39;.[2] | .vout&#39;)</code></pre>
+<h3 id="write-the-transaction">Write the Transaction</h3>
+<p>Writing the actual raw transaction is surprisingly simple. All you
+need to do is include an additional, comma-separated JSON object in the
+JSON array of inputs and an additional, comma-separated key-value pair
+in the JSON object of outputs.</p>
+<p>Here’s the example. Note the multiple inputs after the
+<code>inputs</code> arg and the multiple outputs after the
+<code>outputs</code> arg.</p>
+<pre><code>$ rawtxhex2=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid_1&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout_1&#39; }, { &quot;txid&quot;: &quot;&#39;$utxo_txid_2&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout_2&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.009, &quot;&#39;$changeaddress&#39;&quot;: 0.0009 }&#39;&#39;&#39;)</code></pre>
+<p>We were <em>very</em> careful figuring out our money math. These two
+UTXOs contain 0.00999999 BTC. After sending 0.009 BTC, we’ll have
+.00099999 BTC left. We chose .00009999 BTC the transaction fee. To
+accommodate that fee, we set our change to .0009 BTC. If we’d messed up
+our math and instead set our change to .00009 BTC, that additional BTC
+would be lost to the miners! If we’d forgot to make change at all, then
+the whole excess would have disappeared. So, again, <em>be
+careful</em>.</p>
+<p>Fortunately, we can triple-check with the <code>btctxfee</code> alias
+from the JQ Interlude:</p>
+<pre><code>$ ./txfee-calc.sh $rawtxhex2
+.00009999</code></pre>
+<h3 id="finish-it-up">Finish It Up</h3>
+<p>You can now sign, seal, and deliver your transaction, and it’s yours
+(and the faucet’s):</p>
+<pre><code>$ signedtx2=$(bitcoin-cli -named signrawtransactionwithwallet hexstring=$rawtxhex2 | jq -r &#39;.hex&#39;)
+$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx2
+e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d</code></pre>
+<h3 id="wait">Wait</h3>
+<p>As usual, your money will be in flux for a while: the change will be
+unavailable until the transaction actually gets confirmed and a new UTXO
+is given to you.</p>
+<p>But, in 10 minutes or less (probably), you’ll have your remaining
+money back and fully spendable again. For now, we’re still waiting:</p>
+<pre><code>$ bitcoin-cli listunspent
+[
+  {
+    &quot;txid&quot;: &quot;91261eafae15ea53dedbea7c1db748c52bbc04a85859ffd0d839bda1421fda4c&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a9142d573900aa357a38afd741fbf24b075d263ea6e088ac&quot;,
+    &quot;amount&quot;: 0.00022000,
+    &quot;confirmations&quot;: 15,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/3&#39;]0278608b54b8fb0d8379d3823d31f03a7c6ab0adffb07dd3811819fdfc34f8c132)#nhjc3f8y&quot;,
+    &quot;safe&quot;: true
+  }
+]</code></pre>
+<p>And the change will eventuall arrive:</p>
+<pre><code>[
+  {
+    &quot;txid&quot;: &quot;e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d&quot;,
+    &quot;vout&quot;: 1,
+    &quot;address&quot;: &quot;mk9ry5VVy8mrA8SygxSQQUDNSSXyGFot6h&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a91432db726320e4ad170c9c1ee83cd4d8a243c3435988ac&quot;,
+    &quot;amount&quot;: 0.00090000,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/1&#39;/2&#39;]02881697d252d8bf181d08c58de1f02aec088cd2d468fc5fd888c6e39909f7fabf)#p6k7dptk&quot;,
+    &quot;safe&quot;: true
+  },
+  {
+    &quot;txid&quot;: &quot;91261eafae15ea53dedbea7c1db748c52bbc04a85859ffd0d839bda1421fda4c&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;76a9142d573900aa357a38afd741fbf24b075d263ea6e088ac&quot;,
+    &quot;amount&quot;: 0.00022000,
+    &quot;confirmations&quot;: 16,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/3&#39;]0278608b54b8fb0d8379d3823d31f03a7c6ab0adffb07dd3811819fdfc34f8c132)#nhjc3f8y&quot;,
+    &quot;safe&quot;: true
+  }
+]</code></pre>
+<p>This also might be a good time to revisit a blockchain explorer, so
+that you can see more intuitively how the inputs, outputs, and
+transaction fee are all laid out: <a
+href="https://live.blockcypher.com/btc-testnet/tx/e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d/">e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d</a>.</p>
+<h2 id="summary-sending-coins-with-raw-transactions">Summary: Sending
+Coins with Raw Transactions</h2>
+<p>To send coins with raw transactions, you need to create a raw
+transaction with one or more inputs (to have sufficient funds) and one
+or more outputs (to retrieve change). Then, you can follow your normal
+procedure of using <code>createrawtransaction</code> with named
+arguments and JQ, as laid out in previous sections.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of sending coins with raw
+transactions?</em></strong></p>
+</blockquote>
+<blockquote>
+<p><em>The advantages.</em> It gives you the best control. If your goal
+is to write a more intricate Bitcoin script or program, you’ll probably
+use raw transactions so that you know exactly what’s going on. This is
+also the <em>safest</em> situation to use raw transactions, because you
+can programmatically ensure that you don’t make mistakes.</p>
+</blockquote>
+<blockquote>
+<p><em>The disadvantages.</em> It’s easy to lose money. There are no
+warnings, no safeguards, and no programmatic backstops unless you write
+them. It’s also arcane. The formatting is obnoxious, even using the
+easy-to-use <code>bitcoin-cli</code> interface, and you have to do a lot
+of lookup and calculation by hand.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>See another alternative way to input commands with <a
+href="04_4__Interlude_Using_Curl.md">Interlude: Using Curl</a>.</p>
+<p>Or, you prefer to skip what’s frankly a digression, learn one more
+way to “Send Bitcoin Transactions” with <a
+href="04_5_Sending_Coins_with_Automated_Raw_Transactions.md">§4.5
+Sending Coins with Automated Raw Transactions</a>.</p>
+</body>
+</html>

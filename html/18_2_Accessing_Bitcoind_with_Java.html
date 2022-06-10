@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_2_Accessing_Bitcoind_with_Java</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-with-java">18.2: Accessing Bitcoind with
+Java</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section explains how to interact with <code>bitcoind</code>
+using the Java programming language and the <a
+href="https://github.com/Polve/JavaBitcoindRpcClient">JavaBitcoindRpcClient</a>.</p>
+<h2 id="set-up-java">Set Up Java</h2>
+<p>You can install Java on your server, using the <code>apt-get</code>
+command. You will also install <a href="http://maven.apache.org/">Apache
+Maven</a> to manage the dependencies.</p>
+<pre><code>$ sudo apt-get install openjdk-11-jre-headless maven</code></pre>
+<p>You can verify your Java installation:</p>
+<pre><code>$ java -version
+openjdk version &quot;11.0.8&quot; 2020-07-14
+OpenJDK Runtime Environment (build 11.0.8+10-post-Debian-1deb10u1)
+OpenJDK 64-Bit Server VM (build 11.0.8+10-post-Debian-1deb10u1, mixed mode, sharing)</code></pre>
+<h3 id="create-a-maven-project">Create a Maven Project</h3>
+<p>In order to program with Bitcoin using java, you will create a Maven
+project:</p>
+<pre><code>$ mvn archetype:generate -DgroupId=com.blockchaincommons.lbtc -DartifactId=java-project -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false</code></pre>
+<p>This will download some dependencies</p>
+<pre><code>Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-clean-plugin/2.5/maven-clean-plugin-2.5.pom
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-clean-plugin/2.5/maven-clean-plugin-2.5.pom (4 KB at 4.2 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/22/maven-plugins-22.pom
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/22/maven-plugins-22.pom (13 KB at 385.9 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/maven/maven-parent/21/maven-parent-21.pom
+Downloaded: https://repo.maven.apache.org/maven2/org/apache/maven/maven-parent/21/maven-parent-21.pom (26 KB at 559.6 KB/sec)
+Downloading: https://repo.maven.apache.org/maven2/org/apache/apache/10/apache-10.pom
+..............</code></pre>
+<p>It will also create a configuration file <code>pom.xml</code>:</p>
+<pre><code>$ cd java-project
+$ ls -lagh
+total 16K
+drwxr-xr-x  3 sudo 4.0K Sep  1 13:58 .
+drwxr-xr-x 15 sudo 4.0K Sep  1 13:58 ..
+-rw-r--r--  1 sudo  663 Sep  1 13:58 pom.xml
+drwxr-xr-x  4 sudo 4.0K Sep  1 13:58 src</code></pre>
+<p>In order to include <code>JavaBitcoindRpcClient</code>, you must add
+its dependency to <code>&lt;dependendencies&gt;</code> in the
+<code>pom.xml</code> file</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode xml"><code class="sourceCode xml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">groupId</span>&gt;wf.bitcoin&lt;/<span class="kw">groupId</span>&gt;</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">artifactId</span>&gt;bitcoin-rpc-client&lt;/<span class="kw">artifactId</span>&gt;</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">version</span>&gt;1.2.1&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">dependency</span>&gt;</span></code></pre></div>
+<p>You also need to add compiler properties to indicate what JDK version
+will compile the source code.</p>
+<pre><code>  &lt;properties&gt;
+    &lt;!-- https://maven.apache.org/general.html#encoding-warning --&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;maven.compiler.source&gt;11&lt;/maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;11&lt;/maven.compiler.target&gt;
+  &lt;/properties&gt;</code></pre>
+<p>Whenever you add source code to your classes, you’ll be able to test
+it with:</p>
+<pre><code>$ mvn compile</code></pre>
+<p>You can also execute with <code>exec:java</code></p>
+<pre><code>$ mvn exec:java -Dexec.mainClass=com.blockchaincommons.lbtc.App</code></pre>
+<h3 id="create-alternative-projects">Create Alternative Projects</h3>
+<p>If you use [Gradle]((https://gradle.org/releases/), you can instead
+run:</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode groovy"><code class="sourceCode groovy"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>compile <span class="st">&#39;wf.bitcoin:JavaBitcoindRpcClient:1.2.1&#39;</span></span></code></pre></div>
+<p>If you want a sample project and some instructions on how to run it
+on the server that you just created, you can refer to the <a
+href="https://github.com/brunocvcunha/bitcoind-java-client-sample/">Bitcoind
+Java Sample Project</a>. You can also browse all souce code for
+bitcoin-rpc-client (https://github.com/Polve/bitcoin-rpc-client).</p>
+<h2 id="build-your-connection">Build Your Connection</h2>
+<p>To use <code>JavaBitcoindRpcClient</code>, you need to create a
+<code>BitcoindRpcClient</code> instance. You do this by creating a URL
+with arguments of username, password, IP address and port. As you’ll
+recall, the IP address <code>127.0.0.1</code> and port
+<code>18332</code> should be correct for the standard testnet setup
+described in this course, while you can extract the user and password
+from <code>~/.bitcoin/bitcoin.conf</code>.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>       BitcoindRpcClient rpcClient <span class="op">=</span> <span class="kw">new</span> <span class="fu">BitcoinJSONRPCClient</span><span class="op">(</span><span class="st">&quot;http://StandUp:6305f1b2dbb3bc5a16cd0f4aac7e1eba@localhost:18332&quot;</span><span class="op">);</span></span></code></pre></div>
+<p>Note that you’ll also need to import the appropriate information:</p>
+<pre><code>import wf.bitcoin.javabitcoindrpcclient.BitcoinJSONRPCClient;
+import wf.bitcoin.javabitcoindrpcclient.BitcoindRpcClient;</code></pre>
+<blockquote>
+<p><strong>MAINNET VS TESTNET:</strong> The port would be 8332 for a
+mainnet setup.</p>
+</blockquote>
+<p>If <code>rpcClient</code> is successfully initialized, you’ll be able
+to send RPC commands.</p>
+<p>Later, when you’re all done with your <code>bitcoind</code>
+connection, you should close it:</p>
+<pre><code>rpcClient.stop();</code></pre>
+<h3 id="make-an-rpc-call">Make an RPC Call</h3>
+<p>You’ll find that the <code>BitcoindRpcClient</code> provides most of
+the functionality that can be accessed through <code>bitcoin-cli</code>
+or other RPC methods, using the same method names, but in camelCase.</p>
+<p>For example, to execute the <code>getmininginfo</code> command to get
+the block information and the difficulty on the network, you should use
+the <code>getMiningInfo()</code> method:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>MiningInfo info <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">getMiningInfo</span><span class="op">();</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Mining Information&quot;</span><span class="op">);</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;------------------&quot;</span><span class="op">);</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Chain......: &quot;</span> <span class="op">+</span> info<span class="op">.</span><span class="fu">chain</span><span class="op">());</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Blocks.....: &quot;</span> <span class="op">+</span> info<span class="op">.</span><span class="fu">blocks</span><span class="op">());</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Difficulty.: &quot;</span> <span class="op">+</span> info<span class="op">.</span><span class="fu">difficulty</span><span class="op">());</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Hash Power.: &quot;</span> <span class="op">+</span> info<span class="op">.</span><span class="fu">networkHashps</span><span class="op">());</span></span></code></pre></div>
+<p>The output for this line should be similar to this:</p>
+<pre><code>Mining Information
+------------------
+Chain......: test
+Blocks.....: 1830905
+Difficulty.: 4194304
+Hash Power.: 40367401348837.41</code></pre>
+<h3 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h3>
+<p>You can look up addresses on your wallet by passing the address as an
+argument to <code>getAddressInfo</code>:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> addr1 <span class="op">=</span> <span class="st">&quot;mvLyH7Rs45c16FG2dfV7uuTKV6pL92kWxo&quot;</span><span class="op">;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    AddressInfo addr1Info <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">getAddressInfo</span><span class="op">(</span>addr1<span class="op">);</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Address: &quot;</span> <span class="op">+</span> addr1Info<span class="op">.</span><span class="fu">address</span><span class="op">());</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;MasterFingerPrint: &quot;</span> <span class="op">+</span> addr1Info<span class="op">.</span><span class="fu">hdMasterFingerprint</span><span class="op">());</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;HdKeyPath: &quot;</span> <span class="op">+</span> addr1Info<span class="op">.</span><span class="fu">hdKeyPath</span><span class="op">());</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;PubKey: &quot;</span> <span class="op">+</span> addr1Info<span class="op">.</span><span class="fu">pubKey</span><span class="op">());</span></span></code></pre></div>
+<p>The output will look something like this:</p>
+<pre><code>Address: mvLyH7Rs45c16FG2dfV7uuTKV6pL92kWxo
+MasterFingerPrint: ce0c7e14
+HdKeyPath: m/0&#39;/0&#39;/5&#39;
+PubKey: 0368d0fffa651783524f8b934d24d03b32bf8ff2c0808943a556b3d74b2e5c7d65</code></pre>
+<h3 id="run-your-code">Run Your Code</h3>
+<p>The code for these examples can be found in <a
+href="src/18_2_App-getinfo.java">the src directory</a> and should be
+installed into the standard directory structure created here as
+<code>~/java-project/src/main/java/com/blockchaincommons/lbtc/App.java</code>.
+It can then be compiled and run.</p>
+<pre><code>$ mvn compile
+$ mvn exec:java -Dexec.mainClass=com.blockchaincommons.lbtc.App
+Chain......: test
+Blocks.....: 1831079
+Difficulty.: 4194304
+Hash Power.: 38112849943221.16
+Address: mvLyH7Rs45c16FG2dfV7uuTKV6pL92kWxo
+MasterFingerPrint: ce0c7e14
+HdKeyPath: m/0&#39;/0&#39;/5&#39;
+PubKey: 0368d0fffa651783524f8b934d24d03b32bf8ff2c0808943a556b3d74b2e5c7d65</code></pre>
+<p>(You’ll also see lots more information about the compilation, of
+course.)</p>
+<h2 id="look-up-funds">Look up Funds</h2>
+<p>Retrieving the balance for a whole account is equally easy:</p>
+<pre><code>        System.out.println(&quot;Balance: &quot; + rpcClient.getBalance());</code></pre>
+<h2 id="create-an-address">Create an Address</h2>
+<p>You can create a new address on your wallet, attach a specific label
+to it, and even dump its private key.</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>  <span class="bu">String</span> address <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">getNewAddress</span><span class="op">(</span><span class="st">&quot;Learning-Bitcoin-from-the-Command-Line&quot;</span><span class="op">);</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;New Address: &quot;</span> <span class="op">+</span> address<span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">String</span> privKey <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">dumpPrivKey</span><span class="op">(</span>address<span class="op">);</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Priv Key: &quot;</span> <span class="op">+</span> privKey<span class="op">);</span></span></code></pre></div>
+<p>Output:</p>
+<pre><code>New Address: mpsFtZ8qTJPRGZy1gaaUw37fHeUSPLkzzs
+Priv Key: cTy2AnmAALsHokYzJzTdsUBSqBtypmWfmSNYgG6qQH43euUZgqic</code></pre>
+<h2 id="send-a-transaction">Send a Transaction</h2>
+<p>The JavaBitcoindRpcClient library has some good tools that make it
+easy to create a transaction from scratch.</p>
+<h3 id="create-a-transaction">Create a Transaction</h3>
+<p>You can create a raw transaction using the
+<code>createRawTransaction</code> method, passing as arguments two
+ArrayList objects containing inputs and outputs to be used.</p>
+<p>First you set up your new addresses, here an existing address on your
+system and a new address on your system.</p>
+<pre><code>        String addr1 = &quot;tb1qdqkc3430rexxlgnma6p7clly33s6jjgay5q8np&quot;;
+        System.out.println(&quot;Used address addr1: &quot; + addr1);
+
+        String addr2 = rpcClient.getNewAddress();
+        System.out.println(&quot;Created address addr2: &quot; + addr2);</code></pre>
+<p>Then, you can use the <code>listUnspent</code> RPC to find UTXOs for
+the existing address.</p>
+<pre><code>        List&lt;Unspent&gt; utxos = rpcClient.listUnspent(0, Integer.MAX_VALUE, addr1);
+        System.out.println(&quot;Found &quot; + utxos.size() + &quot; UTXOs (unspent transaction outputs) belonging to addr1&quot;);</code></pre>
+<p>Here’s an output of all the information:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created address addr1: &quot;</span> <span class="op">+</span> addr1<span class="op">);</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> addr2 <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">getNewAddress</span><span class="op">();</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Created address addr2: &quot;</span> <span class="op">+</span> addr2<span class="op">);</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> generatedBlocksHashes <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">generateToAddress</span><span class="op">(</span><span class="dv">110</span><span class="op">,</span> addr1<span class="op">);</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Generated &quot;</span> <span class="op">+</span> generatedBlocksHashes<span class="op">.</span><span class="fu">size</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot; blocks for addr1&quot;</span><span class="op">);</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span>Unspent<span class="op">&gt;</span> utxos <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">listUnspent</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="bu">Integer</span><span class="op">.</span><span class="fu">MAX_VALUE</span><span class="op">,</span> addr1<span class="op">);</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Found &quot;</span> <span class="op">+</span> utxos<span class="op">.</span><span class="fu">size</span><span class="op">()</span> <span class="op">+</span> <span class="st">&quot; UTXOs (unspent transaction outputs) belonging to addr1&quot;</span><span class="op">);</span></span></code></pre></div>
+<p>Transactions are built with <code>BitcoinRawTxBuilder</code>:</p>
+<pre><code>        BitcoinRawTxBuilder txb = new BitcoinRawTxBuilder(rpcClient);</code></pre>
+<p>First you fill the inputs with the UTXOs you’re spending:</p>
+<pre><code>        TxInput in = utxos.get(0);
+        txb.in(in);</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Obviously in a real program you’d
+intelligently select a UTXO; here, we just grab the 0th one, a tactic
+that we’ll use throughout this chapter.</p>
+</blockquote>
+<p>Second, you fill the ouputs each with an amount and an address:</p>
+<pre><code>    BigDecimal estimatedFee = BigDecimal.valueOf(0.00000200);
+        BigDecimal txToAddr2Amount = utxos.get(0).amount().subtract(estimatedFee);
+    txb.out(addr2, txToAddr2Amount);
+
+    System.out.println(&quot;unsignedRawTx in amount: &quot; + utxos.get(0).amount());
+        System.out.println(&quot;unsignedRawTx out amount: &quot; + txToAddr2Amount);</code></pre>
+<p>You’re now ready to actually create the transaction:</p>
+<pre><code>    String unsignedRawTxHex = txb.create();
+    System.out.println(&quot;Created unsignedRawTx from addr1 to addr2: &quot; + unsignedRawTxHex);</code></pre>
+<h3 id="sign-a-transactions">Sign a Transactions</h3>
+<p>You now can sign transaction with the method
+<code>signRawTransactionWithKey</code>. This method receives as
+parameters an unsigned raw string transaction, the private key of the
+sending address, and the TxInput object.</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>    SignedRawTransaction srTx <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">signRawTransactionWithKey</span><span class="op">(</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                    unsignedRawTxHex<span class="op">,</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span>rpcClient<span class="op">.</span><span class="fu">dumpPrivKey</span><span class="op">(</span>addr1<span class="op">)),</span> <span class="co">//</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span>in<span class="op">),</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">null</span><span class="op">);</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;signedRawTx hex: &quot;</span> <span class="op">+</span> srTx<span class="op">.</span><span class="fu">hex</span><span class="op">());</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;signedRawTx complete: &quot;</span> <span class="op">+</span> srTx<span class="op">.</span><span class="fu">complete</span><span class="op">());</span></span></code></pre></div>
+<h3 id="send-a-transactiong">Send a Transactiong</h3>
+<p>Finally, sending requires the <code>sendRawTransaction</code>
+command:</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> sentRawTransactionID <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">sendRawTransaction</span><span class="op">(</span>srTx<span class="op">.</span><span class="fu">hex</span><span class="op">());</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Sent signedRawTx (txID): &quot;</span> <span class="op">+</span> sentRawTransactionID<span class="op">);</span></span></code></pre></div>
+<h3 id="run-your-code-1">Run Your Code</h3>
+<p>You can now run <a href="src/18_2_App-sendtx.java">the transaction
+code</a> as
+<code>~/java-project/src/main/java/com/blockchaincommons/lbtc/App.java</code>.</p>
+<pre><code>$ mvn compile
+$ mvn exec:java -Dexec.mainClass=com.blockchaincommons.lbtc.App
+Used address addr1: tb1qdqkc3430rexxlgnma6p7clly33s6jjgay5q8np
+Created address addr2: tb1q04q2wzlhfqlrnz95ynfj7gp4t3yynrj0542smv
+Found 1 UTXOs (unspent transaction outputs) belonging to addr1
+unsignedRawTx in amount: 0.00850000
+unsignedRawTx out amount: 0.00849800
+Created unsignedRawTx from addr1 to addr2: 0200000001d2a90fc3b43e8eb4ae9452af43c9448112d359cac701f7f537aa8b6f39193bb90100000000ffffffff0188f70c00000000001600147d40a70bf7483e3988b424d32f20355c48498e4f00000000
+signedRawTx hex: 02000000000101d2a90fc3b43e8eb4ae9452af43c9448112d359cac701f7f537aa8b6f39193bb90100000000ffffffff0188f70c00000000001600147d40a70bf7483e3988b424d32f20355c48498e4f024730440220495fb64d8cf9dee9daa8535b8867709ac8d3763d693fd8c9111ce610645c76c90220286f39a626a940c3d9f8614524d67dd6594d9ee93818927df4698c1c8b8f622d01210333877967ac52c0d0ec96aca446ceb3f51863de906e702584cc4da2780d360aae00000000
+signedRawTx complete: true
+Sent signedRawTx (txID): 82032c07e0ed91780c3369a1943ea8abf49c9e11855ffedd935374ecbc789c45</code></pre>
+<h2 id="listen-to-transactions-or-blocks">Listen to Transactions or
+Blocks</h2>
+<p>As with <a href="15_3_Receiving_Bitcoind_Notifications_with_C.md">C
+and its ZMQ libraries</a>, there are easy ways to use Java to listen to
+the blockchain — and to execute specific code when something happens,
+such as a transaction that involves an address in your wallet, or even
+the generation of a new block in the network.</p>
+<p>To do this, use <code>JavaBitcoindRpcClient</code>’s
+<code>BitcoinAcceptor</code> class, which allows you to attach listeners
+in the network.</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> blockHash <span class="op">=</span> rpcClient<span class="op">.</span><span class="fu">getBestBlockHash</span><span class="op">();</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    BitcoinAcceptor acceptor <span class="op">=</span> <span class="kw">new</span> <span class="fu">BitcoinAcceptor</span><span class="op">(</span>rpcClient<span class="op">,</span> blockHash<span class="op">,</span> <span class="dv">6</span><span class="op">,</span> <span class="kw">new</span> <span class="fu">BitcoinPaymentListener</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">@Override</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          <span class="kw">public</span> <span class="dt">void</span> <span class="fu">transaction</span><span class="op">(</span>Transaction tx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Transaction: &quot;</span> <span class="op">+</span> tx<span class="op">);</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>          <span class="op">}</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">@Override</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>          <span class="kw">public</span> <span class="dt">void</span> <span class="fu">block</span><span class="op">(</span><span class="bu">String</span> block<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Block: &quot;</span> <span class="op">+</span> block<span class="op">);</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>          <span class="op">}</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">});</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  acceptor<span class="op">.</span><span class="fu">run</span><span class="op">();</span></span></code></pre></div>
+<p>See <a href="src/18_2_App-listen.java">the src directory</a> for the
+complete code. Every time a transaction is sent or a new block is
+generated, you should see output on your console:</p>
+<pre><code>Transaction: {account=Tests, address=mhopuJzgmTwhGfpNLCJ9CRknugY691oXp1, category=receive, amount=5.0E-4, label=Tests, vout=1, confirmations=0, trusted=false, txid=361e8fcff243b74ebf396e595a007636654f67c3c7b55fd2860a3d37772155eb, walletconflicts=[], time=1513132887, timereceived=1513132887, bip125-replaceable=unknown}
+
+Block: 000000004564adfee3738314549f7ca35d96c4da0afc6b232183917086b6d971</code></pre>
+<h3 id="summary-accessing-bitcoind-with-java">Summary Accessing Bitcoind
+with Java</h3>
+<p>By using the javabitcoinrpc library, you can easily access bitcoind
+via RPC calls from Java. You’ll also have access to nice additional
+features, like the <code>bitcoinAcceptor</code> listening service.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoin in Other Languages” in <a
+href="18_3_Accessing_Bitcoind_with_NodeJS.md">18.3: Accessing Bitcoin
+with NodeJS</a>.</p>
+</body>
+</html>

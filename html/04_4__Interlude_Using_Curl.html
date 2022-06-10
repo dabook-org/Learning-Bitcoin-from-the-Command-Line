@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_4__Interlude_Using_Curl</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="interlude-using-curl">Interlude: Using Curl</h1>
+<p><code>bitcoin-cli</code> is ultimately just a wrapper. It’s a way to
+interface with <code>bitcoind</code> from the command line, providing
+simplified access to its many RPC commands. But RPC can, of course, be
+accessed directly. That’s what this interlude is about: directly
+connecting to RPC with the <code>curl</code> command.</p>
+<p>It won’t be used much in the future chapters, but it’s an important
+building block that you can see as an alternative access to
+<code>bitcoind</code> is you so prefer.</p>
+<h2 id="know-your-curl">Know Your Curl</h2>
+<p><code>curl</code>, short for “see URL”, is a command-line tool that
+allows you to directly access URLs in a programmatic way. It’s an easy
+way to interact with servers like <code>bitcoind</code> that listen to
+ports on the internet and that speak a variety of protocols. Curl is
+also available as a library for many programming languages, such as C,
+Java, PHP, and Python. So, once you know how to work with Curl, you’ll
+have a strong foundation for using a lot of different API.</p>
+<p>In order to use <code>curl</code> with <code>bitcoind</code>, you
+must know three things: the standard format, the user name and password,
+and the correct port.</p>
+<h3 id="know-your-format">Know Your Format</h3>
+<p>The <code>bitcoin-cli</code> commands are all linked to RPC commands
+in <code>bitcoind</code>. That makes the transition from using
+<code>bitcoin-cli</code> to using <code>curl</code> very simple. In
+fact, if you look at any of the help pages for <code>bitcoin-cli</code>,
+you’ll see that they list not only the <code>bitcoin-cli</code>
+commands, but also parallel <code>curl</code> commands. For example,
+here is <code>bitcoin-cli help getmininginfo</code>:</p>
+<pre><code>$ bitcoin-cli help getmininginfo
+getmininginfo
+
+Returns a json object containing mining-related information.
+Result:
+{                              (json object)
+  &quot;blocks&quot; : n,                (numeric) The current block
+  &quot;currentblockweight&quot; : n,    (numeric, optional) The block weight of the last assembled block (only present if a block was ever assembled)
+  &quot;currentblocktx&quot; : n,        (numeric, optional) The number of block transactions of the last assembled block (only present if a block was ever assembled)
+  &quot;difficulty&quot; : n,            (numeric) The current difficulty
+  &quot;networkhashps&quot; : n,         (numeric) The network hashes per second
+  &quot;pooledtx&quot; : n,              (numeric) The size of the mempool
+  &quot;chain&quot; : &quot;str&quot;,             (string) current network name (main, test, regtest)
+  &quot;warnings&quot; : &quot;str&quot;           (string) any network and blockchain warnings
+}
+
+Examples:
+&gt; bitcoin-cli getmininginfo 
+&gt; curl --user myusername --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: &quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: []}&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:8332/</code></pre>
+<p>And there’s the <code>curl</code> command, at the end of the help
+screen! This somewhat lengthy command has four major parts: (1) a
+listing of your user name; (2) a <code>--data-binary</code> flag; (3) a
+JSON object that tells <code>bitcoind</code> what to do, including a
+JSON array of parameters; and (4) an HTTP header that includes the
+<code>bitcoind</code> URL.</p>
+<p>When you are working with <code>curl</code>, most of these arguments
+to <code>curl</code> will stay the same from command to command; only
+the <code>method</code> and <code>params</code> entries in the JSON
+array will typically change. However, you need to know how to fill in
+your username and your URL address in order to make it work in the first
+place!</p>
+<p><em>Whenever you’re unsure about how to curl an RPC command, just
+look at the bitcoin-cli help and go from there.</em></p>
+<h3 id="know-your-user-name">Know Your User Name</h3>
+<p>In order to speak with the <code>bitcoind</code> port, you need a
+user name and password. These were created as part of your initial
+Bitcoin setup, and can be found in
+<code>~/.bitcoin/bitcoin.conf</code>.</p>
+<p>For example, here’s our current setup:</p>
+<pre><code>$ cat ~/.bitcoin/bitcoin.conf
+server=1
+dbcache=1536
+par=1
+maxuploadtarget=137
+maxconnections=16
+rpcuser=StandUp
+rpcpassword=8eaf562eaf45c33c3328bc66008f2dd1
+rpcallowip=127.0.0.1
+debug=tor
+prune=550
+testnet=1
+mintxfee=0.001
+txconfirmtarget=1
+[test]
+rpcbind=127.0.0.1
+rpcport=18332
+[main]
+rpcbind=127.0.0.1
+rpcport=8332
+[regtest]
+rpcbind=127.0.0.1
+rpcport=18443</code></pre>
+<p>Our user name is <code>StandUp</code> and our password is
+<code>8eaf562eaf45c33c3328bc66008f2dd1</code>.</p>
+<blockquote>
+<p><strong>WARNING:</strong> Clearly, it’s not very secure to have this
+information in a plain text file. As of Bitcoin Core 0.12, you can
+instead omit the <code>rpcpassword</code> from your
+<code>bitcoin.conf</code> file, and have <code>bitcoind</code> generate
+a new cookie whenever it starts up. The downside of this is that it
+makes use of RPC commands by other applications, such as the ones
+detailed in this chapter, more difficult. So, we’re going to stick with
+the plain <code>rpcuser</code> and <code>rpcpassword</code> information
+for now, but for production software, consider moving to cookies.</p>
+</blockquote>
+<p>The secure way to RPC with <code>bitcoind</code> is as follows:</p>
+<pre><code>$ curl --user StandUp --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/
+Enter host password for user &#39;bitcoinrpc&#39;:</code></pre>
+<p>As noted, you will be prompted for your password.</p>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> Testnet uses a URL with
+port 18332 and mainnet uses a URL with port 8332. Take a look in your
+<code>bitcoin.conf</code>, it’s all laid out there.</p>
+</blockquote>
+<p>The insecure way to do so is as follows:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/</code></pre>
+<blockquote>
+<p><strong>WARNING:</strong> Entering your password on the command line
+may put your password into the process table and/or save it into a
+history. This is even less recommended than putting it in a file, except
+for testing on testnet. If you want to do it anywhere else, make sure
+you know what you’re doing!</p>
+</blockquote>
+<h3 id="know-your-command-parameters">Know Your Command &amp;
+Parameters</h3>
+<p>With all of that in hand, you’re ready to send off standard RPC
+commands with <code>curl</code> … but you still need to know how to
+incorporate the two elements that tend to change in the
+<code>curl</code> command.</p>
+<p>The first is <code>method</code>, which is the RPC method being used.
+This should generally match the command names you’ve been feeding into
+<code>bitcoin-cli</code> for ages.</p>
+<p>The second is <code>params</code>, which is a JSON array of
+parameters. These are the same as the arguments (or named arguments)
+that you’ve been using. They’re also the most confusing part of
+<code>curl</code>, in large part because they’re a structured array
+rather than a simple list.</p>
+<p>Here’s what some parameter arrays will look like:</p>
+<ul>
+<li><code>[]</code> — An empty array</li>
+<li><code>["000b4430a7a2ba60891b01b718747eaf9665cb93fbc0c619c99419b5b5cf3ad2"]</code>
+— An array with data</li>
+<li><code>["'$signedhex'"]</code> — An array with a variable</li>
+<li><code>[6, 9999999]</code> — An array with two parameters</li>
+<li><code>{}</code> - An empty object</li>
+<li><code>[''[ { "txid": "'$utxo_txid'", "vout": '$utxo_vout' } ]'', ''{ "'$recipient'": 0.298, "'$changeaddress'": 1.0}'']</code>
+— An array with an array containing an object and a bare object</li>
+</ul>
+<h2 id="get-information">Get Information</h2>
+<p>You can now send your first <code>curl</code> command by accessing
+the <code>getmininginfo</code> RPC:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/
+{&quot;result&quot;:{&quot;blocks&quot;:1772428,&quot;difficulty&quot;:10178811.40698772,&quot;networkhashps&quot;:91963587385939.06,&quot;pooledtx&quot;:61,&quot;chain&quot;:&quot;test&quot;,&quot;warnings&quot;:&quot;Warning: unknown new rules activated (versionbit 28)&quot;},&quot;error&quot;:null,&quot;id&quot;:&quot;curltest&quot;}</code></pre>
+<p>Note that we provided the method, <code>getmininginfo</code>, and the
+parameter, <code>[]</code>, but that everything else was the standard
+<code>curl</code> command line.</p>
+<blockquote>
+<p><strong>WARNING:</strong> If you get a result like “Failed to connect
+to 127.0.0.1 port 8332: Connection refused”, be sure that a line like
+<code>rpcallowip=127.0.0.1</code> is in your ~/.bitcoin/bitcoin.conf. If
+things still don’t work, be sure that you’re allowing access to port
+18332 (or 8332) from localhost. Our standard setup from <a
+href="02_0_Setting_Up_a_Bitcoin-Core_VPS.md">Chapter Two: Creating a
+Bitcoin-Core VPS</a> should do all of this.</p>
+</blockquote>
+<p>The result is another JSON array, which is unfortunately ugly to read
+if you’re using <code>curl</code> by hand. Fortunately, you can clean it
+up simply by piping it through <code>jq</code>:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   295  100   218  100    77  72666  25666 --:--:-- --:--:-- --:--:-- 98333
+{
+  &quot;result&quot;: {
+    &quot;blocks&quot;: 1772429,
+    &quot;difficulty&quot;: 10178811.40698772,
+    &quot;networkhashps&quot;: 90580030969896.44,
+    &quot;pooledtx&quot;: 4,
+    &quot;chain&quot;: &quot;test&quot;,
+    &quot;warnings&quot;: &quot;Warning: unknown new rules activated (versionbit 28)&quot;
+  },
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<p>You’ll see a bit of connectivity reporting as the data is downloaded,
+then when that data hits <code>jq</code>, everything will be output in a
+correctly indented form. (We’ll be omitting the download information in
+future examples.)</p>
+<h2 id="manipulate-your-wallet">Manipulate Your Wallet</h2>
+<p>Though you’re accessing <code>bitcoind</code> directly, you’ll still
+get access to wallet functionality, because that’s largely stored in
+<code>bitcoind</code> itself.</p>
+<h3 id="look-up-addresses">Look Up Addresses</h3>
+<p>Use the <code>getaddressesbylabel</code> RPC to list all of your
+current addresses:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getaddressesbylabel&quot;, &quot;params&quot;: [&quot;&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+{
+  &quot;result&quot;: {
+    &quot;mi25UrzHnvn3bpEfFCNqJhPWJn5b77a5NE&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    },
+    &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    },
+    &quot;moKVV6XEhfrBCE3QCYq6ppT7AaMF8KsZ1B&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    },
+    &quot;mwJL7cRiW2bUnY81r1thSu3D4jtMmwyU6d&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    },
+    &quot;tb1q5gnwrh7ss5mmqt0qfan85jdagmumnatcscwpk6&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    },
+    &quot;tb1qmtucvjtga68kgrvkl7q05x4t9lylxhku7kqdpr&quot;: {
+      &quot;purpose&quot;: &quot;receive&quot;
+    }
+  },
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<p>This is our first example of a real parameter, <code>""</code>. This
+is the required <code>label</code> parameter for
+<code>getaddressesbylabel</code>, but all of our addresses are under the
+default label, so nothing special was required here.</p>
+<p>The result is a list of all the addresses that have been used by this
+wallet … some of which presumably contain funds.</p>
+<h3 id="look-up-funds">Look Up Funds</h3>
+<p>Use the <code>listunspent</code> RPC to list the funds that you have
+available:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;listunspent&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+{
+  &quot;result&quot;: [
+    {
+      &quot;txid&quot;: &quot;e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d&quot;,
+      &quot;vout&quot;: 1,
+      &quot;address&quot;: &quot;mk9ry5VVy8mrA8SygxSQQUDNSSXyGFot6h&quot;,
+      &quot;scriptPubKey&quot;: &quot;76a91432db726320e4ad170c9c1ee83cd4d8a243c3435988ac&quot;,
+      &quot;amount&quot;: 0.0009,
+      &quot;confirmations&quot;: 4,
+      &quot;spendable&quot;: true,
+      &quot;solvable&quot;: true,
+      &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/1&#39;/2&#39;]02881697d252d8bf181d08c58de1f02aec088cd2d468fc5fd888c6e39909f7fabf)#p6k7dptk&quot;,
+      &quot;safe&quot;: true
+    },
+    {
+      &quot;txid&quot;: &quot;91261eafae15ea53dedbea7c1db748c52bbc04a85859ffd0d839bda1421fda4c&quot;,
+      &quot;vout&quot;: 0,
+      &quot;address&quot;: &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;,
+      &quot;label&quot;: &quot;&quot;,
+      &quot;scriptPubKey&quot;: &quot;76a9142d573900aa357a38afd741fbf24b075d263ea6e088ac&quot;,
+      &quot;amount&quot;: 0.00022,
+      &quot;confirmations&quot;: 19,
+      &quot;spendable&quot;: true,
+      &quot;solvable&quot;: true,
+      &quot;desc&quot;: &quot;pkh([d6043800/0&#39;/0&#39;/3&#39;]0278608b54b8fb0d8379d3823d31f03a7c6ab0adffb07dd3811819fdfc34f8c132)#nhjc3f8y&quot;,
+      &quot;safe&quot;: true
+    }
+  ],
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<p>This is almost exactly the same output that you receive when you type
+<code>bitcoin-cli listunspent</code>, showing how closely tied the two
+interfaces are. If no cleanup or extra help is needed, then
+<code>bitcoin-cli</code> just outputs the RPC. Easy!</p>
+<h3 id="create-an-address">Create an Address</h3>
+<p>After you know where your funds are, the next step in crafting a
+transaction is to get a change address. By now you’ve probably got the
+hang of this, and you know that for simple RPC commands, all you need to
+do is adjust the <code>method</code> is the <code>curl</code>
+command:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getrawchangeaddress&quot;, &quot;params&quot;: [&quot;&quot;, &quot;legacy&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+{
+  &quot;result&quot;: &quot;mrSqN37TPs89GcidSZTvXmMzjxoJZ6RKoz&quot;,
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<blockquote>
+<p><strong>WARNING:</strong> The parameters order is important when you
+are sending RPC commands using curl. For example here, if we had sent
+<code>"params": ["legacy"]</code> instead of
+<code>"params": ["", "legacy"]</code>, we would get a
+<code>bech32</code> address with a label of <code>"legacy"</code>
+instead of a <code>legacy</code> address, so pay attention to the
+order.</p>
+</blockquote>
+<p>At this point, we can even revert to our standard practice of saving
+results to variables with additional help from <code>jq</code>:</p>
+<pre><code>$ changeaddress=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getrawchangeaddress&quot;, &quot;params&quot;: [&quot;&quot;, &quot;legacy&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result&#39;)
+$ echo $changeaddress
+mqdfnjgWr2r3sCCeuTDfe8fJ1CnycF2e6R</code></pre>
+<p>No need to worry about the downloading info. It’ll go to
+<code>STDERR</code> and be displayed on your screen, while the results
+go to <code>STDOUT</code> and are saved in your variable.</p>
+<h2 id="create-a-transaction">Create a Transaction</h2>
+<p>You’re now ready to create a transaction with <code>curl</code>.</p>
+<h3 id="ready-your-variables">Ready Your Variables</h3>
+<p>Just as with <code>bitcoin-cli</code>, in order to create a
+transaction by curling RPC commands, you should first save your
+variables. The only change here is that <code>curl</code> creates a JSON
+object that includes a <code>result</code> key-value, so you always need
+to pipe through the <code>.result</code> tag before you do anything
+else.</p>
+<p>This example sets up our variables for using the 1.2985 BTC in funds
+listed in the first unspent transaction above:</p>
+<pre><code>$ utxo_txid=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;listunspent&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result | .[0] | .txid&#39;)
+$ utxo_vout=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;listunspent&quot;, &quot;params&quot;: [] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result | .[0] | .vout&#39;)
+$ recipient=mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf
+$ changeaddress=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;getrawchangeaddress&quot;, &quot;params&quot;: [&quot;legacy&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result&#39;)
+
+$ echo $utxo_txid
+e7071092dee0b2ae584bf6c1ee3c22164304e3a17feea7a32c22db5603cd6a0d
+$ echo $utxo_vout
+1
+$ echo $recipient
+mwCwTceJvYV27KXBc3NJZys6CjsgsoeHmf
+$ echo $changeaddress
+n2jf3MzeFpFGa7wq8rXKVnVuv5FoNSJZ1N</code></pre>
+<h3 id="create-the-transaction">Create the Transaction</h3>
+<p>The transaction created with <code>curl</code> is very similar to the
+transaction created with <code>bitcoin-cli</code>, but with a few subtle
+differences:</p>
+<pre><code>$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;createrawtransaction&quot;, &quot;params&quot;: [&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;, &#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.0003, &quot;&#39;$changeaddress&#39;&quot;: 0.0005}&#39;&#39;]}&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+{
+  &quot;result&quot;: &quot;02000000010d6acd0356db222ca3a7ee7fa1e3044316223ceec1f64b58aeb2e0de921007e70100000000ffffffff0230750000000000001976a914ac19d3fd17710e6b9a331022fe92c693fdf6659588ac50c30000000000001976a9147021efec134057043386decfaa6a6aa4ee5f19eb88ac00000000&quot;,
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<p>The heart of the transaction is, of course, the <code>params</code>
+JSON array, which we’re putting to full use for the first time.</p>
+<p>Note that the entire <code>params</code> is lodged in
+<code>[]</code>s to mark the parameters array.</p>
+<p>We’ve also varied up the quoting from how things worked in
+<code>bitcoin-cli</code>, to start and end each array and object within
+the <code>params</code> array with <code>''</code> instead of our
+traditional <code>'''</code>. That’s because the entire set of JSON
+arguments already has a <code>'</code> around it. As usual, just take a
+look at the bizarre shell quoting and get used to it.</p>
+<p>However, there’s one last thing of note in this example, and it can
+be <em>maddening</em> if you miss it. When you executed a
+<code>createrawtransaction</code> command with <code>bitcoin-cli</code>
+the JSON array of inputs and the JSON object of outputs were each
+distinct parameters, so they were separated by a space. Now, because
+they’re part of that <code>params</code> JSON array, they’re separated
+by a comma (<code>,</code>). Miss that and you’ll get a
+<code>parse error</code> without much additional information.</p>
+<blockquote>
+<p><strong>WARNING:</strong> Ever having troubles debugging your
+<code>curl</code>? Add the argument <code>--trace-ascii /tmp/foo</code>.
+Full information on what’s being sent to the server will be saved in
+<code>/tmp/foo</code> (or whatever file name you provide).</p>
+</blockquote>
+<p>Having verified that things work, you probably want to save the hex
+code into a variable:</p>
+<pre><code>$ hexcode=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;createrawtransaction&quot;, &quot;params&quot;: [&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;, &#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.0003, &quot;&#39;$changeaddress&#39;&quot;: 0.0005}&#39;&#39;]}&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result&#39;)</code></pre>
+<h3 id="sign-and-send">Sign and Send</h3>
+<p>Signing and sending your transaction using <code>curl</code> is an
+easy use of the <code>signrawtransactionwithwallet</code> and
+<code>sendrawtransaction</code> RPC:</p>
+<pre><code>$ signedhex=$(curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;signrawtransactionwithwallet&quot;, &quot;params&quot;: [&quot;&#39;$hexcode&#39;&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.result | .hex&#39;)
+
+$ curl --user StandUp:8eaf562eaf45c33c3328bc66008f2dd1 --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;:&quot;curltest&quot;, &quot;method&quot;: &quot;sendrawtransaction&quot;, &quot;params&quot;: [&quot;&#39;$signedhex&#39;&quot;] }&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:18332/ | jq -r &#39;.&#39;
+{
+  &quot;result&quot;: &quot;eb84c5008038d760805d4d9644ace67849542864220cb2685a1ea2c64176b82d&quot;,
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;curltest&quot;
+}</code></pre>
+<h2 id="summary-accessing-bitcoind-with-curl">Summary: Accessing
+Bitcoind with Curl</h2>
+<p>Having finished this section, you may feel that accessing
+<code>bitcoind</code> via <code>curl</code> is very much like accessing
+it through <code>bitcoin-cli</code> … but more cumbersome. And, you’d be
+right. <code>bitcoin-cli</code> has pretty complete RPC functionality,
+so anything that you do through <code>curl</code> you can probably do
+through <code>bitcoin-cli</code>. Which is why we’re going to continue
+concentrating on <code>bitcoin-cli</code> following this digression.</p>
+<p>But there are still reasons you’d use <code>curl</code> instead of
+<code>bitcoin-cli</code>:</p>
+<p><em>What is the power of curl?</em> Most obviously, <code>curl</code>
+takes out one level of indirection. Instead of working with
+<code>bitcoin-cli</code> which sends RPC commands to
+<code>bitcoind</code>, you’re sending those RPC commands directly. This
+allows for more robust programming, because you don’t have to worry
+about what unexpected things that <code>bitcoin-cli</code> might do or
+how it might change over time. However, you’re also taking your first
+steps toward using a more comprehensive programming language than the
+poor options offered by a shell script. As you’ll see in the last few
+chapters of this, you might actually see curl libraries are other
+functions to access the RPC commands in a variety of programming
+languages: but that’s still a long ways away.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn one more way to “Send Bitcoin Transactions” with <a
+href="04_5_Sending_Coins_with_Automated_Raw_Transactions.md">§4.5
+Sending Coins with Automated Raw Transactions</a>.</p>
+</body>
+</html>

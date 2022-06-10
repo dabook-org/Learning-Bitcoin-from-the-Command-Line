@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_6_Accessing_Bitcoind_with_Swift</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-with-swift">18.6: Accessing Bitcoind with
+Swift</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section explains how to interact with <code>bitcoind</code>
+using the Swift programming language and your own RPC client.</p>
+<h2 id="set-up-swift-on-your-mac">Set Up Swift on Your Mac</h2>
+<p>To date, you’ve built all of your alternative-programming-language
+development environments on your Debian virtual node. However, that’s
+not the best platform for Swift. Though there is a version of Swift
+available for Ubuntu platforms, it’s not fully featured, and it works
+somewhat differently from the Mac-native Swift. A “variant” at the
+bottom of this section explains how to set it up, but be warned that
+you’ll be in uncharted territory.</p>
+<p>Instead, we suggest creating an optimal Swift environment on a Mac.
+There are four major steps in doing so.</p>
+<h3 id="install-xcode">1. Install Xcode</h3>
+<p>You’re going to need <code>Xcode</code>, the integrated development
+enviroment for Swift and Objective-C. That can be easily installed by
+going to the Mac App Store and <code>Get</code>ting Xcode.</p>
+<h4 id="alternative-install-by-hand">Alternative: Install by Hand</h4>
+<p>Some people advise against an App Store install because it’s somewhat
+all-or-nothing; it also won’t work if you’re still using Mojave because
+you want to avoid Catalina’s incompatibilities. In that case you can
+download directly from the <a
+href="https://developer.apple.com/download/more/">Developer Area</a> at
+Apple.</p>
+<p>If you’re using Mojave, you’ll need the <code>xip</code> file for
+Xcode 10.3.1. Otherwise, get the newest one.</p>
+<p>Once it’s downloaded, you can click on the <code>xip</code> to
+extract it, then move the Xcode app to your Applications folder.</p>
+<p>(Either way, you should have Xcode installed in your Applications
+folder at the end of this step.)</p>
+<h3 id="install-the-gordian-server">2. Install the Gordian Server</h3>
+<p>You’re also going to need a Bitcoin node on your Mac, so that you can
+communicate with it. Technically, you could use a remote node and access
+it with the RPC login and password over the net. However, we suggest you
+instead install a full node directly on your Mac, because that’s the
+safest and cleanest setup, ensuring that none of your communications
+leave your machine.</p>
+<p>To easily install a full node on your Mac, use Blockchain Commons’ <a
+href="https://github.com/BlockchainCommons/GordianServer-macOS">GordianServer
+for MacOS</a>. See the <a
+href="https://github.com/BlockchainCommons/GordianServer-macOS#installation-instructions">installation
+instructions</a> in the README, but generally all you have to do is
+download the current <code>dmg</code> file, open it, and install that
+app in your Applications directory too.</p>
+<p>Afterward, run the GordianServer App, and tell it to
+<code>Start</code> Testnet.</p>
+<blockquote>
+<p>:link: <strong>TESTNET vs. MAINNET:</strong> Or <code>Start</code>
+Mainnet.</p>
+</blockquote>
+<h4 id="make-your-gordian-bitcoin-cli-accessible">3. Make Your Gordian
+bitcoin-cli Accessible</h4>
+<p>When you want to access the <code>bitcoin-cli</code> created by
+GordianServer on your local Mac, you can find it at
+<code>~/.standup/BitcoinCore/bitcoin-VERSION/bin/bitcoin-cli</code>, for
+example
+<code>~/.standup/BitcoinCore/bitcoin-0.20.1/bin/bitcoin-cli</code>.</p>
+<p>You may wish to create an alias for that:</p>
+<pre><code>alias bitcoin-cli=&quot;~/.standup/BitcoinCore/bitcoin-0.20.1/bin/bitcoin-cli -testnet&quot;</code></pre>
+<blockquote>
+<p>:link: <strong>TESTNET vs. MAINNET:</strong> Obviously, the
+<code>-testnet</code> parameter is only required if you’re running on
+testnet.</p>
+</blockquote>
+<h3 id="find-your-gordianserver-info">4. Find Your GordianServer
+Info</h3>
+<p>Finally, you’ll need your <code>rpcuser</code> and
+<code>rpcpassword</code> information. That’s in
+<code>~/Library/Application Support/Bitcoin/bitcoin.conf</code> by
+default under Gordian.</p>
+<pre><code>$ grep rpc ~/Library/Application\ Support/Bitcoin/bitcoin.conf
+rpcuser=oIjA53JC2u
+rpcpassword=ebVCeSyyM0LurvgQyi0exWTqm4oU0rZU
+...</code></pre>
+<h2 id="build-your-connection-by-hand">Build Your Connection by
+Hand</h2>
+<p>At the time of this writing, there isn’t an up-to-date, simple-to-use
+Bitcoin RPC Library that’s specific for Swift, something that you can
+drop in and immediately start using. Thus, you’re’re going to do
+something you’re never done before: build an RPC connection by hand.</p>
+<h3 id="write-the-rpc-transmitter">Write the RPC Transmitter</h3>
+<p>This just requires writing a function that passes RPC commands on to
+<code>bitcoind</code> in the correct format:</p>
+<pre><code>func makeCommand(method: String, param: Any, completionHandler: @escaping (Any?) -&gt; Void) -&gt; Void {</code></pre>
+<p>RPC connections to <code>bitcoind</code> use the HTML protocol, which
+means that you need to do three things: create a URL; make a URLRequest;
+and initiate a URLSession.</p>
+<h4 id="create-a-url">1. Create a URL</h4>
+<p>Within the function, you need to create a URL from your IP, port,
+<code>rpcuser</code>, <code>rpcpassword</code>, and wallet:</p>
+<pre><code>    let testnetRpcPort = &quot;18332&quot;
+    let nodeIp = &quot;127.0.0.1:\(testnetRpcPort)&quot;
+    let rpcusername = &quot;oIjA53JC2u&quot;
+    let rpcpassword = &quot;ebVCeSyyM0LurvgQyi0exWTqm4oU0rZU&quot;
+    let walletName = &quot;&quot;</code></pre>
+<p>The actual RPC connection to Bitcoin Core is built using a URL of the
+format “http://rpcusername:rpcpassword@nodeIp/walletName”:</p>
+<pre><code>    let walletUrl = &quot;http://\(rpcusername):\(rpcpassword)@\(nodeIp)/\(walletName)&quot;
+
+    let url = URL(string: walletUrl)</code></pre>
+<p>This means that your sample variables result in the following
+URL:</p>
+<pre><code>http://oIjA53JC2u:ebVCeSyyM0LurvgQyi0exWTqm4oU0rZU@127.0.0.1:18332/</code></pre>
+<p>Which should look a lot like the URL used in some of the previous
+sections for RPC connections.</p>
+<h4 id="create-a-urlrequest">2. Create a URLRequest</h4>
+<p>With that URL in you hand, you can now create a URLRequest, with the
+<code>POST</code> method and the <code>text/plain</code> content type.
+The HTTP body is then the familiar JSON object that you’ve been sending
+whenever you connect directly to Bitcoin Core’s RPC ports, as first
+demonstrated when using Curl in <a
+href="04_4__Interlude_Using_Curl.md">§4.4</a>.</p>
+<pre><code>    var request = URLRequest(url: url!)
+    request.httpMethod = &quot;POST&quot;
+    request.setValue(&quot;text/plain&quot;, forHTTPHeaderField: &quot;Content-Type&quot;)
+    request.httpBody = &quot;{\&quot;jsonrpc\&quot;:\&quot;1.0\&quot;,\&quot;id\&quot;:\&quot;curltest\&quot;,\&quot;method\&quot;:\&quot;\(method)\&quot;,\&quot;params\&quot;:[\(param)]}&quot;.data(using: .utf8)</code></pre>
+<h4 id="create-a-urlsession">3. Create a URLSession</h4>
+<p>Finally, you’re ready to build a URLSession around your
+URLRequest.</p>
+<pre><code>    let session = URLSession(configuration: .default)
+    let task = session.dataTask(with: request as URLRequest) { data, response, error in</code></pre>
+<p>The completion handler for <code>dataTask</code> needs to check for
+errors:</p>
+<pre><code>        do {
+
+            if error != nil {
+
+                    //Handle the error
+                    
+            } else {</code></pre>
+<p>And then parse the data that you’re receiving. Here, you’re pulling
+the JSON results into an <code>NSDictionary</code>:</p>
+<pre><code>                if let urlContent = data {
+                        
+                    do {
+                            
+                        let json = try JSONSerialization.jsonObject(with: urlContent, options: JSONSerialization.ReadingOptions.mutableLeaves) as! NSDictionary</code></pre>
+<p>After that, there’s more error handling and more error handling and
+then you can eventually return the dictionary <code>result</code> using
+the <code>completionHandler</code> that you defined for the new
+<code>makeCommand</code> function:</p>
+<pre><code>                        if let errorCheck = json[&quot;error&quot;] as? NSDictionary {
+                                                                
+                            if let errorMessage = errorCheck[&quot;message&quot;] as? String {
+
+                                print(&quot;FAILED&quot;)
+                                print(errorMessage)
+
+                            }
+                                
+                        } else {
+                                
+                            let result = json[&quot;result&quot;]
+                            completionHandler(result)
+                            
+                        }
+                            
+                    } catch {
+                            
+                            //Handle error here
+                            
+                    }</code></pre>
+<p>Of course you eventually have to tell the <code>task</code> to
+start:</p>
+<pre><code>    task.resume()</code></pre>
+<p>And that’s “all” there is to doing that RPC interaction by hand using
+a programming language such as Swift.</p>
+<blockquote>
+<p>:pray: <strong>THANKS:</strong> Thanks to <span class="citation"
+data-cites="Fonta1n3">@Fonta1n3</span> who provided the <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/issues/137">main
+code</a> for our RPC Transmitter.</p>
+</blockquote>
+<h3 id="make-an-rpc-call">Make An RPC Call</h3>
+<p>Having written the <code>makeCommand</code> RPC function, you can
+send an RPC call by running it. Here’s
+<code>getblockchaininfo</code>:</p>
+<pre><code>let method = &quot;getblockchaininfo&quot;
+let param = &quot;&quot;
+
+makeCommand(method: method,param: param) { result in
+    
+    print(result!)
+
+}</code></pre>
+<h3 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h3>
+<p>You could similarly grab the current block count from that info and
+use that to (reduntantly) get the hash of the current block, by using
+the <code>param</code> parameter:</p>
+<pre><code>let method = &quot;getblockchaininfo&quot;
+let param = &quot;&quot;
+
+makeCommand(method: method,param: param) { result in
+    
+    let blockinfo = result as! NSDictionary
+    let block = blockinfo[&quot;blocks&quot;] as! NSNumber
+    
+    let method = &quot;getblockhash&quot;
+    makeCommand(method: method,param: block) { result in
+        print(&quot;Blockhash for \(block) is \(result!)&quot;)
+    }
+    
+}</code></pre>
+<h3 id="run-your-code">Run Your Code</h3>
+<p>The complete code is available in the <a
+href="src/18_6_getinfo.playground">src directory</a>. Load it into your
+Xcode playground and then “Editor -&gt; Run Playground” and you should
+get results like:</p>
+<pre><code>{
+    bestblockhash = 00000000000000069725608ebc5b59e520572a8088cbc57ffa5ba87b7f300ac7;
+    blocks = 1836745;
+    chain = test;
+    chainwork = 0000000000000000000000000000000000000000000001cc3e9f8e0bc6b71196;
+    difficulty = &quot;16508683.81195478&quot;;
+    headers = 1836745;
+    initialblockdownload = 0;
+    mediantime = 1601416765;
+    pruned = 0;
+    &quot;size_on_disk&quot; = 28205538354;
+    softforks =     {
+        bip34 =         {
+            active = 1;
+            height = 21111;
+            type = buried;
+        };
+        bip65 =         {
+            active = 1;
+            height = 581885;
+            type = buried;
+        };
+        bip66 =         {
+            active = 1;
+            height = 330776;
+            type = buried;
+        };
+        csv =         {
+            active = 1;
+            height = 770112;
+            type = buried;
+        };
+        segwit =         {
+            active = 1;
+            height = 834624;
+            type = buried;
+        };
+    };
+    verificationprogress = &quot;0.999999907191804&quot;;
+    warnings = &quot;Warning: unknown new rules activated (versionbit 28)&quot;;
+}
+Blockhash for 1836745 is 00000000000000069725608ebc5b59e520572a8088cbc57ffa5ba87b7f300ac7</code></pre>
+<h2 id="look-up-funds">Look Up Funds</h2>
+<p>With your new <code>makeCommand</code> for RPC functions, you can
+similarly run a command like <code>getwalletinfo</code> or
+<code>getbalance</code>:</p>
+<pre><code>var method = &quot;getwalletinfo&quot;
+var param = &quot;&quot;
+
+makeCommand(method: method,param: param) { result in
+    
+    print(result!)
+    
+}
+
+method = &quot;getbalance&quot;
+makeCommand(method: method,param: param) { result in
+
+    let balance = result as! NSNumber
+    print(&quot;Balance is \(balance)&quot;)
+
+}</code></pre>
+<p>Which returns:</p>
+<pre><code>Balance is 0.01
+{
+    &quot;avoid_reuse&quot; = 0;
+    balance = &quot;0.01&quot;;
+    hdseedid = bf493318f548df8e25c390d6a7f70758fd6b3668;
+    &quot;immature_balance&quot; = 0;
+    keypoololdest = 1599723938;
+    keypoolsize = 999;
+    &quot;keypoolsize_hd_internal&quot; = 1000;
+    paytxfee = 0;
+    &quot;private_keys_enabled&quot; = 1;
+    scanning = 0;
+    txcount = 1;
+    &quot;unconfirmed_balance&quot; = 0;
+    walletname = &quot;&quot;;
+    walletversion = 169900;
+}</code></pre>
+<h2 id="create-an-address">Create an Address</h2>
+<p>Creating an address is simple enough, but what about creating a
+legacy address with a specific label? That requires two parameters in
+your RPC call.</p>
+<p>Since the simplistic <code>makeCommand</code> function in this
+section just passes on its <code>param</code>s as the guts of a JSON
+Object, all you have to do is correctly format those guts. Here’s one
+way to do so:</p>
+<pre><code>method = &quot;getnewaddress&quot;
+param = &quot;\&quot;learning-bitcoin\&quot;, \&quot;legacy\&quot;&quot;
+
+makeCommand(method: method,param: param) { result in
+
+    let address = result as! NSString
+    print(address)
+}</code></pre>
+<p>Running this in the Xcode playground produces a result:</p>
+<pre><code>mt3ZRsmXHVMMqYQPJ8M74QjF78bmqrdHZF</code></pre>
+<p>That result is obviously a Legacy address; its label can then be
+checked from the command line:</p>
+<pre><code>$ bitcoin-cli getaddressesbylabel &quot;learning-bitcoin&quot;
+{
+  &quot;mt3ZRsmXHVMMqYQPJ8M74QjF78bmqrdHZF&quot;: {
+    &quot;purpose&quot;: &quot;receive&quot;
+  }
+}</code></pre>
+<p>Success!</p>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> As we often say in these
+coding examples, a real-world program would be much more sophisticated.
+In particular, you’d want to be able to send an actual JSON Object as a
+parameter, and then have your <code>makeCommand</code> program parse it
+and input it to the URLSession appropriately. What we have here
+maximizes readability and simplicity without focusing on ease of
+use.</p>
+</blockquote>
+<h2 id="send-a-transaction">Send a Transaction</h2>
+<p>As usual, sending a transaction (the hard way) is a multi-step
+process:</p>
+<ol start="0" type="1">
+<li>Generate or receive a receiving address</li>
+<li>Find an unspent UTXO</li>
+<li>Create a raw transaction</li>
+<li>Sign the raw transaction</li>
+<li>Send the raw transaction</li>
+</ol>
+<p>You’ll use the <code>address</code> that you generated in the
+previous step as your recipient.</p>
+<h3 id="find-an-unspent-utxo">1. Find an Unspent UTXO</h3>
+<p>The <code>listunspent</code> RPC lets you find your UTXO:</p>
+<pre><code>    method = &quot;listunspent&quot;
+    param = &quot;&quot;
+    
+    makeCommand(method: method,param: param) { result in
+
+        let unspent = result as! NSArray
+        let utxo = unspent[0] as! NSDictionary
+        
+        let txid = utxo[&quot;txid&quot;] as! NSString
+        let vout = utxo[&quot;vout&quot;] as! NSInteger
+        let amount = utxo[&quot;amount&quot;] as! NSNumber
+        let new_amount = amount.floatValue - 0.0001</code></pre>
+<p>As in other examples, you’re going to arbitrarily grab the 0th UTXO,
+and pull the <code>txid</code>, <code>vout</code>, and
+<code>amount</code> from it.</p>
+<blockquote>
+<p>:information_source <strong>NOTE:</strong> Once again, a real-life
+program would be much more sophisticated.</p>
+</blockquote>
+<h3 id="create-a-raw-transaction">2. Create a Raw Transaction</h3>
+<p>Creating a raw transaction is the trickiest thing because you need to
+get all of your JSON objects, arrays, and quotes right. Here’s how to do
+so in Swift, using the transmitter’s very basic <code>param</code>
+formatting:</p>
+<pre><code>        method = &quot;createrawtransaction&quot;
+        param=&quot;[ { \&quot;txid\&quot;: \&quot;\(txid)\&quot;, \&quot;vout\&quot;: \(vout) } ], { \&quot;\(address)\&quot;: \(new_amount)}&quot;
+        makeCommand(method: method,param: param) { result in
+
+            let hex = result as! NSString</code></pre>
+<h3 id="sign-the-raw-transaction">3. Sign the Raw Transaction</h3>
+<p>Signing your transaction just requires you to run the
+<code>signrawtransactionwithwallet</code> RPC, using your new
+<code>hex</code>:</p>
+<pre><code>            method = &quot;signrawtransactionwithwallet&quot;
+            param = &quot;\&quot;\(hex)\&quot;&quot;
+            
+            makeCommand(method: method,param: param) { result in
+
+                let signedhexinfo = result as! NSDictionary
+                let signedhex = signedhexinfo[&quot;hex&quot;] as! NSString</code></pre>
+<h3 id="send-the-raw-transaction">4. Send the Raw Transaction</h3>
+<p>Sending your transaction is equally simple:</p>
+<pre><code>                method = &quot;sendrawtransaction&quot;
+                param = &quot;\&quot;\(signedhex)\&quot;&quot;
+
+                makeCommand(method: method,param: param) { result in
+
+                    let new_txid = result as! NSString
+                    print(&quot;TXID: \(new_txid)&quot;)
+                    
+                }
+            }         
+        }
+    }
+}</code></pre>
+<p>The code for this transaction sender can be found in the <a
+href="src/18_6_sendtx.playground">src directory</a>.</p>
+<h2 id="use-swift-in-other-ways">Use Swift in Other Ways</h2>
+<p>That covers our usual discussions of programming Bitcoin RPC in a
+language, but Swift is a particularly important language since it can be
+deployed on mobile devices, one of the prime venues for wallets. As
+such, you may wish to consider a few other libraries:</p>
+<ul>
+<li>The Blockchain Commons <a
+href="https://github.com/BlockchainCommons/iOS-Bitcoin">ios-Bitcoin
+framework</a> converts the Libbitcoin library from C++ to Swift</li>
+<li><a href="https://github.com/blockchain/libwally-swift">Libwally
+Swift</a> is a Swift wrapper for Libwally</li>
+</ul>
+<h2 id="summary-accessing-bitcoind-with-swift">Summary: Accessing
+Bitcoind with Swift</h2>
+<p>Swift is a robust modern programming language that unfortunately
+doesn’t yet have any easy-to-use RPC libraries … which just gave us the
+opportunity to write an RPC-access function of our own. With that in
+hand, you can interact with <code>bitcoind</code> on a Mac or build
+companion applications over on an iPhone, which is a perfect combination
+for airgapped Bitcoin work.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn about Lightning in <a
+href="19_0_Understanding_Your_Lightning_Setup.md">Chapter 19:
+Understanding Your Lightning Setup</a>.</p>
+<h2 id="variant-deploy-swift-on-ubuntu">Variant: Deploy Swift on
+Ubuntu</h2>
+<p>If you prefer to deploy Swift on Ubuntu, you can do so, though the
+functionality isn’t the same. Some of the code in this chapter will
+likely generate errors that you’ll need to resolve, and you’ll also need
+to do more work to link in C libraries.</p>
+<p>To get started, install some required Debian libraries:</p>
+<pre><code>$ sudo apt-get install clang
+$ sudo apt-get install libcurl4 libpython2.7 libpython2.7-dev</code></pre>
+<p>If you’re using Debian 10 or higher (and you really should be),
+you’ll also need to backdate a few libraries to get older versions:</p>
+<pre><code>$ sudo apt-get install libtinfo5 libncurses5</code></pre>
+<p>Afteward you can download and install Swift:</p>
+<pre><code>$ wget https://swift.org/builds/swift-5.1.3-release/ubuntu1804/swift-5.1.3-RELEASE/swift-5.1.3-RELEASE-ubuntu18.04.tar.gz
+$ tar xzfv swift-5.1.3-RELEASE-ubuntu18.04.tar.gz 
+$ sudo mv swift-5.1.3-RELEASE-ubuntu18.04 /usr/share/swift</code></pre>
+<p>To be able to use your new Swift setup, you need to update your
+<code>PATH</code> in your <code>.bashrc</code>:</p>
+<pre><code>$ echo &quot;export PATH=/usr/share/swift/usr/bin:$PATH&quot; &gt;&gt; ~/.bashrc
+$ source ~/.bashrc</code></pre>
+<p>You can now test Swift out with the <code>--version</code>
+argument:</p>
+<pre><code>$ swift --version
+Swift version 5.1.3 (swift-5.1.3-RELEASE)
+Target: x86_64-unknown-linux-gnu</code></pre>
+<h3 id="create-a-project">Create a Project</h3>
+<p>Once you’ve installed Swift on your Ubuntu machine, you can create
+projects with the <code>package init</code> command:</p>
+<pre><code>$ mkdir swift-project
+$ cd swift-project/
+/swift-project$ swift package init --type executable
+Creating executable package: swift-project
+Creating Package.swift
+Creating README.md
+Creating .gitignore
+Creating Sources/
+Creating Sources/swift-project/main.swift
+Creating Tests/
+Creating Tests/LinuxMain.swift
+Creating Tests/swift-projectTests/
+Creating Tests/swift-projectTests/swift_projectTests.swift
+Creating Tests/swift-projectTests/XCTestManifests.swift</code></pre>
+<p>You’ll then edit <code>Sources/.../main.swift</code> and when you’re
+ready to compile, you can use the <code>build</code> command:</p>
+<pre><code>$ swift build
+[4/4] Linking swift-project</code></pre>
+<p>Finally, you’ll be able to run the program from the
+<code>.build/debug</code> directory:</p>
+<pre><code>$ .build/debug/swift-project
+Hello, world!</code></pre>
+<p>Good luck!</p>
+</body>
+</html>

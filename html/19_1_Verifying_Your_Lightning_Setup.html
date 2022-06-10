@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>19_1_Verifying_Your_Lightning_Setup</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="creating-a-c-lightning-setup">19.1: Creating a c-lightning
+Setup</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>In this section, you’ll install and verify c-lightning, your utility
+for accessing the Lightning Network.</p>
+<blockquote>
+<p>:book: <strong><em>What is the Lightning Network?</em></strong> The
+Lightning Network is a decentralized network that uses the smart
+contract functionality of the Bitcoin blockchain to enable instant
+payments across a network of participants. Lightning is built as a
+layer-2 protocol that interacts with Bitcoin to allow users to exchange
+their bitcoins “off-chain”.</p>
+</blockquote>
+<blockquote>
+<p>:book: <strong><em>What is a layer-2 protocol?</em></strong> Layer 2
+refers to a secondary protocol built on top of the Bitcoin blockchain
+system. The main goal of these protocols is to solve the transaction
+speed and scaling difficulties that are present in Bitcoin: Bitcoin is
+not able to process thousands of transactions per second (TPS), so
+layer-2 protocols have been created to solve the blockchain scalability
+problem. These solutions are also known as “off-chain” scaling
+solutions.</p>
+</blockquote>
+<h2 id="install-c-lightning">Install C-Lightning</h2>
+<p>If you used the <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup-Scripts">Bitcoin
+Standup Scripts</a>, you may have already installed Lightning at the
+beginning of this course. You can test this by seeing if
+<code>lightningd</code> is running:</p>
+<pre><code>$ ps auxww | grep -i lightning
+standup  31213  0.0  0.2  24144 10424 pts/0    S    15:38   0:00 lightningd --testnet
+standup  31214  0.0  0.1  22716  7444 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/autoclean
+standup  31215  0.0  0.2  22992  8248 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/bcli
+standup  31216  0.0  0.1  22756  7604 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/keysend
+standup  31217  0.0  0.1  22776  7648 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/pay
+standup  31218  0.0  0.1  22720  7652 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/txprepare
+standup  31219  0.0  0.1  22744  7716 pts/0    S    15:38   0:00 /usr/local/bin/../libexec/c-lightning/plugins/spenderp
+standup  31227  0.0  0.1  22748  7384 pts/0    SL   15:38   0:00 /usr/local/libexec/c-lightning/lightning_hsmd
+standup  31228  0.0  0.2  23044  8192 pts/0    S    15:38   0:00 /usr/local/libexec/c-lightning/lightning_connectd
+standup  31229  0.0  0.1  22860  7556 pts/0    S    15:38   0:00 /usr/local/libexec/c-lightning/lightning_gossipd
+standup  32072  0.0  0.0   6208   888 pts/0    S+   15:50   0:00 grep -i lightning</code></pre>
+<p>If not, you’ll need to install it now. Unfortunately, if you’re using
+Debian you’ll need to install it by hand, by compiling the source code —
+but it should still be pretty simple if you follow these instructions.
+If you happen to be on a standard Ubuntu system, instead try <a
+href="#variant-install-from-ubuntu-ppa">Installing from Ubuntu ppa</a>,
+and you can always attempt <a
+href="#variant-install-pre-compiled-binaries">Installing Pre-compiled
+Binaries</a>.</p>
+<blockquote>
+<p>:book: <strong><em>What is c-lightning?</em></strong> There are three
+different implementations of Lightning at present: c-lightning, LND, and
+Eclair. They should all be functionally compatible, based on the same <a
+href="https://github.com/lightningnetwork/lightning-rfc/blob/master/00-introduction.md">BOLT
+RFCs</a>, but their implementation details may be different. We’ve
+chosen c-lightning as the basis of our course because it’s also part of
+the same <a href="https://github.com/ElementsProject">Elements
+Project</a> that also contains Libwally.</p>
+</blockquote>
+<h3 id="compile-the-c-lightning-source-code">Compile the c-lightning
+Source Code</h3>
+<p>Installing Lightning from source code should actually be pretty
+simple if you follow these instructions.</p>
+<p>You <em>probably</em> want to do this on an unpruned node, as working
+with pruned nodes on Lightning may cause issues with installation and
+usage. If you set up your node way back at the start of this course to
+be pruned, you may wish to replace it with an unpruned node now. (If
+you’re using testnet, you should be able to use the same type of machine
+as you did for your pruned node.)</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> You actually can run c-lightning
+on a pruned node. However, as the <a
+href="https://github.com/ElementsProject/lightning#pruning">Lightning
+repo</a> notes, there may be issues. To make it work you have to ensure
+that your Lightning node is only ever trying to update info on blocks
+that your Bitcoin node has not pruned. To do so you must make sure (1)
+that your Bitcoin node is fully up to date before you start your
+Lightning node for the first time; and (2) that your Lightning node
+never falls too far behind your Bitcoin node (for a standard 550-block
+pruning, it can never be turned off for 4 or more days). So, you can do
+it, but it does introduce some danger, which isn’t a good idea if you’re
+running a production service.</p>
+</blockquote>
+<p>With that, you’re ready to install Lightning:</p>
+<p>First, install dependencies, including development requirements.</p>
+<pre><code>$ sudo apt-get install -y \
+   autoconf automake build-essential git libtool libgmp-dev \
+   libsqlite3-dev python3 python3-mako net-tools zlib1g-dev libsodium-dev \
+   gettext
+$ sudo apt-get install -y valgrind python3-pip libpq-dev</code></pre>
+<p>These can take a while, because there are a number of them, and some
+are large.</p>
+<p>Second, clone the Lightning repo:</p>
+<pre><code>$ cd ~
+$ git clone https://github.com/ElementsProject/lightning.git
+$ cd lightning</code></pre>
+<p>You can now use the <code>pip3</code> you installed to install
+additional requirements for the compilation, and configure it all:</p>
+<pre><code>$ pip3 install -r requirements.txt
+$ ./configure</code></pre>
+<p>Now, compile. This may also take some time depending your
+machine.</p>
+<pre><code>$ make</code></pre>
+<p>Afterward, all you need to do is install:</p>
+<pre><code>$ sudo make install</code></pre>
+<h2 id="check-your-installation">Check Your installation</h2>
+<p>You can confirm you have installed lightningd correctly using the
+<code>help</code> parameter:</p>
+<pre><code>$ lightningd --help
+lightningd: WARNING: default network changing in 2020: please set network=testnet in config!
+Usage: lightningd 
+A bitcoin lightning daemon (default values shown for network: testnet).
+--conf=&lt;file&gt;                        Specify configuration file
+--lightning-dir=&lt;dir&gt;                Set base directory: network-specific
+                                     subdirectory is under here
+                                      (default: &quot;/home/javier/.lightning&quot;)
+--network &lt;arg&gt;                      Select the network parameters (bitcoin,
+                                     testnet, regtest, litecoin or
+                                     litecoin-testnet) (default: testnet)
+--testnet                            Alias for --network=testnet
+--signet                             Alias for --network=signet
+--mainnet                            Alias for --network=bitcoin
+</code></pre>
+<h2 id="run-lightningd">Run lightningd</h2>
+<p>You’ll begin your exploration of the Lightning network with the
+<code>lightning-cli</code> command. However,<code>lightningd</code>
+<em>must</em> be running to use <code>lightning-cli</code>, as
+<code>lightning-cli</code> sends JSON-RPC commands to the
+<code>lightningd</code> (all just as with <code>bitcoin-cli</code> and
+<code>bitcoind</code>).</p>
+<p>If you installed <code>c-lightning</code> by hand, you’ll now need to
+start it:</p>
+<pre><code>$ nohup lightningd --testnet &amp;</code></pre>
+<h3 id="run-lightningd-as-a-service">Run lightningd as a service</h3>
+<p>If you prefer, you can install <code>lightningd</code> as a service
+that will run every time you restart your machine. The following will do
+so, and start it running immediately:</p>
+<pre><code>$ cat &gt; ~/lightningd.service &lt;&lt; EOF
+# It is not recommended to modify this file in-place, because it will
+# be overwritten during package upgrades. If you want to add further
+# options or overwrite existing ones then use
+# $ systemctl edit bitcoind.service
+# See &quot;man systemd.service&quot; for details.
+# Note that almost all daemon options could be specified in
+# /etc/lightning/config, except for those explicitly specified as arguments
+# in ExecStart=
+[Unit]
+Description=c-lightning daemon
+[Service]
+ExecStart=/usr/local/bin/lightningd --testnet
+# Process management
+####################
+Type=simple
+PIDFile=/run/lightning/lightningd.pid
+Restart=on-failure
+# Directory creation and permissions
+####################################
+# Run as standup
+User=standup
+# /run/lightningd
+RuntimeDirectory=lightningd
+RuntimeDirectoryMode=0710
+# Hardening measures
+####################
+# Provide a private /tmp and /var/tmp.
+PrivateTmp=true
+# Mount /usr, /boot/ and /etc read-only for the process.
+ProtectSystem=full
+# Disallow the process and all of its children to gain
+# new privileges through execve().
+NoNewPrivileges=true
+# Use a new /dev namespace only populated with API pseudo devices
+# such as /dev/null, /dev/zero and /dev/random.
+PrivateDevices=true
+# Deny the creation of writable and executable memory mappings.
+MemoryDenyWriteExecute=true
+[Install]
+WantedBy=multi-user.target
+EOF
+$ sudo cp ~/lightningd.service /etc/systemd/system
+$ sudo systemctl enable lightningd.service
+$ sudo systemctl start lightningd.service</code></pre>
+<h3 id="enable-remote-connections">Enable Remote Connections</h3>
+<p>If you have some sort of firewall, you’ll need to open up port 9735,
+to allow other Lightning nodes to talk to you.</p>
+<p>If you use <code>ufw</code> from Bitcoin Standup, this is done as
+follows:</p>
+<pre><code>$ sudo ufw allow 9735</code></pre>
+<h2 id="verify-your-node">Verify your Node</h2>
+<p>You can check if your Lightning node is ready to go by comparing the
+output of <code>bitcoin-cli getblockcount</code> with the
+<code>blockheight</code> result from
+<code>lightning-cli getinfo</code>.</p>
+<pre><code>$ bitcoin-cli -testnet getblockcount
+1838587
+$ lightning-cli --testnet getinfo
+{
+   &quot;id&quot;: &quot;03d4592f1244cd6b5a8bb7fba6a55f8a91591d79d3ea29bf8e3c3a405d15db7bf9&quot;,
+   &quot;alias&quot;: &quot;HOPPINGNET&quot;,
+   &quot;color&quot;: &quot;03d459&quot;,
+   &quot;num_peers&quot;: 0,
+   &quot;num_pending_channels&quot;: 0,
+   &quot;num_active_channels&quot;: 0,
+   &quot;num_inactive_channels&quot;: 0,
+   &quot;address&quot;: [
+      {
+         &quot;type&quot;: &quot;ipv4&quot;,
+         &quot;address&quot;: &quot;74.207.240.32&quot;,
+         &quot;port&quot;: 9735
+      },
+      {
+         &quot;type&quot;: &quot;ipv6&quot;,
+         &quot;address&quot;: &quot;2600:3c01::f03c:92ff:fe48:9ddd&quot;,
+         &quot;port&quot;: 9735
+      }
+   ],
+   &quot;binding&quot;: [
+      {
+         &quot;type&quot;: &quot;ipv6&quot;,
+         &quot;address&quot;: &quot;::&quot;,
+         &quot;port&quot;: 9735
+      },
+      {
+         &quot;type&quot;: &quot;ipv4&quot;,
+         &quot;address&quot;: &quot;0.0.0.0&quot;,
+         &quot;port&quot;: 9735
+      }
+   ],
+   &quot;version&quot;: &quot;v0.9.1-96-g6f870df&quot;,
+   &quot;blockheight&quot;: 1838587,
+   &quot;network&quot;: &quot;testnet&quot;,
+   &quot;msatoshi_fees_collected&quot;: 0,
+   &quot;fees_collected_msat&quot;: &quot;0msat&quot;,
+   &quot;lightning-dir&quot;: &quot;/home/standup/.lightning/testnet&quot;
+}</code></pre>
+<p>In this case, the <code>blockheight</code> is shown as
+<code>1838587</code> by both commends.</p>
+<p>You may instead get an error, depending on the precise situation.</p>
+<p>If the Bitcoin node is still sycing with bitcoin network you should
+see a message like this:</p>
+<pre><code>&quot;warning_bitcoind_sync&quot;: &quot;Bitcoind is not up-to-date with network.&quot;</code></pre>
+<p>If your lightning daemon is not up-to-date, you’ll get a message like
+this:</p>
+<pre><code>&quot;warning_lightningd_sync&quot;: &quot;Still loading latest blocks from bitcoind.&quot;</code></pre>
+<p>If you tried to run on a pruned blockchain where the Bitcoin node
+wasn’t up to date when you started the Lightning node, you’ll get error
+messages in your log like this:</p>
+<pre><code>bitcoin-cli -testnet getblock 0000000000000559febee77ab6e0be1b8d0bef0f971c7a4bee9785393ecef451 0 exited with status 1</code></pre>
+<h2 id="create-aliases">Create Aliases</h2>
+<p>We suggest creating some aliases to make it easier to use
+c-lightning.</p>
+<p>You can do so by putting them in your <code>.bash_profile</code>.</p>
+<pre><code>cat &gt;&gt; ~/.bash_profile &lt;&lt;EOF
+alias lndir=&quot;cd ~/.lightning/&quot; #linux default c-lightning path
+alias lnc=&quot;lightning-cli&quot;
+alias lnd=&quot;lightningd&quot;
+alias lninfo=&#39;lightning-cli getinfo&#39;
+EOF</code></pre>
+<p>After you enter these aliases you can either
+<code>source ~/.bash_profile</code> to input them or just log out and
+back in.</p>
+<p>Note that these aliases include shortcuts for running
+<code>lightning-cli</code>, for running <code>lightningd</code>, and for
+going to the c-lightning directory. These aliases are mainly meant to
+make your life easier. We suggest you create other aliases to ease your
+use of frequent commands (and arguments) and to minimize errors. Aliases
+of this sort can be even more useful if you have a complex setup where
+you regularly run commands associated with Mainnet, with Testnet,
+<em>and</em> with Regtest, as explained further below.</p>
+<p>With that said, use of these aliases in <em>this</em> document might
+accidentally obscure the core lessons being taught about c-lightning, so
+we’ll continue to show the full commands; adjust for your own use as
+appropriate.</p>
+<h2 id="optional-modify-your-server-types">Optional: Modify Your Server
+Types</h2>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> When you set up your
+node, you choose to create it as either a Mainnet, Testnet, or Regtest
+node. Though this document presumes a testnet setup, it’s worth
+understanding how you might access and use the other setup types — even
+all on the same machine! But, if you’re a first-time user, skip on past
+this, as it’s not necessary for a basic setup.</p>
+</blockquote>
+<p>When lightningd starts up, it usually reads a configuration file
+whose location is dependent on the network you are using (default:
+<code>~/.lightning/testnet/config</code>). This can be changed with the
+<code>–conf</code> and <code>–lightning-dir</code> flags.</p>
+<pre><code>~/.lightning/testnet$ ls -la config
+-rw-rw-r-- 1 user user 267 jul 12 17:08 config</code></pre>
+<p>There is also a general configuration file (default:
+<code>~/.lightning/config</code>). If you want to run several different
+sorts of nodes simultaneously, you must leave the testnet (or regtest)
+flag out of this configuration file. You should then choose whether
+you’re using the mainnet, the testnet, or your regtest every time you
+run <code>lightningd</code> or <code>lightning-cli</code>.</p>
+<p>Your setup may not actually have any config files: c-lightning will
+run with a good default setup without them.</p>
+<h2 id="summary-verifying-your-lightning-setup">Summary: Verifying your
+Lightning setup</h2>
+<p>Before you start playing with lightning, you should make sure that
+your aliases are set up, your <code>lightningd</code> is running, and
+your node is synced. You may also want to set up some access to
+alternative lightning setups, on other networks.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Understanding Your Lightning Setup” with <a
+href="19_2_Knowing_Your_lightning_Setup.md">§19.2: Knowing Your
+Lightning Setup</a>.</p>
+<h2 id="variant-install-from-ubuntu-ppa">Variant: Install from Ubuntu
+ppa</h2>
+<p>If you are using a Ubuntu version other than Debian, you can install
+c-lightning using <a
+href="https://launchpad.net/~lightningnetwork/+archive/ubuntu/ppa">Ubuntu
+ppa</a>:</p>
+<pre><code>$ sudo apt-get install -y software-properties-common
+$ sudo add-apt-repository -u ppa:lightningnetwork/ppa
+$ sudo apt-get install lightningd</code></pre>
+<h2 id="variant-install-pre-compiled-binaries">Variant: Install
+Pre-compiled Binaries</h2>
+<p>Another method for installing Lightning is to use the precompiled
+binaries on the <a
+href="https://github.com/ElementsProject/lightning/releases">Github
+repo</a>. Choose the newest tarball, such as
+<code>clightning-v0.9.1-Ubuntu-20.04.tar.xz</code>.</p>
+<p>After downloading it, you need to move to root directory and
+unpackage it:</p>
+<pre><code>$ cd /
+$ sudo tar xf ~/clightning-v0.9.1-Ubuntu-20.04.tar.xz </code></pre>
+<p>Warning: this will require you to have the precise same libraries as
+were used to create the binary. It’s often easier to just recompile.</p>
+</body>
+</html>

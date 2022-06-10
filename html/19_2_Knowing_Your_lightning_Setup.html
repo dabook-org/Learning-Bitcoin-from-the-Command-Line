@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>19_2_Knowing_Your_lightning_Setup</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="knowing-your-c-lightning-setup">19.2: Knowing Your c-lightning
+Setup</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>Before you begin accessing the Lightning Network, you should come to
+a better understanding of your setup.</p>
+<h2 id="know-your-c-lightning-directory">Know Your c-lightning
+Directory</h2>
+<p>When using c-lightning, everything is kept in the
+<code>~/.lightning</code> directory.</p>
+<p>The main directory just contains directories for whichever networks
+are configured, in this case testnet:</p>
+<pre><code>$ ls ~/.lightning
+testnet</code></pre>
+<p>The <code>~/.lightning/testnet directory</code> will then contains
+the guts of your setup:</p>
+<pre><code>$ ls ~/.lightning/testnet3
+config  gossip_store  hsm_secret  lightningd.sqlite3  lightningd.sqlite3-journal  lightning-rpc</code></pre>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> If you’re using mainnet,
+then <em>everything</em> will instead be placed in the main
+<code>~/.lightning/bitcoin</code> directory. These various setups
+<em>do</em> elegantly stack, so if you are using mainnet, testnet, and
+regtest, you’ll find that <code>~/.lightning/bitcoin</code> contains
+your config file and your mainnet data, the
+<code>~/.lightning/testnet</code> directory contains your testnet data,
+and the <code>~/.lightning/regtest</code> directory contains your
+regtest data.</p>
+</blockquote>
+<h2 id="know-your-lightning-cli-commands">Know Your lightning-cli
+Commands</h2>
+<p>Most of your early work will be done with the
+<code>lightning-cli</code> command, which offers an easy interface to
+<code>lightningd</code>, just like <code>bitcoin-cli</code> does.</p>
+<p>You’ve already seen that the <code>help</code> command will gives you
+a list of other commands:</p>
+<pre><code>$ lightning-cli help
+lightning-cli: WARNING: default network changing in 2020: please set network=testnet in config!
+=== bitcoin ===
+
+feerates style
+    Return feerate estimates, either satoshi-per-kw ({style} perkw) or satoshi-per-kb ({style} perkb).
+
+newaddr [addresstype]
+    Get a new {bech32, p2sh-segwit} (or all) address to fund a channel (default is bech32)
+
+reserveinputs outputs [feerate] [minconf] [utxos]
+    Reserve inputs and pass back the resulting psbt
+
+sendpsbt psbt
+    Finalize, extract and send a PSBT.
+
+signpsbt psbt
+    Sign this wallet&#39;s inputs on a provided PSBT.
+
+txdiscard txid
+    Abandon a transaction created by txprepare
+
+txprepare outputs [feerate] [minconf] [utxos]
+    Create a transaction, with option to spend in future (either txsend and txdiscard)
+
+txsend txid
+    Sign and broadcast a transaction created by txprepare
+
+unreserveinputs psbt
+    Unreserve inputs, freeing them up to be reused
+
+withdraw destination satoshi [feerate] [minconf] [utxos]
+    Send to {destination} address {satoshi} (or &#39;all&#39;) amount via Bitcoin transaction, at optional {feerate}
+
+=== channels ===
+
+close id [unilateraltimeout] [destination] [fee_negotiation_step]
+    Close the channel with {id} (either peer ID, channel ID, or short channel ID). Force a unilateral close after {unilateraltimeout} seconds (default 48h). If {destination} address is provided, will be used as output address.
+
+fundchannel_cancel id
+    Cancel inflight channel establishment with peer {id}.
+
+fundchannel_complete id txid txout
+    Complete channel establishment with peer {id} for funding transactionwith {txid}. Returns true on success, false otherwise.
+
+fundchannel_start id amount [feerate] [announce] [close_to] [push_msat]
+    Start fund channel with {id} using {amount} satoshis. Returns a bech32 address to use as an output for a funding transaction.
+
+getroute id msatoshi riskfactor [cltv] [fromid] [fuzzpercent] [exclude] [maxhops]
+    Show route to {id} for {msatoshi}, using {riskfactor} and optional {cltv} (default 9). If specified search from {fromid} otherwise use this node as source. Randomize the route with up to {fuzzpercent} (default 5.0). {exclude} an array of short-channel-id/direction (e.g. [ &#39;564334x877x1/0&#39;, &#39;564195x1292x0/1&#39; ]) or node-id from consideration. Set the {maxhops} the route can take (default 20).
+
+listchannels [short_channel_id] [source]
+    Show channel {short_channel_id} or {source} (or all known channels, if not specified)
+
+listforwards 
+    List all forwarded payments and their information
+
+setchannelfee id [base] [ppm]
+    Sets specific routing fees for channel with {id} (either peer ID, channel ID, short channel ID or &#39;all&#39;). Routing fees are defined by a fixed {base} (msat) and a {ppm} (proportional per millionth) value. If values for {base} or {ppm} are left out, defaults will be used. {base} can also be defined in other units, for example &#39;1sat&#39;. If {id} is &#39;all&#39;, the fees will be applied for all channels. 
+
+=== network ===
+
+connect id [host] [port]
+    Connect to {id} at {host} (which can end in &#39;:port&#39; if not default). {id} can also be of the form id@host
+
+disconnect id [force]
+    Disconnect from {id} that has previously been connected to using connect; with {force} set, even if it has a current channel
+
+listnodes [id]
+    Show node {id} (or all, if no {id}), in our local network view
+
+listpeers [id] [level]
+    Show current peers, if {level} is set, include logs for {id}
+
+ping id [len] [pongbytes]
+    Send peer {id} a ping of length {len} (default 128) asking for {pongbytes} (default 128)
+
+=== payment ===
+
+createonion hops assocdata [session_key]
+    Create an onion going through the provided nodes, each with its own payload
+
+decodepay bolt11 [description]
+    Decode {bolt11}, using {description} if necessary
+
+delexpiredinvoice [maxexpirytime]
+    Delete all expired invoices that expired as of given {maxexpirytime} (a UNIX epoch time), or all expired invoices if not specified
+
+delinvoice label status
+    Delete unpaid invoice {label} with {status}
+
+invoice msatoshi label description [expiry] [fallbacks] [preimage] [exposeprivatechannels]
+    Create an invoice for {msatoshi} with {label} and {description} with optional {expiry} seconds (default 1 week), optional {fallbacks} address list(default empty list) and optional {preimage} (default autogenerated)
+
+listinvoices [label]
+    Show invoice {label} (or all, if no {label})
+
+listsendpays [bolt11] [payment_hash]
+    Show sendpay, old and current, optionally limiting to {bolt11} or {payment_hash}.
+
+listtransactions 
+    List transactions that we stored in the wallet
+
+sendonion onion first_hop payment_hash [label] [shared_secrets] [partid]
+    Send a payment with a pre-computed onion.
+
+sendpay route payment_hash [label] [msatoshi] [bolt11] [payment_secret] [partid]
+    Send along {route} in return for preimage of {payment_hash}
+
+waitanyinvoice [lastpay_index] [timeout]
+    Wait for the next invoice to be paid, after {lastpay_index} (if supplied).  If {timeout} seconds is reached while waiting, fail with an error.
+
+waitinvoice label
+    Wait for an incoming payment matching the invoice with {label}, or if the invoice expires
+
+waitsendpay payment_hash [timeout] [partid]
+    Wait for payment attempt on {payment_hash} to succeed or fail, but only up to {timeout} seconds.
+
+=== plugin ===
+
+autocleaninvoice [cycle_seconds] [expired_by]
+    Set up autoclean of expired invoices. 
+
+estimatefees 
+    Get the urgent, normal and slow Bitcoin feerates as sat/kVB.
+
+fundchannel id amount [feerate] [announce] [minconf] [utxos] [push_msat]
+    Fund channel with {id} using {amount} (or &#39;all&#39;), at optional {feerate}. Only use outputs that have {minconf} confirmations.
+
+getchaininfo 
+    Get the chain id, the header count, the block count, and whether this is IBD.
+
+getrawblockbyheight height
+    Get the bitcoin block at a given height
+
+getutxout txid vout
+    Get informations about an output, identified by a {txid} an a {vout}
+
+listpays [bolt11]
+    List result of payment {bolt11}, or all
+
+pay bolt11 [msatoshi] [label] [riskfactor] [maxfeepercent] [retry_for] [maxdelay] [exemptfee]
+    Send payment specified by {bolt11} with {amount}
+
+paystatus [bolt11]
+    Detail status of attempts to pay {bolt11}, or all
+
+plugin subcommand=start|stop|startdir|rescan|list
+    Control plugins (start, stop, startdir, rescan, list)
+
+sendrawtransaction tx
+    Send a raw transaction to the Bitcoin network.
+
+=== utility ===
+
+check command_to_check
+    Don&#39;t run {command_to_check}, just verify parameters.
+
+checkmessage message zbase [pubkey]
+    Verify a digital signature {zbase} of {message} signed with {pubkey}
+
+getinfo 
+    Show information about this node
+
+getlog [level]
+    Show logs, with optional log {level} (info|unusual|debug|io)
+
+getsharedsecret point
+    Compute the hash of the Elliptic Curve Diffie Hellman shared secret point from this node private key and an input {point}.
+
+help [command]
+    List available commands, or give verbose help on one {command}.
+
+listconfigs [config]
+    List all configuration options, or with [config], just that one.
+
+listfunds 
+    Show available funds from the internal wallet
+
+signmessage message
+    Create a digital signature of {message}
+
+stop 
+    Shut down the lightningd process
+
+waitblockheight blockheight [timeout]
+    Wait for the blockchain to reach {blockheight}, up to {timeout} seconds.
+
+=== developer ===
+
+dev-listaddrs [bip32_max_index]
+    Show addresses list up to derivation {index} (default is the last bip32 index)
+
+dev-rescan-outputs 
+    Synchronize the state of our funds with bitcoind
+
+---
+run `lightning-cli help &lt;command&gt;` for more information on a specific command</code></pre>
+<h2 id="know-your-lightning-info">Know your Lightning Info</h2>
+<p>A variety of <code>lightning-cli</code> commands can give you
+additional information on your lightning node. The most general ones
+are:</p>
+<pre><code>$ lightning-cli --testnet listconfigs
+$ lightning-cli --testnet listfunds
+$ lightning-cli --testnet listtransactions
+$ lightning-cli --testnet listinvoices
+$ lightning-cli --testnet listnodes   </code></pre>
+<ul>
+<li>listconfigs: The <code>listconfigs</code> RPC command lists all
+configuration options.</li>
+<li>listfunds: The <code>listfunds</code> RPC command displays all funds
+available, either in unspent outputs (UTXOs) in the internal wallet or
+funds locked in currently open channels.</li>
+<li>listtransactions: The <code>listtransactions</code> RPC command
+returns transactions tracked in the wallet. This includes deposits,
+withdrawals, and transactions related to channels.</li>
+<li>listinvoices: The <code>listinvoices</code> RPC command retrieves
+the status of a specific invoice, if it exists, or the status of all
+invoices if given no argument.</li>
+<li>listnodes: The <code>listnodes</code> RPC command returns nodes that
+your server has learned about via gossip messages, or a single one if
+the node id was specified.</li>
+</ul>
+<p>For example <code>lightning-cli listconfigs</code> gives you a
+variety of information on your setup:</p>
+<pre><code>c$ lightning-cli --testnet listconfigs
+{
+   &quot;# version&quot;: &quot;v0.8.2-398-g869fa08&quot;,
+   &quot;lightning-dir&quot;: &quot;/home/standup/.lightning&quot;,
+   &quot;network&quot;: &quot;testnet&quot;,
+   &quot;allow-deprecated-apis&quot;: true,
+   &quot;rpc-file&quot;: &quot;lightning-rpc&quot;,
+   &quot;plugin&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/fundchannel&quot;,
+   &quot;plugin&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/autoclean&quot;,
+   &quot;plugin&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/bcli&quot;,
+   &quot;plugin&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/pay&quot;,
+   &quot;plugin&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/keysend&quot;,
+   &quot;plugins&quot;: [
+      {
+         &quot;path&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/fundchannel&quot;,
+         &quot;name&quot;: &quot;fundchannel&quot;
+      },
+      {
+         &quot;path&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/autoclean&quot;,
+         &quot;name&quot;: &quot;autoclean&quot;,
+         &quot;options&quot;: {
+            &quot;autocleaninvoice-cycle&quot;: null,
+            &quot;autocleaninvoice-expired-by&quot;: null
+         }
+      },
+      {
+         &quot;path&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/bcli&quot;,
+         &quot;name&quot;: &quot;bcli&quot;,
+         &quot;options&quot;: {
+            &quot;bitcoin-datadir&quot;: null,
+            &quot;bitcoin-cli&quot;: null,
+            &quot;bitcoin-rpcuser&quot;: null,
+            &quot;bitcoin-rpcpassword&quot;: null,
+            &quot;bitcoin-rpcconnect&quot;: null,
+            &quot;bitcoin-rpcport&quot;: null,
+            &quot;bitcoin-retry-timeout&quot;: null,
+            &quot;commit-fee&quot;: &quot;500&quot;
+         }
+      },
+      {
+         &quot;path&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/pay&quot;,
+         &quot;name&quot;: &quot;pay&quot;
+      },
+      {
+         &quot;path&quot;: &quot;/usr/local/bin/../libexec/c-lightning/plugins/keysend&quot;,
+         &quot;name&quot;: &quot;keysend&quot;
+      }
+   ],
+   &quot;disable-plugin&quot;: [],
+   &quot;always-use-proxy&quot;: false,
+   &quot;daemon&quot;: &quot;false&quot;,
+   &quot;wallet&quot;: &quot;sqlite3:///home/user/.lightning/testnet/lightningd.sqlite3&quot;,
+   &quot;wumbo&quot;: false,
+   &quot;wumbo&quot;: false,
+   &quot;rgb&quot;: &quot;03fce2&quot;,
+   &quot;alias&quot;: &quot;learningBitcoin&quot;,
+   &quot;pid-file&quot;: &quot;/home/user/.lightning/lightningd-testnet.pid&quot;,
+   &quot;ignore-fee-limits&quot;: false,
+   &quot;watchtime-blocks&quot;: 144,
+   &quot;max-locktime-blocks&quot;: 720,
+   &quot;funding-confirms&quot;: 3,
+   &quot;commit-fee-min&quot;: 200,
+   &quot;commit-fee-max&quot;: 2000,
+   &quot;cltv-delta&quot;: 6,
+   &quot;cltv-final&quot;: 10,
+   &quot;commit-time&quot;: 10,
+   &quot;fee-base&quot;: 1,
+   &quot;rescan&quot;: 15,
+   &quot;fee-per-satoshi&quot;: 10,
+   &quot;max-concurrent-htlcs&quot;: 483,
+   &quot;min-capacity-sat&quot;: 10000,
+   &quot;offline&quot;: &quot;false&quot;,
+   &quot;autolisten&quot;: true,
+   &quot;disable-dns&quot;: &quot;false&quot;,
+   &quot;enable-autotor-v2-mode&quot;: &quot;false&quot;,
+   &quot;encrypted-hsm&quot;: false,
+   &quot;rpc-file-mode&quot;: &quot;0600&quot;,
+   &quot;log-level&quot;: &quot;DEBUG&quot;,
+   &quot;log-prefix&quot;: &quot;lightningd&quot;
+}</code></pre>
+<h2 id="summary-knowing-your-lightning-setup">Summary: Knowing Your
+lightning Setup</h2>
+<p>The <code>~/.lightning</code> directory contains all of your files,
+while <code>lightning-cli help</code> and a variety of info commands can
+be used to get more information on how your setup and Lightning Network
+work.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>You’re going to need to have a second Linode node to test out the
+actual payment of invoices. If you need support in setting one up, read
+<a
+href="19_2__Interlude_Accessing_a_Second_Lightning_Node.md">Interlude:
+Accessing a Second Lightning Node</a>.</p>
+<p>Otherwise, continue “Understanding Your Lightning Setup” with <a
+href="19_3_Setting_Up_a_Channel.md">§19.3: Setting Up_a_Channel</a>.</p>
+</body>
+</html>

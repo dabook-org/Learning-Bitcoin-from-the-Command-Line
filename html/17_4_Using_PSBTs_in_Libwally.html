@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>17_4_Using_PSBTs_in_Libwally</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-psbts-in-libwally">17.4: Using PSBTs in Libwally</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>You learned all about Partially Signed Bitcoin Transactions (PSBTs)
+in <a
+href="07_1_Creating_a_Partially_Signed_Bitcoin_Transaction.md">§7.1</a>
+and <a
+href="07_2_Using_a_Partially_Signed_Bitcoin_Transaction.md">§7.2</a>,
+and as you saw in <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/07_3_Integrating_with_Hardware_Wallets.md">§7.3:
+Integrating with Hardware Wallets</a>, one of their prime advantages is
+being able to integrate with offline nodes, such as Hardware Wallets.
+HWI allowed you to pass commands to a Hardware Wallet, but what does the
+wallet itself use to manage the PSBTs? As it happens, it can use
+something like Libwally, as this section demonstrates.</p>
+<p>Basically, Libwally has all of the PSBT functionality, so if there’s
+something you could do with <code>bitcoind</code>, you could also do it
+using Libwally, even if your device is offline. What follows is the
+barest introduction to what’s a very complex topic.</p>
+<h2 id="convert-a-psbt">Convert a PSBT</h2>
+<p>Converting a PSBT into Libwally’s internal structure is incredibly
+easy, you just run <code>wally_psbt_from_base64</code> with a base64
+PSBT — which are the outputs produced by <code>bitcoin-cli</code>, such
+as:</p>
+<p><code>cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giBgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxRiaHVILVAAAgAEAAIAAAACAAAAAADkCAAAAAQEfQEIPAAAAAAAWABQtTxOfqohTBNFWFqFm0tUVdK9KXSIGAqATz5xLX1aJ2SUwNqPkd8+YaJYm94FMlPCScm8Rt0GrGJodUgtUAACAAQAAgAAAAIAAAAAAAAAAAAAAIgID2UK1nupSfXC81nmB65XZ+pYlJp/W6wNk5FLt5ZCSx6kYmh1SC1QAAIABAACAAAAAgAEAAAABAAAAAA==</code></p>
+<p>However, it’s a bit harder to deal with the result, because Libwally
+converts it into a very complex <code>wally_psbt</code> structure.</p>
+<p>Here’s how it’s defined in
+<code>/usr/include/wally_psbt.h</code>:</p>
+<pre><code>struct wally_psbt {
+    unsigned char magic[5];
+    struct wally_tx *tx;
+    struct wally_psbt_input *inputs;
+    size_t num_inputs;
+    size_t inputs_allocation_len;
+    struct wally_psbt_output *outputs;
+    size_t num_outputs;
+    size_t outputs_allocation_len;
+    struct wally_unknowns_map *unknowns;
+    uint32_t version;
+};
+
+struct wally_psbt_input {
+    struct wally_tx *non_witness_utxo;
+    struct wally_tx_output *witness_utxo;
+    unsigned char *redeem_script;
+    size_t redeem_script_len;
+    unsigned char *witness_script;
+    size_t witness_script_len;
+    unsigned char *final_script_sig;
+    size_t final_script_sig_len;
+    struct wally_tx_witness_stack *final_witness;
+    struct wally_keypath_map *keypaths;
+    struct wally_partial_sigs_map *partial_sigs;
+    struct wally_unknowns_map *unknowns;
+    uint32_t sighash_type;
+};
+
+struct wally_psbt_output {
+    unsigned char *redeem_script;
+    size_t redeem_script_len;
+    unsigned char *witness_script;
+    size_t witness_script_len;
+    struct wally_keypath_map *keypaths;
+    struct wally_unknowns_map *unknowns;
+};</code></pre>
+<p>These in turn use some transaction structures defined in
+<code>/usr/include/wally_transaction.h</code>:</p>
+<pre><code>struct wally_tx {
+    uint32_t version;
+    uint32_t locktime;
+    struct wally_tx_input *inputs;
+    size_t num_inputs;
+    size_t inputs_allocation_len;
+    struct wally_tx_output *outputs;
+    size_t num_outputs;
+    size_t outputs_allocation_len;
+};
+
+struct wally_tx_output {
+    uint64_t satoshi;
+    unsigned char *script;
+    size_t script_len;
+    uint8_t features;
+};</code></pre>
+<p>There’s a lot there! Though much of this should be familiar from
+pervious chapters, it’s a bit overwhelming to see it all laid out in C
+structures.</p>
+<h2 id="read-a-converted-psbt">Read a Converted PSBT</h2>
+<p>Obviously, you can read anything out of a PSBT structure by calling
+up the individual elements from the various substructures. The following
+is a brief overview showing how to grab a few of the elements.</p>
+<p>Here’s an example of retrieving the values and
+<code>scriptPubKeys</code> of the inputs:</p>
+<pre><code>  int inputs = psbt-&gt;num_inputs;
+  printf(&quot;TOTAL INPUTS: %i\n&quot;,inputs);
+
+  for (int i = 0 ; i &lt; inputs ; i++) {
+    printf(&quot;\nINPUT #%i: %i satoshis\n&quot;,i, psbt-&gt;inputs[i].witness_utxo-&gt;satoshi);
+
+    char *script_hex;
+    wally_hex_from_bytes(psbt-&gt;inputs[i].witness_utxo-&gt;script,psbt-&gt;inputs[i].witness_utxo-&gt;script_len,&amp;script_hex);
+    printf(&quot;scriptPubKey: %s\n&quot;,script_hex);
+    wally_free_string(script_hex);
+    
+  }</code></pre>
+<p>This programming pattern will be used on many parts of the PSBT. You
+look at the size of the inputs array, then you step through it,
+retrieving what you want to see (in this case, satoshis and
+scripts).</p>
+<p>Here’s a similar example for the outputs:</p>
+<pre><code>  int outputs = psbt-&gt;num_outputs;
+  printf(&quot;\nTOTAL OUTPUTS: %i\n&quot;,outputs);
+  for (int i = 0 ; i &lt; outputs ; i++) {
+
+    char *pubkey_hex;
+    wally_hex_from_bytes(psbt-&gt;tx-&gt;outputs[i].script,psbt-&gt;tx-&gt;outputs[i].script_len,&amp;pubkey_hex);
+    printf(&quot;\nINPUT #%i\n&quot;,i);
+    printf(&quot;scriptPubKey: %s\n&quot;,pubkey_hex);
+    wally_free_string(pubkey_hex);    
+  }</code></pre>
+<p>Obviously, there’s a lot more you could look at in the PSBTs. In
+fact, looking is the main point of a PSBT: you can verify inputs and
+outputs from an offline computer.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> These reading functions are
+<em>very</em> rudimentary and will not work properly for extremly normal
+situations like an input or output that’s still empty or that includes a
+<code>non_witness_utxo</code>. They will segfault if they aren’t
+delivered a precisely expected PSBT. A real reader would need to be
+considerably more robust, to cover all possible situations, but that’s
+left as an exercise for the reader.</p>
+</blockquote>
+<h3 id="test-your-psbt-reader">Test Your PSBT Reader</h3>
+<p>Again, the code for this (extremely rudimentary and specific) PSBT
+reader is in the <a href="src/17_4_examinepsbt.c">src directory</a>.</p>
+<p>You can compile it as normal:</p>
+<pre><code>$ cc examinepsbt.c -lwallycore -o examinepsbt</code></pre>
+<p>The following PSBT from <a
+href="07_3_Integrating_with_Hardware_Wallets.md">§7.3</a> can be used
+for testing, as it matches the very narrow criteria required by this
+limited implementation:</p>
+<pre><code>psbt=cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giBgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxRiaHVILVAAAgAEAAIAAAACAAAAAADkCAAAAAQEfQEIPAAAAAAAWABQtTxOfqohTBNFWFqFm0tUVdK9KXSIGAqATz5xLX1aJ2SUwNqPkd8+YaJYm94FMlPCScm8Rt0GrGJodUgtUAACAAQAAgAAAAIAAAAAAAAAAAAAAIgID2UK1nupSfXC81nmB65XZ+pYlJp/W6wNk5FLt5ZCSx6kYmh1SC1QAAIABAACAAAAAgAEAAAABAAAAAA==</code></pre>
+<p>Run <code>examinepsbt</code> with that PSBT, and you should see the
+scripts on the inputs and the outputs:</p>
+<pre><code>$ ./examinepsbt $psbt
+TOTAL INPUTS: 2
+
+INPUT #0: 1000000 satoshis
+scriptPubKey: 001400193c8bf25ef056f8d4571a1c3f65123e5fe788
+
+INPUT #1: 1000000 satoshis
+scriptPubKey: 00142d4f139faa885304d15616a166d2d51574af4a5d
+
+TOTAL OUTPUTS: 2
+
+INPUT #0
+scriptPubKey: 0014c772d6f95542e11ef11e8efc7c7a69830ad38a05
+
+INPUT #1
+scriptPubKey: 0014f4e8dde5db370898b57c84566e3f76098850817d</code></pre>
+<p>And of course, you can check this with the <code>decodepsbt</code>
+RPC command for <code>bitcoin-cli</code>:</p>
+<pre><code>$ bitcoin-cli decodepsbt $psbt
+{
+  &quot;tx&quot;: {
+    &quot;txid&quot;: &quot;45f996d4ff8c9e9ab162f611c5b6ad752479ede9780f9903bdc80cd96619676d&quot;,
+    &quot;hash&quot;: &quot;45f996d4ff8c9e9ab162f611c5b6ad752479ede9780f9903bdc80cd96619676d&quot;,
+    &quot;version&quot;: 2,
+    &quot;size&quot;: 154,
+    &quot;vsize&quot;: 154,
+    &quot;weight&quot;: 616,
+    &quot;locktime&quot;: 0,
+    &quot;vin&quot;: [
+      {
+        &quot;txid&quot;: &quot;5b3c4aeb811f9a119fd633b12a6927415cc61b8654628df58e9141cab804bab8&quot;,
+        &quot;vout&quot;: 0,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;&quot;,
+          &quot;hex&quot;: &quot;&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      },
+      {
+        &quot;txid&quot;: &quot;c733533eb1c052242f9ed89cd8927aedb41852156e684634ee7c74028774e595&quot;,
+        &quot;vout&quot;: 1,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;&quot;,
+          &quot;hex&quot;: &quot;&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      }
+    ],
+    &quot;vout&quot;: [
+      {
+        &quot;value&quot;: 0.01500000,
+        &quot;n&quot;: 0,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 c772d6f95542e11ef11e8efc7c7a69830ad38a05&quot;,
+          &quot;hex&quot;: &quot;0014c772d6f95542e11ef11e8efc7c7a69830ad38a05&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1qcaedd724gts3aug73m78c7nfsv9d8zs9q6h2kd&quot;
+          ]
+        }
+      },
+      {
+        &quot;value&quot;: 0.00499791,
+        &quot;n&quot;: 1,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 f4e8dde5db370898b57c84566e3f76098850817d&quot;,
+          &quot;hex&quot;: &quot;0014f4e8dde5db370898b57c84566e3f76098850817d&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1q7n5dmewmxuyf3dtus3txu0mkpxy9pqtacuprak&quot;
+          ]
+        }
+      }
+    ]
+  },
+  &quot;unknown&quot;: {
+  },
+  &quot;inputs&quot;: [
+    {
+      &quot;witness_utxo&quot;: {
+        &quot;amount&quot;: 0.01000000,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 00193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;,
+          &quot;hex&quot;: &quot;001400193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;address&quot;: &quot;tb1qqqvnezljtmc9d7x52udpc0m9zgl9leugd2ur7y&quot;
+        }
+      },
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;030168d9482e2b02d7027fb4a89edc54adaa1adf709334f647d0a1b0533828aec5&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/0/569&quot;
+        }
+      ]
+    },
+    {
+      &quot;witness_utxo&quot;: {
+        &quot;amount&quot;: 0.01000000,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 2d4f139faa885304d15616a166d2d51574af4a5d&quot;,
+          &quot;hex&quot;: &quot;00142d4f139faa885304d15616a166d2d51574af4a5d&quot;,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;address&quot;: &quot;tb1q948388a23pfsf52kz6skd5k4z4627jja2evztr&quot;
+        }
+      },
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;02a013cf9c4b5f5689d9253036a3e477cf98689626f7814c94f092726f11b741ab&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/0/0&quot;
+        }
+      ]
+    }
+  ],
+  &quot;outputs&quot;: [
+    {
+    },
+    {
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;03d942b59eea527d70bcd67981eb95d9fa9625269fd6eb0364e452ede59092c7a9&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/1/1&quot;
+        }
+      ]
+    }
+  ],
+  &quot;fee&quot;: 0.00000209
+}</code></pre>
+<p>You can see the input satoshis and <code>scriptPubKey</code> clearly
+listed in the <code>inputs</code> and the new <code>scriptPubKey</code>s
+in the <code>tx</code>’s <code>vout</code>.</p>
+<p>So, it’s all there for your gathering!</p>
+<h2 id="create-a-psbt">Create a PSBT</h2>
+<p>As noted at the head of this section, all of the functions needed to
+create and process PSBTs are available in Libwally. Actually running
+through the process of doing so is complex enough that it’s beyond the
+scope of this section, but here’s a quick run-down of the functions
+required. Note that the <a
+href="https://wally.readthedocs.io/en/latest/psbt/">documents</a> are
+out of date for PSBTs, so you’ll need to consult
+<code>/usr/include/wally_psbt.h</code> for full information.</p>
+<p>As discussed in <a
+href="07_1_Creating_a_Partially_Signed_Bitcoin_Transaction.md">§7.1</a>
+there are several roles involved in creating PSBTs</p>
+<h3 id="take-the-creator-role">Take the Creator Role</h3>
+<p>The creator role is tasked with creating a PSBT with at least one
+input.</p>
+<p>A PSBT is created with a simple use of
+<code>wally_psbt_init_alloc</code>, telling it how many inputs and
+outputs you will eventually add:</p>
+<pre><code>  struct wally_psbt *psbt;
+  lw_response = wally_psbt_init_alloc(0,1,1,0,&amp;psbt);</code></pre>
+<p>But what you have is not yet a legal PSBT, because of the lack of
+inputs. You can create those by creating a transaction and setting it as
+the global transaction in the PSBT, which updates all the inputs and
+outputs:</p>
+<pre><code>  struct wally_tx *gtx;
+  lw_response = wally_tx_init_alloc(0,0,1,1,&amp;gtx);
+  lw_response = wally_psbt_set_global_tx(psbt,gtx);</code></pre>
+<h3 id="test-your-psbt-creation">Test Your PSBT Creation</h3>
+<p>At this point, you should have an empty, but working PSBT, which you
+can see by compiling and running <a
+href="src/17_4_createemptypsbt.c">the program</a>.</p>
+<pre><code>$ cc createemptypsbt.c -lwallycore -o createemptypsbt
+$ ./createemptypsbt 
+cHNidP8BAAoAAAAAAAAAAAAAAA==</code></pre>
+<p>You can even use <code>bitcoin-cli</code> to test the result:</p>
+<pre><code>$ psbt=$(./createpsbt)
+$ bitcoin-cli decodepsbt $psbt
+{
+  &quot;tx&quot;: {
+    &quot;txid&quot;: &quot;f702453dd03b0f055e5437d76128141803984fb10acb85fc3b2184fae2f3fa78&quot;,
+    &quot;hash&quot;: &quot;f702453dd03b0f055e5437d76128141803984fb10acb85fc3b2184fae2f3fa78&quot;,
+    &quot;version&quot;: 0,
+    &quot;size&quot;: 10,
+    &quot;vsize&quot;: 10,
+    &quot;weight&quot;: 40,
+    &quot;locktime&quot;: 0,
+    &quot;vin&quot;: [
+    ],
+    &quot;vout&quot;: [
+    ]
+  },
+  &quot;unknown&quot;: {
+  },
+  &quot;inputs&quot;: [
+  ],
+  &quot;outputs&quot;: [
+  ],
+  &quot;fee&quot;: 0.00000000
+}</code></pre>
+<h2 id="take-the-rest-of-the-roles">Take the Rest of the Roles</h2>
+<p>As with PSBT reading, we are introducing the concept of PSBT
+creation, and then leaving the rest as an exercise for the reader.</p>
+<p>Following is a rough listing of functions for every roles; more
+functions will be needed to create some of the elements that are added
+to PSBTs.</p>
+<p><strong>Creator:</strong></p>
+<ul>
+<li>wally_psbt_init_alloc</li>
+<li>wally_psbt_set_global_tx</li>
+</ul>
+<p><strong>Updater:</strong></p>
+<ul>
+<li>wally_psbt_input_set_non_witness_utxo</li>
+<li>wally_psbt_input_set_witness_utxo</li>
+<li>wally_psbt_input_set_redeem_script</li>
+<li>wally_psbt_input_set_witness_script</li>
+<li>wally_psbt_input_set_keypaths</li>
+<li>wally_psbt_input_set_unknowns</li>
+<li>wally_psbt_output_set_redeem_script</li>
+<li>wally_psbt_output_set_witness_script</li>
+<li>wally_psbt_output_set_keypaths</li>
+<li>wally_psbt_output_set_unknowns</li>
+</ul>
+<p><strong>Signer:</strong></p>
+<ul>
+<li>wally_psbt_input_set_partial_sigs</li>
+<li>wally_psbt_input_set_sighash_type</li>
+<li>wally_psbt_sign</li>
+</ul>
+<p><strong>Combiner:</strong></p>
+<ul>
+<li>wally_psbt_combine</li>
+</ul>
+<p><strong>Finalizer:</strong> * wally_psbt_finalize *
+wally_psbt_input_set_final_script_sig *
+wally_psbt_input_set_final_witness</p>
+<p><strong>Extracter:</strong></p>
+<ul>
+<li>wally_psbt_extract</li>
+</ul>
+<h2 id="summary-using-psbts-in-libwally">Summary: Using PSBTs in
+Libwally</h2>
+<p>This section could be an entire chapter, as working with PSBTs at a
+low level is very intensive work that requires much more intensive
+manipulating of inputs and outputs than was the case in <a
+href="07_0_Expanding_Bitcoin_Transactions_PSBTs.md">Chapter 7</a>.
+Instead this section shows the basics: how to extract information from a
+PSBT, and how to begin creating one.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the Power of PSBTs in
+Libwally?</em></strong> Obviously, you can already do all of this in
+<code>bitcoin-cli</code>, and it’s simpler because Bitcoin Core manages
+a lot of the drudgery. The advantage of using Libwally is that it can be
+run offline, so it could be Libwally that’s sitting on the other side of
+a hardware device that your <code>bitcoin-cli</code> is communicating to
+with HWI. This is, in fact, one of the major points of PSBTs: to be able
+to manipulate partially signed transactions without needing a full node.
+Libwally enables it.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Programming Bitcoin with Libwally” in <a
+href="17_5_Using_Scripts_in_Libwally.md">17.5: Using Scripts in
+Libwally</a>.</p>
+</body>
+</html>

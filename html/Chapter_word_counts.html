@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter_word_counts</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h2 id="translatable-word-counts-by-chapter">Translatable word counts by
+chapter</h2>
+<p>Ignores code blocks and other non-translatable characters</p>
+<table>
+<thead>
+<tr class="header">
+<th>Chapter</th>
+<th>Word Count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>01_0_Introduction.md</td>
+<td>1144</td>
+</tr>
+<tr class="even">
+<td>01_1_Introducing_Bitcoin.md</td>
+<td>2735</td>
+</tr>
+<tr class="odd">
+<td>02_0_Setting_Up_a_Bitcoin-Core_VPS.md</td>
+<td>226</td>
+</tr>
+<tr class="even">
+<td>02_1_Setting_Up_a_Bitcoin-Core_VPS_with_StackScript.md</td>
+<td>2746</td>
+</tr>
+<tr class="odd">
+<td>02_2_Setting_Up_Bitcoin_Core_Other.md</td>
+<td>254</td>
+</tr>
+<tr class="even">
+<td>03_0_Understanding_Your_Bitcoin_Setup.md</td>
+<td>248</td>
+</tr>
+<tr class="odd">
+<td>03_1_Verifying_Your_Bitcoin_Setup.md</td>
+<td>773</td>
+</tr>
+<tr class="even">
+<td>03_2_Knowing_Your_Bitcoin_Setup.md</td>
+<td>517</td>
+</tr>
+<tr class="odd">
+<td>03_3_Setting_Up_Your_Wallet.md</td>
+<td>1699</td>
+</tr>
+<tr class="even">
+<td>03_3__Interlude_Using_Command-Line_Variables.md</td>
+<td>347</td>
+</tr>
+<tr class="odd">
+<td>03_4_Receiving_a_Transaction.md</td>
+<td>1479</td>
+</tr>
+<tr class="even">
+<td>03_5_Understanding_the_Descriptor.md</td>
+<td>1349</td>
+</tr>
+<tr class="odd">
+<td>04_0_Sending_Bitcoin_Transactions.md</td>
+<td>176</td>
+</tr>
+<tr class="even">
+<td>04_1_Sending_Coins_The_Easy_Way.md</td>
+<td>1195</td>
+</tr>
+<tr class="odd">
+<td>04_2_Creating_a_Raw_Transaction.md</td>
+<td>1720</td>
+</tr>
+<tr class="even">
+<td>04_2__Interlude_Using_JQ.md</td>
+<td>1956</td>
+</tr>
+<tr class="odd">
+<td>04_3_Creating_a_Raw_Transaction_with_Named_Arguments.md</td>
+<td>413</td>
+</tr>
+<tr class="even">
+<td>04_4_Sending_Coins_with_a_Raw_Transaction.md</td>
+<td>1024</td>
+</tr>
+<tr class="odd">
+<td>04_4__Interlude_Using_Curl.md</td>
+<td>1643</td>
+</tr>
+<tr class="even">
+<td>04_5_Sending_Coins_with_Automated_Raw_Transactions.md</td>
+<td>614</td>
+</tr>
+<tr class="odd">
+<td>04_6_Creating_a_Segwit_Transaction.md</td>
+<td>1172</td>
+</tr>
+<tr class="even">
+<td>05_0_Controlling_Bitcoin_Transactions.md</td>
+<td>149</td>
+</tr>
+<tr class="odd">
+<td>05_1_Watching_for_Stuck_Transactions.md</td>
+<td>595</td>
+</tr>
+<tr class="even">
+<td>05_2_Resending_a_Transaction_with_RBF.md</td>
+<td>1372</td>
+</tr>
+<tr class="odd">
+<td>05_3_Funding_a_Transaction_with_CPFP.md</td>
+<td>827</td>
+</tr>
+<tr class="even">
+<td>06_0_Expanding_Bitcoin_Transactions_Multisigs.md</td>
+<td>155</td>
+</tr>
+<tr class="odd">
+<td>06_1_Sending_a_Transaction_to_a_Multisig.md</td>
+<td>1764</td>
+</tr>
+<tr class="even">
+<td>06_2_Spending_a_Transaction_to_a_Multisig.md</td>
+<td>1079</td>
+</tr>
+<tr class="odd">
+<td>06_3_Sending_an_Automated_Multisig.md</td>
+<td>613</td>
+</tr>
+<tr class="even">
+<td>07_0_Expanding_Bitcoin_Transactions_PSBTs.md</td>
+<td>169</td>
+</tr>
+<tr class="odd">
+<td>07_1_Creating_a_Partially_Signed_Bitcoin_Transaction.md</td>
+<td>1470</td>
+</tr>
+<tr class="even">
+<td>07_2_Using_a_Partially_Signed_Bitcoin_Transaction.md</td>
+<td>1393</td>
+</tr>
+<tr class="odd">
+<td>07_3_Integrating_with_Hardware_Wallets.md</td>
+<td>2150</td>
+</tr>
+<tr class="even">
+<td>08_0_Expanding_Bitcoin_Transactions_Other.md</td>
+<td>139</td>
+</tr>
+<tr class="odd">
+<td>08_1_Sending_a_Transaction_with_a_Locktime.md</td>
+<td>1483</td>
+</tr>
+<tr class="even">
+<td>08_2_Sending_a_Transaction_with_Data.md</td>
+<td>580</td>
+</tr>
+<tr class="odd">
+<td>09_0_Introducing_Bitcoin_Scripts.md</td>
+<td>196</td>
+</tr>
+<tr class="even">
+<td>09_1_Understanding_the_Foundation_of_Transactions.md</td>
+<td>989</td>
+</tr>
+<tr class="odd">
+<td>09_2_Running_a_Bitcoin_Script.md</td>
+<td>863</td>
+</tr>
+<tr class="even">
+<td>09_3_Testing_a_Bitcoin_Script.md</td>
+<td>1000</td>
+</tr>
+<tr class="odd">
+<td>09_4_Scripting_a_P2PKH.md</td>
+<td>838</td>
+</tr>
+<tr class="even">
+<td>09_5_Scripting_a_P2WPKH.md</td>
+<td>845</td>
+</tr>
+<tr class="odd">
+<td>10_0_Embedding_Bitcoin_Scripts_in_P2SH_Transactions.md</td>
+<td>170</td>
+</tr>
+<tr class="even">
+<td>10_1_Understanding_the_Foundation_of_P2SH.md</td>
+<td>1164</td>
+</tr>
+<tr class="odd">
+<td>10_2_Building_the_Structure_of_P2SH.md</td>
+<td>1284</td>
+</tr>
+<tr class="even">
+<td>10_3_Running_a_Bitcoin_Script_with_P2SH.md</td>
+<td>323</td>
+</tr>
+<tr class="odd">
+<td>10_4_Scripting_a_Multisig.md</td>
+<td>1016</td>
+</tr>
+<tr class="even">
+<td>10_5_Scripting_a_Segwit_Script.md</td>
+<td>750</td>
+</tr>
+<tr class="odd">
+<td>10_6_Spending_a_P2SH_Transaction.md</td>
+<td>384</td>
+</tr>
+<tr class="even">
+<td>11_0_Empowering_Timelock_with_Bitcoin_Scripts.md</td>
+<td>108</td>
+</tr>
+<tr class="odd">
+<td>11_1_Understanding_Timelock_Options.md</td>
+<td>557</td>
+</tr>
+<tr class="even">
+<td>11_2_Using_CLTV_in_Scripts.md</td>
+<td>1197</td>
+</tr>
+<tr class="odd">
+<td>11_3_Using_CSV_in_Scripts.md</td>
+<td>1470</td>
+</tr>
+<tr class="even">
+<td>12_0_Expanding_Bitcoin_Scripts.md</td>
+<td>99</td>
+</tr>
+<tr class="odd">
+<td>12_1_Using_Script_Conditionals.md</td>
+<td>1120</td>
+</tr>
+<tr class="even">
+<td>12_2_Using_Other_Script_Commands.md</td>
+<td>407</td>
+</tr>
+<tr class="odd">
+<td>13_0_Designing_Real_Bitcoin_Scripts.md</td>
+<td>116</td>
+</tr>
+<tr class="even">
+<td>13_1_Writing_Puzzle_Scripts.md</td>
+<td>998</td>
+</tr>
+<tr class="odd">
+<td>13_2_Writing_Complex_Multisig_Scripts.md</td>
+<td>996</td>
+</tr>
+<tr class="even">
+<td>13_3_Empowering_Bitcoin_with_Scripts.md</td>
+<td>1467</td>
+</tr>
+<tr class="odd">
+<td>14_0_Using_Tor.md</td>
+<td>116</td>
+</tr>
+<tr class="even">
+<td>14_1_Verifying_Your_Tor_Setup.md</td>
+<td>1568</td>
+</tr>
+<tr class="odd">
+<td>14_2_Changing_Your_Bitcoin_Hidden_Services.md</td>
+<td>434</td>
+</tr>
+<tr class="even">
+<td>14_3_Adding_SSH_Hidden_Services.md</td>
+<td>330</td>
+</tr>
+<tr class="odd">
+<td>15_0_Talking_to_Bitcoind.md</td>
+<td>254</td>
+</tr>
+<tr class="even">
+<td>15_1_Accessing_Bitcoind_with_C.md</td>
+<td>1238</td>
+</tr>
+<tr class="odd">
+<td>15_2_Programming_Bitcoind_with_C.md</td>
+<td>1427</td>
+</tr>
+<tr class="even">
+<td>15_3_Receiving_Bitcoind_Notifications_with_C.md</td>
+<td>650</td>
+</tr>
+<tr class="odd">
+<td>16_0_Programming_with_Libwally.md</td>
+<td>333</td>
+</tr>
+<tr class="even">
+<td>16_1_Setting_Up_Libwally.md</td>
+<td>559</td>
+</tr>
+<tr class="odd">
+<td>16_2_Using_BIP39_in_Libwally.md</td>
+<td>939</td>
+</tr>
+<tr class="even">
+<td>16_3_Using_BIP32_in_Libwally.md</td>
+<td>959</td>
+</tr>
+<tr class="odd">
+<td>16_4_Using_PSBTs_in_Libwally.md</td>
+<td>989</td>
+</tr>
+<tr class="even">
+<td>16_5_Using_Scripts_in_Libwally.md</td>
+<td>785</td>
+</tr>
+<tr class="odd">
+<td>16_6_Using_Other_Functions_in_Libwally.md</td>
+<td>655</td>
+</tr>
+<tr class="even">
+<td>16_7_Integrating_Libwally_and_Bitcoin-CLI.md</td>
+<td>1380</td>
+</tr>
+<tr class="odd">
+<td>17_0_Talking_to_Bitcoind_Other.md</td>
+<td>286</td>
+</tr>
+<tr class="even">
+<td>17_1_Accessing_Bitcoind_with_Go.md</td>
+<td>547</td>
+</tr>
+<tr class="odd">
+<td>17_2_Accessing_Bitcoind_with_Java.md</td>
+<td>821</td>
+</tr>
+<tr class="even">
+<td>17_3_Accessing_Bitcoind_with_NodeJS.md</td>
+<td>393</td>
+</tr>
+<tr class="odd">
+<td>17_4_Accessing_Bitcoind_with_Python.md</td>
+<td>1158</td>
+</tr>
+<tr class="even">
+<td>17_5_Accessing_Bitcoind_with_Rust.md</td>
+<td>829</td>
+</tr>
+<tr class="odd">
+<td>17_6_Accessing_Bitcoind_with_Swift.md</td>
+<td>1503</td>
+</tr>
+<tr class="even">
+<td>18_0_Understanding_Your_Lightning_Setup.md</td>
+<td>192</td>
+</tr>
+<tr class="odd">
+<td>18_1_Verifying_Your_Lightning_Setup.md</td>
+<td>1294</td>
+</tr>
+<tr class="even">
+<td>18_2_Knowing_Your_lightning_Setup.md</td>
+<td>399</td>
+</tr>
+<tr class="odd">
+<td>18_2__Interlude_Accessing_a_Second_Lightning_Node.md</td>
+<td>886</td>
+</tr>
+<tr class="even">
+<td>18_3_Setting_Up_a_Channel.md</td>
+<td>1173</td>
+</tr>
+<tr class="odd">
+<td>19_0_Using_Lightning.md</td>
+<td>146</td>
+</tr>
+<tr class="even">
+<td>19_1_Generate_a_Payment_Request.md</td>
+<td>968</td>
+</tr>
+<tr class="odd">
+<td>19_2_Paying_a_Invoice.md</td>
+<td>604</td>
+</tr>
+<tr class="even">
+<td>19_3_Closing_a_Channel.md</td>
+<td>848</td>
+</tr>
+<tr class="odd">
+<td>19_4_Lightning_Network_Review.md</td>
+<td>626</td>
+</tr>
+<tr class="even">
+<td>A0_Appendices.md</td>
+<td>112</td>
+</tr>
+<tr class="odd">
+<td>A1_0_Understanding_Bitcoin_Standup.md</td>
+<td>420</td>
+</tr>
+<tr class="even">
+<td>A2_0_Compiling_Bitcoin_from_Source.md</td>
+<td>412</td>
+</tr>
+<tr class="odd">
+<td>A3_0_Using_Bitcoin_Regtest.md</td>
+<td>980</td>
+</tr>
+<tr class="even">
+<td>CLA.md</td>
+<td>495</td>
+</tr>
+<tr class="odd">
+<td>CONTRIBUTING.md</td>
+<td>529</td>
+</tr>
+<tr class="even">
+<td>LICENSE-CC-BY-4.0.md</td>
+<td>2716</td>
+</tr>
+<tr class="odd">
+<td>README.md</td>
+<td>1705</td>
+</tr>
+<tr class="even">
+<td>TRANSLATING.md</td>
+<td>686</td>
+</tr>
+<tr class="odd">
+<td>TOTAL</td>
+<td>89069</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

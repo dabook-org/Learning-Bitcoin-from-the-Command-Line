@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>10_2_Building_the_Structure_of_P2SH</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="building-the-structure-of-p2sh">10.2: Building the Structure of
+P2SH</h1>
+<p>In the previous section we overviewed the theory of how to create
+P2SH transactions to hold Bitcoin Scripts. The actual practice of doing
+so is <em>much more difficult</em>, but for the sake of completeness,
+we’re going to look at it here. This is probably not something you’d
+ever do without an API, so if it gets too intimidating, be aware that
+we’ll be returning to pristine, high-level Scripts in a moment.</p>
+<h2 id="create-a-locking-script">Create a Locking Script</h2>
+<p>Any P2SH transaction starts with a locking script. This is the
+subject of chapters 9 and 11-12. You can use any of the Bitcoin Script
+methods described therein to create any sort of locking script, as long
+as the resulting serialized <code>redeemScript</code> is 520 bytes or
+less.</p>
+<blockquote>
+<p>:book: <strong><em>Why are P2SH scripts limited to 520
+bytes?</em></strong> As with many things in Bitcoin, the answer is
+backward compatibility: new functionality has to constantly be built
+within the old constraints of the system. In this case, 520 bytes is the
+maximum that can be pushed onto the stack at once. Since the whole
+redeemScript is pushed onto the stack as part of the redemption process,
+it hits that limit.</p>
+</blockquote>
+<h2 id="serialize-a-locking-script-the-hard-way">Serialize a Locking
+Script the Hard Way</h2>
+<p>After you create a locking script, you need to serialize it before it
+can be input into Bitcoin. This is a two-part process. First, you must
+turn it into hexcode, then you must transform that hex into binary.</p>
+<h3 id="create-the-hex-code">Create the Hex Code</h3>
+<p>Creating the hexcode that is necessary to serialize a script is both
+a simple translation and something that is complex enough that it goes
+beyond any shell script that you’re likely to write. This step is one of
+the main reasons that you need an API to create P2SH transactions.</p>
+<p>You create hexcode by stepping through your locking script and
+turning each element into one-byte hex command, possibly followed by
+additional data, per the guide at the <a
+href="https://en.bitcoin.it/wiki/Script">Bitcoin Wiki Script
+page</a>:</p>
+<ul>
+<li>Operators are translated to the matching byte for that opcode</li>
+<li>The constants 1-16 are translated to opcodes 0x51 to 0x61 (OP_1 to
+OP_16)</li>
+<li>The constant -1 is translate to opcode 0x4f (OP_1NEGATE)</li>
+<li>Other constants are preceded by opcodes 0x01 to 0x4e (OP_PUSHDATA,
+with the number specifying how many bytes to push)
+<ul>
+<li>Integers are translated into hex using little-endian
+signed-magnitude notation</li>
+</ul></li>
+</ul>
+<h3 id="translate-integers">Translate Integers</h3>
+<p>The integers are the most troublesome part of a locking-script
+translation.</p>
+<p>First, you should verify that your number falls between -2147483647
+and 2147483647, the range of four-byte integers when the most
+significant byte is used for signing.</p>
+<p>Second, you need to translate the decimal value into hexadecimal and
+pad it out to an even number of digits. This can be done with the
+<code>printf</code> command:</p>
+<pre><code>$ integer=1546288031
+$ hex=$(printf &#39;%08x\n&#39; $integer | sed &#39;s/^\(00\)*//&#39;)
+$ echo $hex
+5c2a7b9f</code></pre>
+<p>Third, you need to add an additional leading byte of <code>00</code>
+if the top digit is “8” or greater, so that the number is not
+interpreted as negative.</p>
+<pre><code>$ hexfirst=$(echo $hex | cut -c1)
+$ [[ 0x$hexfirst -gt 0x7 ]] &amp;&amp; hex=&quot;00&quot;$hex</code></pre>
+<p>Fourth, you need to translate the hex from big-endian (least
+significant byte last) to little-endian (least significant byte first).
+You can do this with the <code>tac</code> command:</p>
+<pre><code>$ lehex=$(echo $hex | tac -rs .. | echo &quot;$(tr -d &#39;\n&#39;)&quot;)
+$ echo $lehex
+9f7b2a5c</code></pre>
+<p>In addition, you always need to know the size of any data that you
+put on the stack, so that you can precede it with the proper opcode. You
+can just remember that every two hexadecimal characters is one byte. Or,
+you can use <code>echo -n</code> piped to <code>wc -c</code>, and divide
+that in half:</p>
+<pre><code>$ echo -n $lehex | wc -c | awk &#39;{print $1/2}&#39;
+4</code></pre>
+<p>With that whole rigamarole, you’d know that you could translate the
+integer 1546288031 into an <code>04</code> opcode (to push four bytes
+onto the stack) followed by <code>9f7b2a5c</code> (the little-endian hex
+representation of 1546288031).</p>
+<p>If you instead had a negative number, you would need to (1) do your
+calculations on the absolute value of the number, then (2) bitwise-or
+0x80 to your final, little-endian result. For example,
+<code>9f7b2a5c</code>, which is 1546288031, would become
+<code>9f7b2adc</code>, which is -1546288031:</p>
+<pre><code>$ neglehex=$(printf &#39;%x\n&#39; $((0x$lehex | 0x80)))
+$ echo $neglehex
+9f7b2adc</code></pre>
+<h3 id="transform-the-hex-to-binary">Transform the Hex to Binary</h3>
+<p>To complete your serialization, you translate the hexcode into
+binary. On the command line, this just requires a simple invocation of
+<code>xxd -r -p</code>. However, you probably want to do that as part of
+a a single pipe that will also hash the script …</p>
+<h2 id="run-the-integer-conversion-script">Run The Integer Conversion
+Script</h2>
+<p>A complete script for changing an integer between -2147483647 and
+2147483647 to a little-endian signed-magnitude representation in hex can
+be found in the <a href="src/10_2_integer2lehex.sh">src code
+directory</a>. You can download it as <code>integer2lehex.sh</code>.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> This script has not been robustly
+checked. If you are going to use it to create real locking scripts you
+should make sure to double-check and test your results.</p>
+</blockquote>
+<p>Be sure the permissions on the script are right:</p>
+<pre><code>$ chmod 755 integer2lehex.sh</code></pre>
+<p>You can then run the script as follows:</p>
+<pre><code>$ ./integer2lehex.sh 1546288031
+Integer: 1546288031
+LE Hex: 9f7b2a5c
+Length: 4 bytes
+Hexcode: 049f7b2a5c
+
+$ ./integer2lehex.sh -1546288031
+Integer: -1546288031
+LE Hex: 9f7b2adc
+Length: 4 bytes
+Hexcode: 049f7b2adc</code></pre>
+<h2 id="analyze-a-p2sh-multisig">Analyze a P2SH Multisig</h2>
+<p>To better understand this process, we will reverse-engineer the P2SH
+multisig that we created in <a
+href="06_1_Sending_a_Transaction_to_a_Multisig.md">§6.1: Sending a
+Transaction to a Multisig</a>. Take a look at the
+<code>redeemScript</code> that you used, which you now know is the
+hex-serialized version of the locking script:</p>
+<pre><code>522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae</code></pre>
+<p>You can translate this back to Script by hand using the <a
+href="https://en.bitcoin.it/wiki/Script">Bitcoin Wiki Script page</a> as
+a reference. Just look at one byte (two hex characters) of data at a
+time, unless you’re told to look at more by an OP_PUSHDATA command (an
+opcode in the range of 0x01 to 0x4e).</p>
+<p>The whole Script will break apart as follows:</p>
+<pre><code>52 / 21 / 02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191 / 21 / 02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3 / 52 / ae</code></pre>
+<p>Here’s what the individual parts mean:</p>
+<ul>
+<li>0x52 = OP_2</li>
+<li>0x21 = OP_PUSHDATA 33 bytes (hex: 0x21)</li>
+<li>0x02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191
+= the next 33 bytes (public-key hash)</li>
+<li>0x21 = OP_PUSHDATA 33 bytes (hex: 0x21)</li>
+<li>0x02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3
+= the next 33 bytes (public-key hash)</li>
+<li>0x52 = OP_2</li>
+<li>0xae = OP_CHECKMULTISIG</li>
+</ul>
+<p>In other words, that <code>redeemScript</code> was a translation of
+of
+<code>2 02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191 02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3 2 OP_CHECKMULTISIG</code>.
+We’ll return to this script in <a
+href="10_4_Scripting_a_Multisig.md">§10.4: Scripting a Multisig</a> when
+we detail exactly how multisigs work within the P2SH paradigm.</p>
+<p>If you’d like a mechanical hand with this sort of translation in the
+future, you can use <code>bitcoin-cli decodescript</code>:</p>
+<pre><code>$ bitcoin-cli -named decodescript hexstring=522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae
+{
+  &quot;asm&quot;: &quot;2 02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191 02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3 2 OP_CHECKMULTISIG&quot;,
+  &quot;reqSigs&quot;: 2,
+  &quot;type&quot;: &quot;multisig&quot;,
+  &quot;addresses&quot;: [
+    &quot;mmC2x2FoYwBnVHMPRUAzPYg6WDA31F1ot2&quot;,
+    &quot;mhwZFJUnWqTqy4Y7pXVum88qFtUnVG1keM&quot;
+  ],
+  &quot;p2sh&quot;: &quot;2N8MytPW2ih27LctLjn6LfLFZZb1PFSsqBr&quot;,
+  &quot;segwit&quot;: {
+    &quot;asm&quot;: &quot;0 6fe9f451ccedb8e4090b822dcad973d0388a37b4c89fd1aed485110adecab2a9&quot;,
+    &quot;hex&quot;: &quot;00206fe9f451ccedb8e4090b822dcad973d0388a37b4c89fd1aed485110adecab2a9&quot;,
+    &quot;reqSigs&quot;: 1,
+    &quot;type&quot;: &quot;witness_v0_scripthash&quot;,
+    &quot;addresses&quot;: [
+      &quot;tb1qdl5lg5wvakuwgzgtsgku4ktn6qug5da5ez0artk5s5gs4hk2k25szvjky9&quot;
+    ],
+    &quot;p2sh-segwit&quot;: &quot;2NByn92W1vH5oQC1daY69F5sU7PEStKKQBR&quot;
+  }
+}</code></pre>
+<p>It’s especially helpful for checking your work when you’re
+serializing.</p>
+<h2 id="serialize-a-locking-script-the-easy-way">Serialize a Locking
+Script the Easy Way</h2>
+<p>When you installed <code>btcdeb</code> in <a
+href="09_3_Testing_a_Bitcoin_Script.md">§9.3</a> you also installed
+<code>btcc</code> which can be used to serialize Bitcoin scripts:</p>
+<pre><code>$ btcc 2 02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191 02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3 2 OP_CHECKMULTISIG
+warning: ambiguous input 2 is interpreted as a numeric value; use OP_2 to force into opcode
+warning: ambiguous input 2 is interpreted as a numeric value; use OP_2 to force into opcode
+522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae</code></pre>
+<p>That’s a lot easier than figuring that out by hand!</p>
+<p>Also consider the Python <a
+href="https://github.com/Kefkius/txsc">Transaction Script Compiler</a>,
+which translates back and forth.</p>
+<h2 id="hash-a-serialized-script">Hash a Serialized Script</h2>
+<p>After you’ve created a locking script and serialized it, the third
+step in creating a P2SH transaction is to hash the locking script. As
+previously noted, a 20-byte OP_HASH160 hash is created through a
+combination of a SHA-256 hash and a RIPEMD-160 hash. Hashing a
+serialized script thus takes two commands:
+<code>openssl dgst -sha256 -binary</code> does the SHA-256 hash and
+outputs a binary to be sent through the pipe, then
+<code>openssl dgst -rmd160</code> takes that binary stream, does a
+RIPEMD-160 hash, and finally outputs a human-readable hexcode.</p>
+<p>Here’s the whole pipe, including the previous transformation of the
+hex-serialized script into binary:</p>
+<pre><code>$ redeemScript=&quot;522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae&quot;
+$ echo -n $redeemScript | xxd -r -p | openssl dgst -sha256 -binary | openssl dgst -rmd160
+(stdin)= a5d106eb8ee51b23cf60d8bd98bc285695f233f3</code></pre>
+<h2 id="create-a-p2sh-transaction">Create a P2SH Transaction</h2>
+<p>Creating your 20-byte hash just gives you the hash at the center of a
+P2SH locking script. You still need to put it together with the other
+opcodes that create a standard P2SH transaction:
+<code>OP_HASH160 a5d106eb8ee51b23cf60d8bd98bc285695f233f3 OP_EQUAL</code>.</p>
+<p>Depending on your API, you might be able to enter this as an
+<code>asm</code>-style <code>scriptPubKey</code> for your transaction,
+or you might have to translate it to <code>hex</code> code as well. If
+you have to translate, use the same methods described above for
+“Creating the Hex Code” (or use <code>btcc</code>), resulting in
+<code>a914a5d106eb8ee51b23cf60d8bd98bc285695f233f387</code>.</p>
+<p>Note that the <code>hex scriptPubKey</code> for P2SH Script
+transaction will <em>always</em> start with an <code>a914</code>, which
+is the <code>OP_HASH160</code> followed by an <code>OP_PUSHDATA</code>
+of 20 bytes (hex: <code>0x14</code>); and it will <em>always</em> end
+with a <code>87</code>, which is an <code>OP_EQUAL</code>. So all you
+have to do is put your hashed redeem script in between those
+numbers.</p>
+<h2 id="summary-building-the-structure-of-p2sh">Summary: Building the
+Structure of P2SH</h2>
+<p>Actually creating the P2SH locking script dives further into the guts
+of Bitcoin than you’ve ever gone before. Though it’s helpful to know how
+all of this works at a very low level, it’s most likely that you’ll have
+an API taking care of all of the heavy-lifting for you. Your task will
+simply be to create the Bitcoin Script to do the locking … which is the
+main topic of chapters 9 and 11-12.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Embedding Bitcoin Scripts” with <a
+href="10_3_Running_a_Bitcoin_Script_with_P2SH.md">§10.3: Running a
+Bitcoin Script with P2SH</a>.</p>
+</body>
+</html>

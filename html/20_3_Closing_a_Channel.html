@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>20_3_Closing_a_Channel</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="closing-a-channel">20.3: Closing a Channel</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>In this chapter you’ll learn how to close a channel using
+<code>lightning-cli close</code> command-line interface. Closing a
+channel means you and your counterparty will send their agreed-upon
+channel balance to the blockchain, whereby you must pay blockchain
+transaction fees and wait for the transaction to be mined. A closure can
+be cooperative or non-cooperative, but it works either way.</p>
+<p>In order to close a channel, you first need to know the ID of the
+remote node; you can retrieve it in one of two ways.</p>
+<h2 id="find-your-channels-by-funds">Find your Channels by Funds</h2>
+<p>You can use the <code>lightning-cli listfunds</code> command to see
+your channels. This RPC command displays all funds available, either in
+unspent <code>outputs</code> (UTXOs) in the internal wallet or locked up
+in currently open <code>channels</code>.</p>
+<pre><code>c$ lightning-cli --testnet listfunds
+{
+   &quot;outputs&quot;: [
+      {
+         &quot;txid&quot;: &quot;66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d&quot;,
+         &quot;output&quot;: 1,
+         &quot;value&quot;: 99847,
+         &quot;amount_msat&quot;: &quot;99847000msat&quot;,
+         &quot;scriptpubkey&quot;: &quot;00142fe02e5be9283e8c5bcb93ae61421baf8cb64f9c&quot;,
+         &quot;address&quot;: &quot;tb1q9lszuklf9qlgck7tjwhxzssm47xtvnuu4jslf8&quot;,
+         &quot;status&quot;: &quot;confirmed&quot;,
+         &quot;blockheight&quot;: 1862856,
+         &quot;reserved&quot;: false
+      }
+   ],
+   &quot;channels&quot;: [
+      {
+         &quot;peer_id&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,
+         &quot;connected&quot;: true,
+         &quot;state&quot;: &quot;CHANNELD_NORMAL&quot;,
+         &quot;short_channel_id&quot;: &quot;1862856x29x0&quot;,
+         &quot;channel_sat&quot;: 89987,
+         &quot;our_amount_msat&quot;: &quot;89987000msat&quot;,
+         &quot;channel_total_sat&quot;: 100000,
+         &quot;amount_msat&quot;: &quot;100000000msat&quot;,
+         &quot;funding_txid&quot;: &quot;66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d&quot;,
+         &quot;funding_output&quot;: 0
+      }
+   ]
+}
+
+  &quot;message_flags&quot;: 1,
+  &quot;channel_flags&quot;: 2,
+  &quot;active&quot;: true,
+  &quot;last_update&quot;: 1595508075,
+  &quot;base_fee_millisatoshi&quot;: 1000,
+  &quot;fee_per_millionth&quot;: 1,
+  &quot;delay&quot;: 40,
+  &quot;htlc_minimum_msat&quot;: &quot;1000msat&quot;,
+  &quot;htlc_maximum_msat&quot;: &quot;280000000msat&quot;,
+  &quot;features&quot;: &quot;&quot;
+}</code></pre>
+<p>You could retrieve the ID of the 0th channel into a variable like
+this:</p>
+<pre><code>c$ nodeidremote=$(lightning-cli --testnet listfunds | jq &#39;.channels[0] | .peer_id&#39;)</code></pre>
+<h2 id="find-your-channels-with-jq">Find your Channels with JQ</h2>
+<p>The other way to find channels to close is to the use the
+<code>listchannels</code> command. It returns data on channels that are
+known to the node. Because channels may be bidirectional, up to two
+nodes will be returned for each channel (one for each direction).</p>
+<p>However, Lightning’s gossip network is very effective, and so in a
+short time you will come to know about thousands of channels. That’s
+great for sending payments across the Lightning Network, but less useful
+for discovering your own channels. To do so requires a bit of
+<code>jq</code> work.</p>
+<p>First, you need to know your own node ID, which can be retrieved with
+<code>getinfo</code>:</p>
+<pre><code>c$ nodeid=$(lightning-cli --testnet getinfo | jq .id)
+c$ echo $nodeid
+&quot;03240a4878a9a64aea6c3921a434e573845267b86e89ab19003b0c910a86d17687&quot;
+c$</code></pre>
+<p>You can then use that to look through <code>listchannels</code> for
+any channels where your node is either the source or the
+destination:</p>
+<pre><code>c$ lightning-cli --testnet listchannels | jq &#39;.channels[] | select(.source == &#39;$nodeid&#39; or .destination == &#39;$nodeid&#39;)&#39;
+{
+  &quot;source&quot;: &quot;03240a4878a9a64aea6c3921a434e573845267b86e89ab19003b0c910a86d17687&quot;,
+  &quot;destination&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,
+  &quot;short_channel_id&quot;: &quot;1862856x29x0&quot;,
+  &quot;public&quot;: true,
+  &quot;satoshis&quot;: 100000,
+  &quot;amount_msat&quot;: &quot;100000000msat&quot;,
+  &quot;message_flags&quot;: 1,
+  &quot;channel_flags&quot;: 0,
+  &quot;active&quot;: true,
+  &quot;last_update&quot;: 1602639570,
+  &quot;base_fee_millisatoshi&quot;: 1,
+  &quot;fee_per_millionth&quot;: 10,
+  &quot;delay&quot;: 6,
+  &quot;htlc_minimum_msat&quot;: &quot;1msat&quot;,
+  &quot;htlc_maximum_msat&quot;: &quot;99000000msat&quot;,
+  &quot;features&quot;: &quot;&quot;
+}</code></pre>
+<p>There’s our old favorite
+<code>032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543</code>
+again, as the destination.</p>
+<p>Once you know what you’ve got, you can store it in a variable:</p>
+<pre><code>c$ nodeidremote=$(lightning-cli --testnet listchannels | jq &#39;.channels[] | select(.source == &#39;$nodeid&#39; or .destination == &#39;$nodeid&#39;) | .destination&#39;)</code></pre>
+<h2 id="close-a-channel">Close a Channel</h2>
+<p>Now that you have a remote node ID, you’re ready to use the
+<code>lightning-cli close</code> command to close a channel. By default,
+it will attempt to close the channel cooperatively with the peer; if you
+want to close it unilaterally set the <code>unilateraltimeout</code>
+argument with the number of seconds to wait. (If you set it to 0 and the
+peer is online, a mutual close is still attempted.) For this example,
+you will attempt a mutual close.</p>
+<pre><code>c$ lightning-cli --testnet close $nodeidremote 0
+{
+   &quot;tx&quot;: &quot;02000000011d3cf2126ae36e12be3aee893b385ed6a2e19b1da7f4e579e3ef15ca234d69660000000000ffffffff021c27000000000000160014d39feb57a663803da116402d6cb0ac050bf051d9cc5e01000000000016001451c88b44420940c52a384bd8a03888e3676c150900000000&quot;,
+   &quot;txid&quot;: &quot;f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f&quot;,
+   &quot;type&quot;: &quot;mutual&quot;
+}</code></pre>
+<p>The closing transaction on-chain is <a
+href="https://blockstream.info/testnet/tx/f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f">f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f</a>.</p>
+<p>It’s this closing transaction that actually disburses the funds that
+were traded back and forth through Lightning transactions. This can be
+seen by examining the transaction:</p>
+<pre><code>$ bitcoin-cli --named getrawtransaction txid=f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f verbose=1
+{
+  &quot;txid&quot;: &quot;f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f&quot;,
+  &quot;hash&quot;: &quot;3a6b3994932ae781bab80e159314bad06fc55d3d33453a1d663f9f9415c9719c&quot;,
+  &quot;version&quot;: 2,
+  &quot;size&quot;: 334,
+  &quot;vsize&quot;: 169,
+  &quot;weight&quot;: 673,
+  &quot;locktime&quot;: 0,
+  &quot;vin&quot;: [
+    {
+      &quot;txid&quot;: &quot;66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d&quot;,
+      &quot;vout&quot;: 0,
+      &quot;scriptSig&quot;: {
+        &quot;asm&quot;: &quot;&quot;,
+        &quot;hex&quot;: &quot;&quot;
+      },
+      &quot;txinwitness&quot;: [
+        &quot;&quot;,
+        &quot;304402207f8048e29192ec86019bc83be8b4cac5d1fc682374538bed0707f58192d41c390220512ebcde122d53747feedd70c09153a40c56d09a5fec02e47642afdbb20aa2ac01&quot;,
+        &quot;3045022100d686a16084b60800fa0f6b14c25dca1c13d10a55c5fb7c6a3eb1c5f4a2fb20360220555f5b6e672cf9ef82941f7d46ee03dd52e0e848b9f094a41ff299deb8207cab01&quot;,
+        &quot;522102f7589fd8366252cdbb37827dff65e3304abd5d17bbab57460eff71a9e32bc00b210343b980dff4f2723e0db99ac72d0841aad934b51cbe556ce3a1b257b34059a17052ae&quot;
+      ],
+      &quot;sequence&quot;: 4294967295
+    }
+  ],
+  &quot;vout&quot;: [
+    {
+      &quot;value&quot;: 0.00010012,
+      &quot;n&quot;: 0,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;0 d39feb57a663803da116402d6cb0ac050bf051d9&quot;,
+        &quot;hex&quot;: &quot;0014d39feb57a663803da116402d6cb0ac050bf051d9&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;tb1q6w07k4axvwqrmggkgqkkev9vq59lq5we5fcrzn&quot;
+        ]
+      }
+    },
+    {
+      &quot;value&quot;: 0.00089804,
+      &quot;n&quot;: 1,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;0 51c88b44420940c52a384bd8a03888e3676c1509&quot;,
+        &quot;hex&quot;: &quot;001451c88b44420940c52a384bd8a03888e3676c1509&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;tb1q28ygk3zzp9qv223cf0v2qwygudnkc9gfp30ud4&quot;
+        ]
+      }
+    }
+  ],
+  &quot;hex&quot;: &quot;020000000001011d3cf2126ae36e12be3aee893b385ed6a2e19b1da7f4e579e3ef15ca234d69660000000000ffffffff021c27000000000000160014d39feb57a663803da116402d6cb0ac050bf051d9cc5e01000000000016001451c88b44420940c52a384bd8a03888e3676c1509040047304402207f8048e29192ec86019bc83be8b4cac5d1fc682374538bed0707f58192d41c390220512ebcde122d53747feedd70c09153a40c56d09a5fec02e47642afdbb20aa2ac01483045022100d686a16084b60800fa0f6b14c25dca1c13d10a55c5fb7c6a3eb1c5f4a2fb20360220555f5b6e672cf9ef82941f7d46ee03dd52e0e848b9f094a41ff299deb8207cab0147522102f7589fd8366252cdbb37827dff65e3304abd5d17bbab57460eff71a9e32bc00b210343b980dff4f2723e0db99ac72d0841aad934b51cbe556ce3a1b257b34059a17052ae00000000&quot;,
+  &quot;blockhash&quot;: &quot;000000000000002a214b1ffc3a67c64deda838dd24d12154c15d3a6f1137e94d&quot;,
+  &quot;confirmations&quot;: 1,
+  &quot;time&quot;: 1602713519,
+  &quot;blocktime&quot;: 1602713519
+}</code></pre>
+<p>The input of the transaction is
+<code>66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d</code>,
+which was the funding transaction in <a
+href="19_3_Setting_Up_a_Channel.md">§19.3</a>. The transaction then has
+two outputs, one for the remote node and the other for the local
+c-lightning wallet. The output on index 0 corresponds to the remote node
+with a value of 0.00010012 BTC; and the output on index 1 corresponds to
+the local node with a value of 0.00089804 BTC.</p>
+<p>Lightning will similarly show 89804 satoshis returned as a new UTXO
+in its wallet:</p>
+<pre><code>$ lightning-cli --network=testnet listfunds
+{
+   &quot;outputs&quot;: [
+      {
+         &quot;txid&quot;: &quot;66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d&quot;,
+         &quot;output&quot;: 1,
+         &quot;value&quot;: 99847,
+         &quot;amount_msat&quot;: &quot;99847000msat&quot;,
+         &quot;scriptpubkey&quot;: &quot;00142fe02e5be9283e8c5bcb93ae61421baf8cb64f9c&quot;,
+         &quot;address&quot;: &quot;tb1q9lszuklf9qlgck7tjwhxzssm47xtvnuu4jslf8&quot;,
+         &quot;status&quot;: &quot;confirmed&quot;,
+         &quot;blockheight&quot;: 1862856,
+         &quot;reserved&quot;: false
+      },
+      {
+         &quot;txid&quot;: &quot;f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f&quot;,
+         &quot;output&quot;: 1,
+         &quot;value&quot;: 89804,
+         &quot;amount_msat&quot;: &quot;89804000msat&quot;,
+         &quot;scriptpubkey&quot;: &quot;001451c88b44420940c52a384bd8a03888e3676c1509&quot;,
+         &quot;address&quot;: &quot;tb1q28ygk3zzp9qv223cf0v2qwygudnkc9gfp30ud4&quot;,
+         &quot;status&quot;: &quot;confirmed&quot;,
+         &quot;blockheight&quot;: 1863006,
+         &quot;reserved&quot;: false
+      }
+   ],
+   &quot;channels&quot;: [
+      {
+         &quot;peer_id&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,
+         &quot;connected&quot;: false,
+         &quot;state&quot;: &quot;ONCHAIN&quot;,
+         &quot;short_channel_id&quot;: &quot;1862856x29x0&quot;,
+         &quot;channel_sat&quot;: 89987,
+         &quot;our_amount_msat&quot;: &quot;89987000msat&quot;,
+         &quot;channel_total_sat&quot;: 100000,
+         &quot;amount_msat&quot;: &quot;100000000msat&quot;,
+         &quot;funding_txid&quot;: &quot;66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d&quot;,
+         &quot;funding_output&quot;: 0
+      }
+   ]
+}
+</code></pre>
+<h3 id="understand-the-types-of-closing-channels.">Understand the Types
+of Closing Channels.</h3>
+<p>The <code>close</code> RPC command attempts to close a channel
+cooperatively with its peer or unilaterally after the
+<code>unilateraltimeout</code> argument expires. This bears some
+additional discussion, as it goes to the heart of Lightning’s trustless
+design:</p>
+<p>Each participant of a channel is able to create as many Lightning
+payments to their counterparty as their funds allow. Most of the time
+there will be no disagreements between the participants, so there will
+only be two on-chain transactions, one opening and the other closing the
+channel. However, there may be scenarios in which one peer is not online
+or does not agree with the final state of the channel or where someone
+tries to steal funds from the other party. This is why there are both
+cooperative and forced closes.</p>
+<h4 id="cooperative-close">Cooperative Close</h4>
+<p>In the case of a cooperative close, both channel participants agree
+to close the channel and settle the final state to the blockchain. Both
+participants must be online; the close is performed by broadcasting an
+unconditional spend of the funding transaction with an output to each
+peer.</p>
+<h4 id="force-close">Force Close</h4>
+<p>In the case of a force close, only one participant is online or the
+participants disagree on the final state of the channel. In this
+situation, one peer can perform an unilateral close of the channel
+without the cooperation of the other node. It’s performed by
+broadcasting a commitment transaction that commits to a previous channel
+state that both parties have agreed upon. This commitment transaction
+contains the channel state divided in two parts: the balance for each
+participant and all the pending payments (HTLCs).</p>
+<p>To perform this kind of close, you must specify an
+<code>unilateraltimeout</code> argument. If this value is not zero, the
+close command will unilaterally close the channel when that number of
+seconds is reached:</p>
+<pre><code>c$ lightning-cli --network=testnet close $newidremote 60
+{
+   &quot;tx&quot;: &quot;0200000001a1091f727e6041cc93fead2ea46b8402133f53e6ab89ab106b49638c11f27cba00000000006a40aa8001df85010000000000160014d22818913daf3b4f86e0bcb302a5a812d1ef6b91c6772d20&quot;,
+   &quot;txid&quot;: &quot;02cc4c647eb3e06f37fcbde39871ebae4333b7581954ea86b27b85ced6a5c4f7&quot;,
+   &quot;type&quot;: &quot;unilateral&quot;
+}
+</code></pre>
+<h2 id="summary-closing-a-channel">Summary: Closing a Channel</h2>
+<p>When you close a channel you perform an on-chain transaction ending
+your financial relationship with the remote node To close a channel, you
+must take into account its status and the type of closure you want to
+execute.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Using Lightning” with <a
+href="20_4_Lightning_Network_Review.md">§20.4: Expanding the Lightning
+Network</a>.</p>
+</body>
+</html>

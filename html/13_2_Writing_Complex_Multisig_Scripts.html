@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>13_2_Writing_Complex_Multisig_Scripts</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="writing-complex-multisig-scripts">13.2: Writing Complex Multisig
+Scripts</h1>
+<p>To date, the multisigs described in these documents have been
+entirely simple, of the m-of-n or n-of-n form. However, you might desire
+more complex multisigs, where cosigners vary or where different options
+might become available over time.</p>
+<h2 id="write-a-variable-multisig">Write a Variable Multisig</h2>
+<p>A variable multisig requires different numbers of people to sign
+depending on who is signing.</p>
+<h3 id="write-a-multisig-with-a-single-signer-or-co-signers">Write a
+Multisig with a Single Signer or Co-Signers</h3>
+<p>Imagine a corporation where either the president or two-out-of-three
+vice presidents could agree to the usage of funds.</p>
+<p>You can write this by creating an
+<code>IF</code>/<code>ELSE</code>/<code>ENDIF</code> statement that has
+two blocks, one for the president and his one-of-one signature and one
+for the vice-presidents and their two-of-three signatures. You can then
+determine which block to use based on how many signatures are in the
+unlocking script. Using <code>OP_DEPTH 1 OP_EQUAL</code> will tell you
+if there is one item on the stack, and you then go from there.</p>
+<p>The full locking script would be
+<code>OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF</code></p>
+<p>If run by the president, it would look like this:</p>
+<pre><code>Script: &lt;sigPres&gt; OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ ]
+
+Script: OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ &lt;sigPres&gt; ]
+
+Script: 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Running: &lt;SigPres&gt; OP_DEPTH
+Stack: [ &lt;sigPres&gt; 1 ]
+
+Script: OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ &lt;sigPres&gt; 1 1 ]
+
+Script: IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Running: 1 1 OP_EQUAL
+Stack: [ &lt;sigPres&gt; True ]</code></pre>
+<p>Because the result is <code>True</code>, the Script now collapses to
+the <code>IF</code> statement:</p>
+<pre><code>Script: &lt;pubKeyPres&gt; OP_CHECKSIGNATURE
+Running: True IF
+Stack: [ &lt;sigPres&gt; ]
+
+Script: OP_CHECKSIGNATURE
+Stack: [ &lt;sigPres&gt; &lt;pubKeyPres&gt; ]
+
+Script: 
+Running: &lt;sigPres&gt; &lt;pubKeyPres&gt; OP_CHECKSIGNATURE
+Stack: [ True ]</code></pre>
+<p>If run by two vice-presidents, it would look like this:</p>
+<pre><code>Script: 0 &lt;sigVPA&gt; &lt;sigVPB&gt; OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ ]
+
+Script: OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; ]
+
+Script: 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Running: 0 &lt;sigVPA&gt; &lt;sigVPB&gt; OP_DEPTH
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; 3 ]
+
+Script: OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; 3 1 ]
+
+Script: IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG ENDIF
+Running: 3 1 OP_EQUAL
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; False ]</code></pre>
+<p>Because the result is <code>False</code>, the Script now collapses to
+the <code>ELSE</code> statement:</p>
+<pre><code>Script: 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG
+Running: False IF
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; ]
+
+Script: OP_CHECKMULTISIG
+Stack: [ 0 &lt;sigVPA&gt; &lt;sigVPB&gt; 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 ]
+
+Script: 
+Running: 0 &lt;sigVPA&gt; &lt;sigVPB&gt; 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; 3 OP_CHECKMULTISIG
+Stack: [ ]</code></pre>
+<p>You might notice that the President’s signature just uses a simple
+<code>OP_CHECKSIGNATURE</code> rather than the more complex code usually
+required for a P2PKH. We can get away with including the public key in
+the locking script, obviating the usual rigamarole, because it’s hashed
+and won’t be revealed (through the <code>redeemScript</code>) until the
+transaction is unlocked. This also allows for all of the possible
+signers to sign using the same methodology.</p>
+<p>The only possible problem is if the President is absent-minded and
+accidentally signs a transaction with one of his VPs, because he
+remembers this being a 2-of-3 multisig. One option is to decide that’s
+an acceptable failure condition, because the President is using the
+multsig incorrectly. Another option is to turn the 2-of-3 multisig into
+a 2-of-4 multisig, just in case the President doesn’t tolerate failure:
+<code>OP_DEPTH 1 OP_EQUAL IF &lt;pubKeyPres&gt; OP_CHECKSIGNATURE ELSE 2 &lt;pubKeyVPA&gt; &lt;pubKeyVPB&gt; &lt;pubKeyVPC&gt; &lt;pubKeyPres&gt; 4 OP_CHECKMULTISIG ENDIF</code>.
+This would allow the President to mistakenly sign with any Vice
+President, but wouldn’t impact things if two Vice Presidents wanted to
+(correctly) sign.</p>
+<h3 id="write-a-multisig-with-a-required-signer">Write a Multisig with a
+Required Signer</h3>
+<p>Another multisig possibility involves have a m-of-n multisig where
+one of the signers is required. This can usually be managed by breaking
+the multisig down into multiple m of n-1 multisigs. For example, a
+2-of-3 multisig where one of the signers is required would actually be
+two 2-of-2 multisigs, each including the required signer.</p>
+<p>Here’s a simple way to script that:</p>
+<pre><code>OP_3DUP
+2 &lt;pubKeyRequired&gt; &lt;pubKeyA&gt; 2  OP_CHECKMULTISIG
+NOTIF
+
+  2 &lt;pubKeyRequired&gt; &lt;pubKeyB&gt; 2  OP_CHECKMULTISIG
+
+ENDIF</code></pre>
+<p>The unlocking script would be either
+<code>0 &lt;pubKeyRequired&gt; &lt;pubKeyA&gt;</code> or
+<code>0 &lt;pubKeyRequired&gt; &lt;pubKeyB&gt;</code>.</p>
+<p>First the Script would check the signatures against
+<code>&lt;pubKeyRequired&gt; &lt;pubKeyA&gt;</code>. If that fails, it
+would check against
+<code>&lt;pubKeyRequired&gt; &lt;pubKeyB&gt;</code>.</p>
+<p>The result of the final <code>OP_CHECKMULTISIG</code> that was run
+will be left on the top of the stack (though there will be cruft below
+it if the first one succeeded).</p>
+<h2 id="write-an-escrow-multisig">Write an Escrow Multisig</h2>
+<p>We’ve talked a lot about escrows. Complex multisigs combined with
+timelocks offer an automated way to create them in a robust manner.</p>
+<p>Imagine home buyer Alice and home seller Bob who are working with an
+escrow agent. The easy way to script this would be as a multisig where
+any two of the three parties could release the money: either the seller
+and buyer agree or the escrow agent takes over and agrees with one of
+the parties:
+<code>2 &lt;pubKeyA&gt; &lt;pubKeyB&gt; &lt;pubKeyEscrow&gt; 3 OP_CHECKMULTISG</code>.</p>
+<p>However, this weakens the power of the escrow agent and allows the
+seller and buyer to accidentally make a bad decision between themselves
+— which is one of the things an escrow system is designed to avoid. So
+it could be that what we really want is the system that we just laid
+out, where the escrow agent is a required party in the 2-of-3 multisig:
+<code>OP_3DUP 2 &lt;pubKeyEscrow&gt; &lt;pubKeyA&gt; 2  OP_CHECKMULTISIG NOTIF 2 &lt;pubKeyEscrow&gt; &lt;pubKeyB&gt; 2  OP_CHECKMULTISIG ENDIF</code>.</p>
+<p>However, this doesn’t pass the walk-in-front-of-a-bus test. If the
+escrow agent dies or flees to the Bahamas during the escrow, the buyer
+and seller are out a lot of money. This is where a timelock comes in.
+You can create an additional test that will only be run if we’ve passed
+the end of our escrow period. In this situation, you allow the buyer and
+seller to sign together:</p>
+<pre><code>OP_3DUP
+2 &lt;pubKeyEscrow&gt; &lt;pubKeyA&gt; 2 OP_CHECKMULTISIG
+NOTIF
+
+  OP_3DUP
+  2 &lt;pubKeyEscrow&gt; &lt;pubKeyB&gt; 2 OP_CHECKMULTISIG
+  NOTIF
+
+    &lt;+30Days&gt; OP_CHECKSEQUENCEVERIFY OP_DROP
+    2 &lt;pubKeyA&gt; &lt;pubKeyB&gt; 2 OP_CHECKMULTISIG
+    
+  ENDIF
+ENDIF</code></pre>
+<p>First, you test a signature for the buyer and the escrow agent, then
+a signature for the seller and the escrow agent. If both of those fail
+and 30 days have passed, then you also allow a signature for the buyer
+and seller.</p>
+<h3 id="write-a-buyer-centric-escrow-multisig">Write a Buyer-Centric
+Escrow Multisig</h3>
+<p><a
+href="https://github.com/bitcoin/bips/blob/master/bip-0112.mediawiki#Escrow_with_Timeout">BIP
+112</a> offers a different example of this sort of escrow that doesn’t
+have the extra protections to prevent going around the escrow agent, but
+which does give Alice total control if the escrow fails.</p>
+<pre><code>IF
+
+    2 &lt;pubKeyA&gt; &lt;pubKeyB&gt; &lt;pubKeyEscrow&gt; 3 OP_CHECKMULTISIG 
+
+ELSE
+
+    &lt;+30Days&gt; OP_CHECKSEQUENCEVERIFY OP_DROP
+    &lt;pubKeyA&gt; OP_CHECKSIGNATURE
+
+ENDIF</code></pre>
+<p>Here, any two of the three signers can release the money at any time,
+but after 30 days Alice can retrieve her money on her own.</p>
+<p>Note that this Script requires a <code>True</code> or
+<code>False</code> to be passed in to identify which branch is being
+used. This is a simpler, less computationally intensive way to support
+branches in a Bitcoin Script; it’s fairly common.</p>
+<p>Early on, the following <code>sigScript</code> would be allowed:
+<code>0 &lt;signer1&gt; &lt;signer2&gt; True</code>. After 30 days,
+Alice could produce a <code>sigScript</code> like this:
+<code>&lt;sigA&gt; False</code>.</p>
+<h2 id="summary-writing-complex-multisig-scripts">Summary: Writing
+Complex Multisig Scripts</h2>
+<p>More complex multisignatures can typically be created by combining
+signatures or multisignatures with conditionals and tests. The resulting
+multisigs can be variable, requiring different numbers of signers based
+on who they are and when they’re signing.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of complex multisig
+scripts?</em></strong> More than anything we’ve seen to date, complex
+multisig scripts are truly smart contracts. They can be very precise in
+who is allowed to sign and when. Multi-level corporations, partnerships,
+and escrows alike can be supported. Using other powerful features like
+timelocks can further protect these funds, allowing them to be released
+or even returned at certain times.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Designing Real Bitcoin Scripts” with <a
+href="13_3_Empowering_Bitcoin_with_Scripts.md">§13.3: Empowering Bitcoin
+with Scripts</a>.</p>
+</body>
+</html>

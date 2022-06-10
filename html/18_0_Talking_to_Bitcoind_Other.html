@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_0_Talking_to_Bitcoind_Other</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="chapter-18-talking-to-bitcoind-with-other-languages">Chapter 18:
+Talking to Bitcoind with Other Languages</h1>
+<p>You should now have a solid foundation for working with Bitcoin in C,
+not only using RPC, JSON, and ZMQ libraries to directly interact with
+<code>bitcoind</code>, but also utilizing the Libwally libraries to
+complement that work. And C is a great language for prototyping and
+abstraction — but it’s probably not what you’re programming in. This
+chapter thus takes a whirlwind tour of six other programming languages,
+demonstrating the barest Bitcoin functionality in each and allowing you
+to expand the lessons of the command line and C to the programming
+language of your choice.</p>
+<p>Each of the sections contains approximately the same information,
+focused on: creating an RPC connection; examining the wallet; creating a
+new address, and creating a transaction. However, there’s some variety
+among the languages, showing off different aspects of Bitcoin’s RPC
+commands in different examples. In particular, some languages use the
+easy methodology of <code>sendtoaddress</code> while others use the hard
+methodology of creating a raw transaction from scratch.</p>
+<h2 id="objectives-for-this-chapter">Objectives for This Chapter</h2>
+<p>After working through this chapter, a developer will be able to:</p>
+<ul>
+<li>Prepare Bitcoin Development Environments for a Variety of
+Languages</li>
+<li>Use Wallet Functions in a Variety of Languages</li>
+<li>Use Transaction Functions in a Variety of Languages</li>
+</ul>
+<p>Supporting objectives include the ability to:</p>
+<ul>
+<li>Understand More about Bitcoin RPC through Interactions with a
+Variety of Languages</li>
+</ul>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="18_1_Accessing_Bitcoind_with_Go.md">Section One: Accessing
+Bitcoind with Go</a></li>
+<li><a href="18_2_Accessing_Bitcoind_with_Java.md">Section Two:
+Accessing Bitcoind with Java</a></li>
+<li><a href="18_3_Accessing_Bitcoind_with_NodeJS.md">Section Three:
+Accessing Bitcoind with NodeJS</a></li>
+<li><a href="18_4_Accessing_Bitcoind_with_Python.md">Section Four:
+Accessing Bitcoind with Python</a></li>
+<li><a href="18_5_Accessing_Bitcoind_with_Rust.md">Section Five:
+Accessing Bitcoind with Rust</a></li>
+<li><a href="18_6_Accessing_Bitcoind_with_Swift.md">Section Six:
+Accessing Bitcoind with Swift</a></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>03_2_Knowing_Your_Bitcoin_Setup</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="knowing-your-bitcoin-setup">3.2: Knowing Your Bitcoin Setup</h1>
+<p>Before you start playing with Bitcoin, you may always want to come to
+a better understanding of your setup.</p>
+<h2 id="know-your-bitcoin-directory">Know Your Bitcoin Directory</h2>
+<p>To start with, you should understand where everything is kept: the
+<code>~/.bitcoin</code> directory.</p>
+<p>The main directory just contains your config file and the testnet
+directory:</p>
+<pre><code>$ ls ~/.bitcoin
+bitcoin.conf  testnet3</code></pre>
+<p>The setup guides in <a
+href="02_0_Setting_Up_a_Bitcoin-Core_VPS.md">Chapter Two: Creating a
+Bitcoin-Core VPS</a> laid out a standardized config file. <a
+href="03_1_Verifying_Your_Bitcoin_Setup.md">§3.1: Verifying Your Bitcoin
+Setup</a> suggested how to change it to support more advanced setups. If
+you’re interested in learning even more about the config file, you may
+wish to consult <a
+href="https://jlopp.github.io/bitcoin-core-config-generator/">Jameson
+Lopp’s Bitcoin Core Config Generator</a>.</p>
+<p>Moving back to your ~/.bitcoin directory, you’ll find that the
+testnet3 directory contains all of the guts:</p>
+<pre><code>$ ls ~/.bitcoin/testnet3
+banlist.json   blocks     debug.log      mempool.dat    peers.dat
+bitcoind.pid  chainstate  fee_estimates.dat  onion_private_key  wallets</code></pre>
+<p>You shouldn’t mess with most of these files and directories —
+particularly not the <code>blocks</code> and <code>chainstate</code>
+directories, which contain all of the blockchain data, and the
+information in your <code>wallets</code> directory, which contains your
+personal wallet. However, do take careful note of the
+<code>debug.log</code> file, which you should refer to if you ever have
+problems with your setup.</p>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> If you’re using mainnet,
+then <em>everything</em> will instead be placed in the main
+<code>~/.bitcoin</code> directory. These various setups <em>do</em>
+elegantly stack, so if you are using mainnet, testnet, and regtest,
+you’ll find that <code>~/.bitcoin</code> contains your config file and
+your mainnet data, the <code>~/.bitcoin/testnet3</code> directory
+contains your testnet data, and the <code>~/.bitcoin/regtest</code>
+directory contains your regtest data.</p>
+</blockquote>
+<h2 id="know-your-bitcoin-cli-commands">Know Your Bitcoin-cli
+Commands</h2>
+<p>Most of your early work will be done with the
+<code>bitcoin-cli</code> command, which offers an easy interface to
+<code>bitcoind</code>. If you ever want more information on its usage,
+just run it with the <code>help</code> argument. Without any other
+arguments, it shows you every possible command:</p>
+<pre><code>$ bitcoin-cli help
+== Blockchain ==
+getbestblockhash
+getblock &quot;blockhash&quot; ( verbosity )
+getblockchaininfo
+getblockcount
+getblockfilter &quot;blockhash&quot; ( &quot;filtertype&quot; )
+getblockhash height
+getblockheader &quot;blockhash&quot; ( verbose )
+getblockstats hash_or_height ( stats )
+getchaintips
+getchaintxstats ( nblocks &quot;blockhash&quot; )
+getdifficulty
+getmempoolancestors &quot;txid&quot; ( verbose )
+getmempooldescendants &quot;txid&quot; ( verbose )
+getmempoolentry &quot;txid&quot;
+getmempoolinfo
+getrawmempool ( verbose )
+gettxout &quot;txid&quot; n ( include_mempool )
+gettxoutproof [&quot;txid&quot;,...] ( &quot;blockhash&quot; )
+gettxoutsetinfo
+preciousblock &quot;blockhash&quot;
+pruneblockchain height
+savemempool
+scantxoutset &quot;action&quot; ( [scanobjects,...] )
+verifychain ( checklevel nblocks )
+verifytxoutproof &quot;proof&quot;
+
+== Control ==
+getmemoryinfo ( &quot;mode&quot; )
+getrpcinfo
+help ( &quot;command&quot; )
+logging ( [&quot;include_category&quot;,...] [&quot;exclude_category&quot;,...] )
+stop
+uptime
+
+== Generating ==
+generatetoaddress nblocks &quot;address&quot; ( maxtries )
+generatetodescriptor num_blocks &quot;descriptor&quot; ( maxtries )
+
+== Mining ==
+getblocktemplate ( &quot;template_request&quot; )
+getmininginfo
+getnetworkhashps ( nblocks height )
+prioritisetransaction &quot;txid&quot; ( dummy ) fee_delta
+submitblock &quot;hexdata&quot; ( &quot;dummy&quot; )
+submitheader &quot;hexdata&quot;
+
+== Network ==
+addnode &quot;node&quot; &quot;command&quot;
+clearbanned
+disconnectnode ( &quot;address&quot; nodeid )
+getaddednodeinfo ( &quot;node&quot; )
+getconnectioncount
+getnettotals
+getnetworkinfo
+getnodeaddresses ( count )
+getpeerinfo
+listbanned
+ping
+setban &quot;subnet&quot; &quot;command&quot; ( bantime absolute )
+setnetworkactive state
+
+== Rawtransactions ==
+analyzepsbt &quot;psbt&quot;
+combinepsbt [&quot;psbt&quot;,...]
+combinerawtransaction [&quot;hexstring&quot;,...]
+converttopsbt &quot;hexstring&quot; ( permitsigdata iswitness )
+createpsbt [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n,&quot;sequence&quot;:n},...] [{&quot;address&quot;:amount},{&quot;data&quot;:&quot;hex&quot;},...] ( locktime replaceable )
+createrawtransaction [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n,&quot;sequence&quot;:n},...] [{&quot;address&quot;:amount},{&quot;data&quot;:&quot;hex&quot;},...] ( locktime replaceable )
+decodepsbt &quot;psbt&quot;
+decoderawtransaction &quot;hexstring&quot; ( iswitness )
+decodescript &quot;hexstring&quot;
+finalizepsbt &quot;psbt&quot; ( extract )
+fundrawtransaction &quot;hexstring&quot; ( options iswitness )
+getrawtransaction &quot;txid&quot; ( verbose &quot;blockhash&quot; )
+joinpsbts [&quot;psbt&quot;,...]
+sendrawtransaction &quot;hexstring&quot; ( maxfeerate )
+signrawtransactionwithkey &quot;hexstring&quot; [&quot;privatekey&quot;,...] ( [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n,&quot;scriptPubKey&quot;:&quot;hex&quot;,&quot;redeemScript&quot;:&quot;hex&quot;,&quot;witnessScript&quot;:&quot;hex&quot;,&quot;amount&quot;:amount},...] &quot;sighashtype&quot; )
+testmempoolaccept [&quot;rawtx&quot;,...] ( maxfeerate )
+utxoupdatepsbt &quot;psbt&quot; ( [&quot;&quot;,{&quot;desc&quot;:&quot;str&quot;,&quot;range&quot;:n or [n,n]},...] )
+
+== Util ==
+createmultisig nrequired [&quot;key&quot;,...] ( &quot;address_type&quot; )
+deriveaddresses &quot;descriptor&quot; ( range )
+estimatesmartfee conf_target ( &quot;estimate_mode&quot; )
+getdescriptorinfo &quot;descriptor&quot;
+signmessagewithprivkey &quot;privkey&quot; &quot;message&quot;
+validateaddress &quot;address&quot;
+verifymessage &quot;address&quot; &quot;signature&quot; &quot;message&quot;
+
+== Wallet ==
+abandontransaction &quot;txid&quot;
+abortrescan
+addmultisigaddress nrequired [&quot;key&quot;,...] ( &quot;label&quot; &quot;address_type&quot; )
+backupwallet &quot;destination&quot;
+bumpfee &quot;txid&quot; ( options )
+createwallet &quot;wallet_name&quot; ( disable_private_keys blank &quot;passphrase&quot; avoid_reuse )
+dumpprivkey &quot;address&quot;
+dumpwallet &quot;filename&quot;
+encryptwallet &quot;passphrase&quot;
+getaddressesbylabel &quot;label&quot;
+getaddressinfo &quot;address&quot;
+getbalance ( &quot;dummy&quot; minconf include_watchonly avoid_reuse )
+getbalances
+getnewaddress ( &quot;label&quot; &quot;address_type&quot; )
+getrawchangeaddress ( &quot;address_type&quot; )
+getreceivedbyaddress &quot;address&quot; ( minconf )
+getreceivedbylabel &quot;label&quot; ( minconf )
+gettransaction &quot;txid&quot; ( include_watchonly verbose )
+getunconfirmedbalance
+getwalletinfo
+importaddress &quot;address&quot; ( &quot;label&quot; rescan p2sh )
+importmulti &quot;requests&quot; ( &quot;options&quot; )
+importprivkey &quot;privkey&quot; ( &quot;label&quot; rescan )
+importprunedfunds &quot;rawtransaction&quot; &quot;txoutproof&quot;
+importpubkey &quot;pubkey&quot; ( &quot;label&quot; rescan )
+importwallet &quot;filename&quot;
+keypoolrefill ( newsize )
+listaddressgroupings
+listlabels ( &quot;purpose&quot; )
+listlockunspent
+listreceivedbyaddress ( minconf include_empty include_watchonly &quot;address_filter&quot; )
+listreceivedbylabel ( minconf include_empty include_watchonly )
+listsinceblock ( &quot;blockhash&quot; target_confirmations include_watchonly include_removed )
+listtransactions ( &quot;label&quot; count skip include_watchonly )
+listunspent ( minconf maxconf [&quot;address&quot;,...] include_unsafe query_options )
+listwalletdir
+listwallets
+loadwallet &quot;filename&quot;
+lockunspent unlock ( [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n},...] )
+removeprunedfunds &quot;txid&quot;
+rescanblockchain ( start_height stop_height )
+sendmany &quot;&quot; {&quot;address&quot;:amount} ( minconf &quot;comment&quot; [&quot;address&quot;,...] replaceable conf_target &quot;estimate_mode&quot; )
+sendtoaddress &quot;address&quot; amount ( &quot;comment&quot; &quot;comment_to&quot; subtractfeefromamount replaceable conf_target &quot;estimate_mode&quot; avoid_reuse )
+sethdseed ( newkeypool &quot;seed&quot; )
+setlabel &quot;address&quot; &quot;label&quot;
+settxfee amount
+setwalletflag &quot;flag&quot; ( value )
+signmessage &quot;address&quot; &quot;message&quot;
+signrawtransactionwithwallet &quot;hexstring&quot; ( [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n,&quot;scriptPubKey&quot;:&quot;hex&quot;,&quot;redeemScript&quot;:&quot;hex&quot;,&quot;witnessScript&quot;:&quot;hex&quot;,&quot;amount&quot;:amount},...] &quot;sighashtype&quot; )
+unloadwallet ( &quot;wallet_name&quot; )
+walletcreatefundedpsbt [{&quot;txid&quot;:&quot;hex&quot;,&quot;vout&quot;:n,&quot;sequence&quot;:n},...] [{&quot;address&quot;:amount},{&quot;data&quot;:&quot;hex&quot;},...] ( locktime options bip32derivs )
+walletlock
+walletpassphrase &quot;passphrase&quot; timeout
+walletpassphrasechange &quot;oldpassphrase&quot; &quot;newpassphrase&quot;
+walletprocesspsbt &quot;psbt&quot; ( sign &quot;sighashtype&quot; bip32derivs )
+
+== Zmq ==
+getzmqnotifications</code></pre>
+<p>You can also type <code>bitcoin-cli help [command]</code> to get even
+more extensive info on that command. For example:</p>
+<pre><code>$ bitcoin-cli help getmininginfo
+...
+Returns a json object containing mining-related information.
+Result:
+{                              (json object)
+  &quot;blocks&quot; : n,                (numeric) The current block
+  &quot;currentblockweight&quot; : n,    (numeric, optional) The block weight of the last assembled block (only present if a block was ever assembled)
+  &quot;currentblocktx&quot; : n,        (numeric, optional) The number of block transactions of the last assembled block (only present if a block was ever assembled)
+  &quot;difficulty&quot; : n,            (numeric) The current difficulty
+  &quot;networkhashps&quot; : n,         (numeric) The network hashes per second
+  &quot;pooledtx&quot; : n,              (numeric) The size of the mempool
+  &quot;chain&quot; : &quot;str&quot;,             (string) current network name (main, test, regtest)
+  &quot;warnings&quot; : &quot;str&quot;           (string) any network and blockchain warnings
+}
+
+Examples:
+&gt; bitcoin-cli getmininginfo
+&gt; curl --user myusername --data-binary &#39;{&quot;jsonrpc&quot;: &quot;1.0&quot;, &quot;id&quot;: &quot;curltest&quot;, &quot;method&quot;: &quot;getmininginfo&quot;, &quot;params&quot;: []}&#39; -H &#39;content-type: text/plain;&#39; http://127.0.0.1:8332/</code></pre>
+<blockquote>
+<p>:book: <strong><em>What is RPC?</em></strong>
+<code>bitcoin-cli</code> is just a handy interface that lets you send
+commands to the <code>bitcoind</code>. More specifically, it’s an
+interface that lets you send RPC (or Remote Procedure Protocol) commands
+to the <code>bitcoind</code>. Often, the <code>bitcoin-cli</code>
+command and the RPC command have identical names and interfaces, but
+some <code>bitcoin-cli</code> commands instead provide shortcuts for
+more complex RPC requests. Generally, the <code>bitcoin-cli</code>
+interface is much cleaner and simpler than trying to send RPC commands
+by hand, using <code>curl</code> or some other method. However, it also
+has limitations as to what you can ultimately do.</p>
+</blockquote>
+<h2 id="optional-know-your-bitcoin-info">Optional: Know Your Bitcoin
+Info</h2>
+<p>A variety of bitcoin-cli commands can give you additional information
+on your bitcoin data. The most general ones are:</p>
+<p><code>bitcoin-cli -getinfo</code> returns information from different
+RPCs (user-friendly)</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode diff"><code class="sourceCode diff"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>$ bitcoin-cli -getinfo</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">! Chain: test</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Blocks: 1977694</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Headers: 1977694</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>Verification progress: 0.9999993275374796</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>Difficulty: 1</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="va">+ Network: in 0, out 8, total 8</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Version: 219900</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>Time offset (s): 0</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>Proxy: N/A</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>Min tx relay fee rate (BTC/kvB): 0.00001000</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="dt">@@ Wallet: &quot;&quot;@@</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>Keypool size: 1000</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>Unlocked until: 0</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>Transaction fee rate (-paytxfee) (BTC/kvB): 0.00000000</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a># Balance: 0.02853102</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="st">- Warnings: unknown new rules activated (versionbit 28)</span></span></code></pre></div>
+<p>Other commands to get information about blockchain, mining, network,
+wallet etc.</p>
+<pre><code>$ bitcoin-cli getblockchaininfo
+$ bitcoin-cli getmininginfo
+$ bitcoin-cli getnetworkinfo
+$ bitcoin-cli getnettotals
+$ bitcoin-cli getwalletinfo</code></pre>
+<p>For example <code>bitcoin-cli getnetworkinfo</code> gives you a
+variety of information on your setup and its access to various
+networks:</p>
+<pre><code>$ bitcoin-cli getnetworkinfo
+{
+  &quot;version&quot;: 200000,
+  &quot;subversion&quot;: &quot;/Satoshi:0.20.0/&quot;,
+  &quot;protocolversion&quot;: 70015,
+  &quot;localservices&quot;: &quot;0000000000000408&quot;,
+  &quot;localservicesnames&quot;: [
+    &quot;WITNESS&quot;,
+    &quot;NETWORK_LIMITED&quot;
+  ],
+  &quot;localrelay&quot;: true,
+  &quot;timeoffset&quot;: 0,
+  &quot;networkactive&quot;: true,
+  &quot;connections&quot;: 10,
+  &quot;networks&quot;: [
+    {
+      &quot;name&quot;: &quot;ipv4&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;&quot;,
+      &quot;proxy_randomize_credentials&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;ipv6&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;&quot;,
+      &quot;proxy_randomize_credentials&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;onion&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;127.0.0.1:9050&quot;,
+      &quot;proxy_randomize_credentials&quot;: true
+    }
+  ],
+  &quot;relayfee&quot;: 0.00001000,
+  &quot;incrementalfee&quot;: 0.00001000,
+  &quot;localaddresses&quot;: [
+    {
+      &quot;address&quot;: &quot;45.79.111.171&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;2600:3c01::f03c:92ff:fecc:fdb7&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;4wrr3ktm6gl4sojx.onion&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 4
+    }
+  ],
+  &quot;warnings&quot;: &quot;Warning: unknown new rules activated (versionbit 28)&quot;
+}</code></pre>
+<p>Feel free to reference any of these and to use “bitcoin-cli help” if
+you want more information on what any of them do.</p>
+<h2 id="summary-knowing-your-bitcoin-setup">Summary: Knowing Your
+Bitcoin Setup</h2>
+<p>The <code>~/.bitcoin</code> directory contains all of your files,
+while <code>bitcoin-cli help</code> and a variety of info commands can
+be used to get more information on how your setup and Bitcoin work.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Understanding Your Bitcoin Setup” with <a
+href="03_3_Setting_Up_Your_Wallet.md">§3.3: Setting Up Your
+Wallet</a>.</p>
+</body>
+</html>

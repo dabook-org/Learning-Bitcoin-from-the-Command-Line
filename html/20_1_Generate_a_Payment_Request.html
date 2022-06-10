@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>20_1_Generate_a_Payment_Request</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="generating-a-payment-request">20.1: Generating a Payment
+Request</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section describes how payments work on the Lightning Network,
+how to create a payment request (or <em>invoice</em>), and finally how
+to make sense of it. Issuing invoices depends on your having a second
+Lightning node, as described in <a
+href="19_2__Interlude_Accessing_a_Second_Lightning_Node.md">Accessing a
+Second Lightning Node</a>. These examples will use an LND node as their
+secondary node, to further demonstrate the possibilities of the
+Lightning Network. To differentiate between the nodes in these examples,
+the prompts will be shown as <code>c$</code> for the c-lightning node
+and <code>lnd$</code> as the LND node. If you want to reproduce this
+steps, you should <a
+href="19_2__Interlude_Accessing_a_Second_Lightning_Node.md#creating-a-new-lnd-node">install
+your own secondary LND node</a>.</p>
+<blockquote>
+<p>:book: *<strong>What is an Invoice?</strong> Almost all payments made
+on the Lightning Network require an invoice, which is nothing more than
+a <strong>request for payment</strong> made by the recipient of the
+money and sent by variety of means to the paying user. All payment
+requests are single use. Lightning invoices use bech32 encoding, which
+is already used by Segregated Witness for Bitcoin.</p>
+</blockquote>
+<h2 id="create-an-invoice">Create an Invoice</h2>
+<p>To create a new invoice on c-lightning you would use the
+<code>lightning-cli --testnet invoice</code> command.</p>
+<p>Here’s how it would work with c-lightning, using arguments of an
+amount (in millisatoshis), a label, and a description.</p>
+<pre><code>c$ lightning-cli --testnet invoice 100000 joe-payment &quot;The money you owe me for dinner&quot;
+{
+   &quot;payment_hash&quot;: &quot;07a1c4bd7a38b4dea35f301c173cd8f9aac253b66bd8404d7ad829f226342490&quot;,
+   &quot;expires_at&quot;: 1603305795,
+   &quot;bolt11&quot;: &quot;lntb1u1p0cw3krpp5q7suf0t68z6dag6lxqwpw0xclx4vy5akd0vyqnt6mq5lyf35yjgqdpj235x2grddahx27fq09hh2gr0wajjqmt9ypnx7u3qv35kumn9wgxqyjw5qcqp2sp5r3puay46tffdyzldjv39fw6tzdgu2hnlszamqhnmgjsuxqxavpgs9qy9qsqatawvx44x5qa22m7td84jau5450v7j6sl5224tlv9k5v7wdygq9qr4drz795lfnl52gklvyvnha5e5lx72lzzmgzcfnp942va5thmhsp5sx7c2&quot;,
+   &quot;warning_capacity&quot;: &quot;No channels&quot;,
+   &quot;warning_mpp_capacity&quot;: &quot;The total incoming capacity is still insufficient even if the payer had MPP capability.&quot;
+}</code></pre>
+<p>However, for this example we’re going to instead generate an invoice
+on an LND node, and then pay it on the c-lightning node. This requires
+LND’s slightly different <code>addinvoice</code> command. You can use
+<code>--amt</code> argument to indicate amount to be paid (in
+millisatoshis) and add a description using the <code>--memo</code>
+argument.</p>
+<pre><code>lnd$ lncli -n testnet addinvoice --amt 10000 --memo &quot;First LN Payment - Learning Bitcoin and Lightning from the Command line.&quot;
+{
+    &quot;r_hash&quot;: &quot;6cacdedc95b89eec15e5244bd0957b88c0ab58b153eee549735b995344bc16bb&quot;,
+    &quot;payment_request&quot;: &quot;lntb100u1p0cwnqtpp5djkdahy4hz0wc909y39ap9tm3rq2kk9320hw2jtntwv4x39uz6asdr5ge5hyum5ypxyugzsv9uk6etwwssz6gzvv4shymnfdenjqsnfw33k76twypskuepqf35kw6r5de5kueeqveex7mfqw35x2gzrdakk6ctwvssxc6twv5hqcqzpgsp5a9ryqw7t23myn9psd36ra5alzvp6lzhxua58609teslwqmdljpxs9qy9qsq9ee7h500jazef6c306psr0ncru469zgyr2m2h32c6ser28vrvh5j4q23c073xsvmjwgv9wtk2q7j6pj09fn53v2vkrdkgsjv7njh9aqqtjn3vd&quot;,
+    &quot;add_index&quot;: &quot;1&quot;
+}</code></pre>
+<p>Note that these invoices don’t directly reference the channel you
+created: that’s necessary for payment, but not for requesting
+payment.</p>
+<h2 id="understand-an-invoice">Understand an Invoice</h2>
+<p>The <code>bolt11</code> <code>payment_request</code> that you created
+is made up of two parts: one is human readable and the other is
+data.</p>
+<blockquote>
+<p>:book: <strong>What is a BOLT?</strong> The BOLTs are the individual
+<a
+href="https://github.com/lightningnetwork/lightning-rfc">specifications
+for the Lightning Network</a>.</p>
+</blockquote>
+<h3 id="read-the-human-readable-invoice-part">Read the Human-Readable
+Invoice Part</h3>
+<p>The human readable part of your invoices starts with an
+<code>ln</code>. It is <code>lnbc</code> for Bitcoin mainnet,
+<code>lntb</code> for Bitcoin testnet, or <code>lnbcrt</code> for
+Bitcoin regtest. It then lists the funds requested in the invoice.</p>
+<p>For example, look at your invoice from your LND node:</p>
+<pre><code>lntb100u1p0cwnqtpp5djkdahy4hz0wc909y39ap9tm3rq2kk9320hw2jtntwv4x39uz6asdr5ge5hyum5ypxyugzsv9uk6etwwssz6gzvv4shymnfdenjqsnfw33k76twypskuepqf35kw6r5de5kueeqveex7mfqw35x2gzrdakk6ctwvssxc6twv5hqcqzpgsp5a9ryqw7t23myn9psd36ra5alzvp6lzhxua58609teslwqmdljpxs9qy9qsq9ee7h500jazef6c306psr0ncru469zgyr2m2h32c6ser28vrvh5j4q23c073xsvmjwgv9wtk2q7j6pj09fn53v2vkrdkgsjv7njh9aqqtjn3vd</code></pre>
+<p>The human readable part is <code>ln</code> + <code>tb</code> +
+<code>100u</code>.</p>
+<p><code>lntb</code> says that this is a Lightning Network invoice for
+Testnet bitcoins.</p>
+<p><code>100u</code> says that it is for 100 bitcoins times the
+microsatoshi multiplier. There are four (optional) funds
+multipliers:</p>
+<ul>
+<li><code>m</code> (milli): multiply by 0.001</li>
+<li><code>u</code> (micro): multiply by 0.000001</li>
+<li><code>n</code> (nano): multiply by 0.000000001</li>
+<li><code>p</code> (pico): multiply by 0.000000000001</li>
+</ul>
+<p>100 BTC * .000001 = .0001 BTC, which is the same as 10,000
+satoshis.</p>
+<h3 id="read-the-data-invoice-part">Read the Data Invoice Part</h3>
+<p>The rest of the invoice
+(<code>1p0cwnqtpp5djkdahy4hz0wc909y39ap9tm3rq2kk9320hw2jtntwv4x39uz6asdr5ge5hyum5ypxyugzsv9uk6etwwssz6gzvv4shymnfdenjqsnfw33k76twypskuepqf35kw6r5de5kueeqveex7mfqw35x2gzrdakk6ctwvssxc6twv5hqcqzpgsp5a9ryqw7t23myn9psd36ra5alzvp6lzhxua58609teslwqmdljpxs9qy9qsq9ee7h500jazef6c306psr0ncru469zgyr2m2h32c6ser28vrvh5j4q23c073xsvmjwgv9wtk2q7j6pj09fn53v2vkrdkgsjv7njh9aqqtjn3vd</code>)
+contains a timestamp, specifically tagged data, and a signature. You
+obviously can’t read it yourself, but you can ask c-lightning’s
+<code>lightning-cli</code> to do so with the <code>decodepay</code>
+command:</p>
+<pre><code>c$ lightning-cli --testnet decodepay lntb100u1p0cwnqtpp5djkdahy4hz0wc909y39ap9tm3rq2kk9320hw2jtntwv4x39uz6asdr5ge5hyum5ypxyugzsv9uk6etwwssz6gzvv4shymnfdenjqsnfw33k76twypskuepqf35kw6r5de5kueeqveex7mfqw35x2gzrdakk6ctwvssxc6twv5hqcqzpgsp5a9ryqw7t23myn9psd36ra5alzvp6lzhxua58609teslwqmdljpxs9qy9qsq9ee7h500jazef6c306psr0ncru469zgyr2m2h32c6ser28vrvh5j4q23c073xsvmjwgv9wtk2q7j6pj09fn53v2vkrdkgsjv7njh9aqqtjn3vd
+{
+   &quot;currency&quot;: &quot;tb&quot;,
+   &quot;created_at&quot;: 1602702347,
+   &quot;expiry&quot;: 3600,
+   &quot;payee&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,
+   &quot;msatoshi&quot;: 10000000,
+   &quot;amount_msat&quot;: &quot;10000000msat&quot;,
+   &quot;description&quot;: &quot;First LN Payment - Learning Bitcoin and Lightning from the Command line.&quot;,
+   &quot;min_final_cltv_expiry&quot;: 40,
+   &quot;payment_secret&quot;: &quot;e946403bcb54764994306c743ed3bf1303af8ae6e7687d3cabcc3ee06dbf904d&quot;,
+   &quot;features&quot;: &quot;028200&quot;,
+   &quot;payment_hash&quot;: &quot;6cacdedc95b89eec15e5244bd0957b88c0ab58b153eee549735b995344bc16bb&quot;,
+   &quot;signature&quot;: &quot;304402202e73ebd1ef974594eb117e8301be781f2ba289041ab6abc558d432351d8365e902202a8151c3fd13419b9390c2b976503d2d064f2a6748b14cb0db64424cf4e572f4&quot;
+}
+</code></pre>
+<p>Here’s what the most relevent elements mean:</p>
+<ol type="1">
+<li><code>currency</code>: The currency being paid.</li>
+<li><code>created_at</code>: Time when the invoice was created. This is
+measured in UNIX time, which is seconds since 1970.</li>
+<li><code>expiry</code>: The time when your node marks the invoice as
+invalid. Default is 1 hour or 3600 seconds.</li>
+<li><code>payee</code>: The public key of the person (node) receiving
+the Lightning Network payment.</li>
+<li><code>msatoshi</code> and <code>amount_msat</code>: The amount of
+satoshis to be paid.</li>
+<li><code>description</code>: The user-input description.</li>
+<li><code>payment_hash</code>: The hash of the preimage that is used to
+lock the payment. You can only redeem a locked payment with the
+corresponding preimage to the payment hash. This enables routing on the
+Lightning Network without trusting third parties, by creating a
+<strong>Conditional Payment</strong> to be filled.</li>
+<li><code>signature</code>: The DER-encoded signature.</li>
+</ol>
+<blockquote>
+<p>:book: ****What are Conditional Payments?*** Although Lightning
+Channels are created between two participants, multiple channels can be
+connected together, forming a payment network that allows payments
+between all the network participants, even those without a direct
+channel between them. This is done using an smart contract called a
+<strong>Hashed Time Locked Contract</strong>.</p>
+</blockquote>
+<blockquote>
+<p>:book: <strong><em>What is a Hashed Time Locked Contract
+(HTLC)?</em></strong> A Hashed Time Locked Contract is a conditional
+payment that use hashlocks and timelocks to ensure payment security. The
+receiver must present a payment preimage or generate a cryptographic
+proof of payment before a given time, otherwise the payer can cancel the
+contract by spending it. These contracts are created as outputs from the
+<strong>Commitment Transaction</strong>.</p>
+</blockquote>
+<blockquote>
+<p>:book: <strong><em>What is a Commitment Transaction?</em></strong> A
+Commitment Transaction is a transaction that spends the original funding
+transaction. Each peer holds the other peer’s signature, meaning that
+either one can spent his commitment transaction whatever he wants. After
+each new commitment transaction is created the old one is revoked. The
+commitment transaction is one way that the funding transaction can be
+unlocked on the blockchain, as discussed in <a
+href="20_3_Closing_a_Channel.md">§20.3</a>.</p>
+</blockquote>
+<h3 id="check-your-invoice">Check Your Invoice</h3>
+<p>There are two crucial elements to check in the invoice. The first,
+obviously, is the payment amount, which you’ve already examined in the
+human-readable part. The second is the <code>payee</code> value, which
+is the pubkey of the recipient (node):</p>
+<pre><code>   &quot;payee&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,</code></pre>
+<p>You need to check that’s the expected recipient.</p>
+<p>Looking back at <a href="20_3_Closing_a_Channel.md">§20.3</a>, you
+can see that’s indeed the peer ID that you used when you created your
+channel. You could also verify it on the opposite node with the
+<code>getinfo</code> command.</p>
+<pre><code>lnd$ lncli -n testnet getinfo
+{
+    &quot;version&quot;: &quot;0.11.0-beta.rc4 commit=v0.11.0-beta.rc4&quot;,
+    &quot;commit_hash&quot;: &quot;fc12656a1a62e5d69430bba6e4feb8cfbaf21542&quot;,
+    &quot;identity_pubkey&quot;: &quot;032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543&quot;,
+    &quot;alias&quot;: &quot;StandUp&quot;,
+    &quot;color&quot;: &quot;#3399ff&quot;,
+    &quot;num_pending_channels&quot;: 0,
+    &quot;num_active_channels&quot;: 1,
+    &quot;num_inactive_channels&quot;: 0,
+    &quot;num_peers&quot;: 3,
+    &quot;block_height&quot;: 1862983,
+    &quot;block_hash&quot;: &quot;00000000000000c8c2f58f6da2ae2a3884d6e84f55d0e1f585a366f9dfcaa860&quot;,
+    &quot;best_header_timestamp&quot;: &quot;1602702331&quot;,
+    &quot;synced_to_chain&quot;: true,
+    &quot;synced_to_graph&quot;: true,
+    &quot;testnet&quot;: true,
+    &quot;chains&quot;: [
+        {
+            &quot;chain&quot;: &quot;bitcoin&quot;,
+            &quot;network&quot;: &quot;testnet&quot;
+        }
+    ],
+    &quot;uris&quot;: [
+    ],
+    &quot;features&quot;: {
+        &quot;0&quot;: {
+            &quot;name&quot;: &quot;data-loss-protect&quot;,
+            &quot;is_required&quot;: true,
+            &quot;is_known&quot;: true
+        },
+        &quot;5&quot;: {
+            &quot;name&quot;: &quot;upfront-shutdown-script&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        },
+        &quot;7&quot;: {
+            &quot;name&quot;: &quot;gossip-queries&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        },
+        &quot;9&quot;: {
+            &quot;name&quot;: &quot;tlv-onion&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        },
+        &quot;13&quot;: {
+            &quot;name&quot;: &quot;static-remote-key&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        },
+        &quot;15&quot;: {
+            &quot;name&quot;: &quot;payment-addr&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        },
+        &quot;17&quot;: {
+            &quot;name&quot;: &quot;multi-path-payments&quot;,
+            &quot;is_required&quot;: false,
+            &quot;is_known&quot;: true
+        }
+    }
+}</code></pre>
+<p>However, the <code>payee</code> may also be someone brand new, in
+which case you’ll likely need to check with the web site or person who
+issued the invoice to ensure that it’s correct.</p>
+<h2 id="summary-generating-a-payment-request">Summary: Generating a
+Payment Request</h2>
+<p>In most cases you need to receive an invoice to use Lightning Network
+payments. In this example we’ve created one manually, but if you had a
+production environment, you’d likely have systems automatically doing
+this whenever someone purchases products or services. Of course, once
+you’ve received an invoice, you need to understand how to read it!</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Using Lightning” with <a
+href="20_2_Paying_a_Invoice.md">§20.2: Paying_a_Invoice</a>.</p>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>10_6_Spending_a_P2SH_Transaction</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="spending-a-p2sh-transaction">10.6: Spending a P2SH
+Transaction</h1>
+<p>Before we close out this overview of P2SH transactions, we’re going
+to touch upon how to spend them. This section is mainly an overview,
+referring back to a previous section where we <em>already</em> spent a
+P2SH transaction.</p>
+<h2 id="use-the-redeem-script">Use the Redeem Script</h2>
+<p>As we saw in <a
+href="06_2_Spending_a_Transaction_to_a_Multisig.md">§6.2: Spending a
+Transaction with a Multisig</a>, spending a P2SH transaction is all
+about having that serialized version of the locking script, the
+so-called <em>redeemScript</em>. So, the first step in being able to
+spend a P2SH transaction is making sure that you save the
+<em>redeemScript</em> before you give out the P2SH address to
+everyone.</p>
+<h3 id="collect-your-variables">Collect Your Variables</h3>
+<p>Because P2SH addresses other than the special multisig and nested
+Segwit addresses aren’t integrated into <code>bitcoin-cli</code> there
+will be no short-cuts for P2SH spending like you saw in <a
+href="06_3_Sending_an_Automated_Multisig.md">§6.3: Sending an Automated
+Multisig</a>. You’re going to need to collect all the more complex
+variables on your own!</p>
+<p>This means that you need to collect:</p>
+<ul>
+<li>The <code>hex</code> of the <code>scriptPubKey</code> for the
+transaction you’re spending</li>
+<li>The serialized <code>redeemScript</code></li>
+<li>Any private keys, since you’ll be signing by hand</li>
+<li>All of the regular <code>txids</code>, <code>vouts</code>, and
+<code>addresses</code> that you’d need</li>
+</ul>
+<h2 id="create-the-transaction">Create the Transaction</h2>
+<p>As we saw in §6.2, the creation of a transaction is pretty
+standard:</p>
+<pre><code>$ rawtxhex=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.00005}&#39;&#39;&#39;)
+$ echo $rawtxhex
+020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b10000000000ffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000</code></pre>
+<p>However, signing requires entering extra information for the (1)
+<code>scriptPubKey</code>; (2) the <code>redeemScript</code>; and (3)
+any required private keys.</p>
+<p>Here’s the example of doing so for that P2SH-embedded multisig in
+§6.2:</p>
+<pre><code>$ bitcoin-cli -named signrawtransactionwithkey hexstring=$rawtxhex prevtxs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39;, &quot;scriptPubKey&quot;: &quot;&#39;$utxo_spk&#39;&quot;, &quot;redeemScript&quot;: &quot;&#39;$redeem_script&#39;&quot; } ]&#39;&#39;&#39; privkeys=&#39;[&quot;cNPhhGjatADfhLD5gLfrR2JZKDE99Mn26NCbERsvnr24B3PcSbtR&quot;]&#39;</code></pre>
+<p>With any other sort of P2SH you’re going to be including a different
+<code>redeemscript</code>, but otherwise the practice is exactly the
+same. The only difference is that after two chapters of work on Scripts
+you now understand what the <code>scriptPubKey</code> is and what the
+<code>redeemScript</code> is, so hopefully what were mysterious elements
+four chapters ago are now old hat.</p>
+<h2 id="summary-spending-a-p2sh-transaction">Summary: Spending a P2SH
+Transaction</h2>
+<p>You already spent a P2SH back in Chapter 6, when you resent a multsig
+transaction the hard way, which required lining up the
+<code>scriptPubKey</code> and <code>redeemScript</code> information. Now
+you know that the <code>scriptPubKey</code> is a standardized P2SH
+locking script, while the <code>redeemScript</code> matches a hash in
+that locking script and that you need to be able to run it with the
+proper variables to receive a <code>True</code> result. But other than
+knowing more, there’s nothing new in spending a P2SH transaction,
+because you already did it!</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Advance through “Bitcoin Scripting” with <a
+href="11_0_Empowering_Timelock_with_Bitcoin_Scripts.md">Chapter Eleven:
+Empowering Timelock with Bitcoin Scripts</a>.</p>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>02_2_Setting_Up_Bitcoin_Core_Other</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="setting-up-a-bitcoin-core-machine-via-other-means">2.2: Setting
+Up a Bitcoin-Core Machine via Other Means</h1>
+<p>The previous section, <a
+href="02_1_Setting_Up_a_Bitcoin-Core_VPS_with_StackScript.md">§2.1:
+Setting Up a Bitcoin-Core VPS with Bitcoin Standup</a>, presumed that
+you would be creating a full node on a VPS using a Linode Stackscript.
+However, you can actually create a Bitcoin-Core instance via any
+methodology of your choice and still follow along with the later steps
+of this tutorial.</p>
+<p>Following are other setup methodologies that we are aware of:</p>
+<ul>
+<li><em><a href="A2_0_Compiling_Bitcoin_from_Source.md">Compiling from
+Source</a>.</em> If you prefer to compile Bitcoin Core by hand, that’s
+covered in Appendix 2.</li>
+<li><em><a
+href="https://github.com/BlockchainCommons/GordianServer-macOS">Using
+GordianServer-macOS</a>.</em> If you have a modern Mac, you can use
+Blockchain Commons’ <em>GordianNode</em> app, powered by
+<em>BitcoinStandup</em>, to install a full node on your Mac.</li>
+<li><em><a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup-Scripts">Using
+Other Bitcoin Standup Scripts</a>.</em> Blockchain Commons also offers a
+version of the Linode script that you used that can be run from the
+command line on any Debian or Ubuntu machine. This tends to be the
+leading-edge script, which means that it’s more likely to feature new
+functions, like Lightning installation.</li>
+<li><em><a
+href="https://wolfmcnally.com/115/developer-notes-setting-up-a-bitcoin-node-on-aws/">Setting
+Up a Bitcoin Node on AWS</a>.</em> <span class="citation"
+data-cites="wolfmcnally">@wolfmcnally</span> has written a step-by-step
+tutorial for setting up Bitcoin-Core with Amazon Web Services
+(AWS).</li>
+<li><em><a
+href="https://medium.com/@meeDamian/bitcoin-full-node-on-rbp3-revised-88bb7c8ef1d1">Setting
+Up a Bitcoin Node on a Raspberry Pi 3</a>.</em> Damian Mee explains how
+to set up a headless full node on a Raspberry Pi 3.</li>
+</ul>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Unless you want to return to one of the other methodologies for
+creating a Bitcoin-Core node, you should:</p>
+<ul>
+<li>Move on to “bitcoin-cli” with <a
+href="03_0_Understanding_Your_Bitcoin_Setup.md">Chapter Three:
+Understanding Your Bitcoin Setup</a>.</li>
+</ul>
+</body>
+</html>

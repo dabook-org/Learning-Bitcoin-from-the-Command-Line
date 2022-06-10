@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>06_3_Sending_an_Automated_Multisig</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p># 6.3: Sending &amp; Spending an Automated Multisig</p>
+<p>The standard technique for creating multisignature addresses and for
+spending their funds is complex, but it’s a worthwhile exercise for
+understanding a bit more about how they work, and how you can manipulate
+them at a relatively low level. However, Bitcoin Core has made multisigs
+a little bit easier in new releases.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> The
+<code>addmultisigaddress</code> command is available in Bitcoin Core v
+0.10 or higher.</p>
+</blockquote>
+<h2 id="create-a-multisig-address-in-your-wallet">Create a Multisig
+Address in Your Wallet</h2>
+<p>In order to make funds sent to multisig addresses easier to spend,
+you just need to do some prep using the <code>addmultisigaddress</code>
+command. It’s probably not what you’d want to do if you were writing
+multisig wallet programs, but if you were just trying to receive some
+funds by hand, it might save you some hair-pulling.</p>
+<h3 id="collect-the-keys">Collect the Keys</h3>
+<p>You start off creating P2PKH addresses and retrieving public keys, as
+usual, for each user who will be part of the multisig:</p>
+<pre><code>machine1$ address3=$(bitcoin-cli getnewaddress)
+machine1$ echo $address3
+tb1q4ep2vmakpkkj6mflu94x5f94q662m0u5ad0t4w
+machine1$ bitcoin-cli -named getaddressinfo address=$address3 | jq -r &#39;.pubkey&#39;
+0297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc
+
+machine2$ address4=$(bitcoin-cli getnewaddress)
+machine2$ echo $address4
+tb1qa9v5h6zkhq8wh0etnv3ae9cdurkh085xufl3de
+machine2$ bitcoin-cli -named getaddressinfo address=$address4 | jq -r &#39;.pubkey&#39;
+02a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f</code></pre>
+<h3 id="create-the-multisig-address-everywhere">Create the Multisig
+Address Everywhere</h3>
+<p>Next you create the multisig on <em>each machine that contributes
+signatures</em> using a new command, <code>addmultisigaddress</code>,
+instead of <code>createmultisig</code>. This new command saves some of
+the information into your wallet, making it a lot easier to spend the
+money afterward.</p>
+<pre><code>machine1$ bitcoin-cli -named addmultisigaddress nrequired=2 keys=&#39;&#39;&#39;[&quot;&#39;$address3&#39;&quot;,&quot;02a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f&quot;]&#39;&#39;&#39;
+{
+  &quot;address&quot;: &quot;tb1q9as46kupwcxancdx82gw65365svlzdwmjal4uxs23t3zz3rgg3wqpqlhex&quot;,
+  &quot;redeemScript&quot;: &quot;52210297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc2102a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f52ae&quot;,
+  &quot;descriptor&quot;: &quot;wsh(multi(2,[d6043800/0&#39;/0&#39;/15&#39;]0297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc,[e9594be8]02a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f))#wxn4tdju&quot;
+}
+
+machine2$ bitcoin-cli -named addmultisigaddress nrequired=2 keys=&#39;&#39;&#39;[&quot;0297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc&quot;,&quot;&#39;$address4&#39;&quot;]&#39;&#39;&#39;
+{
+  &quot;address&quot;: &quot;tb1q9as46kupwcxancdx82gw65365svlzdwmjal4uxs23t3zz3rgg3wqpqlhex&quot;,
+  &quot;redeemScript&quot;: &quot;52210297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc2102a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f52ae&quot;,
+  &quot;descriptor&quot;: &quot;wsh(multi(2,[ae42a66f]0297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc,[fe6f2292/0&#39;/0&#39;/2&#39;]02a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f))#cc96c5n6&quot;
+}</code></pre>
+<p>As noted in the previous section, it currently doesn’t matter whether
+you use addresses or public keys, so we’ve shown the other mechanism
+here, mixing the two. You will get the same multisig address either way.
+However, <em>you must use the same order</em>. Thus, it’s best for the
+members of the multisig to check amongst themselves to make sure they
+all got the same result.</p>
+<h3 id="watch-for-funds">Watch for Funds</h3>
+<p>Afterward, the members of the multisig will still need to run
+<code>importaddress</code> to watch for funds received on the multisig
+address:</p>
+<pre><code>machine1$ bitcoin-cli -named importaddress address=2Mzw7WBvh9RAQ4ssKqxyNyP7L9NAojLqSW8 rescan=&quot;false&quot;
+
+machine2$ bitcoin-cli -named importaddress address=2Mzw7WBvh9RAQ4ssKqxyNyP7L9NAojLqSW8 rescan=&quot;false&quot;</code></pre>
+<h2 id="respend-with-an-automated-transaction">Respend with an Automated
+Transaction</h2>
+<p>Afterward, you will be able to receive funds on the multisignature
+address as normal. The use of <code>addmultisigaddress</code> is simply
+a bureaucratic issue on the part of the recipients: a bit of bookkeeping
+to make life easier for them when they want to spend their funds.</p>
+<p>But, it makes life a lot easier. Because information was saved into
+the wallet, the signers will be able to respend the funds sent to the
+multisignature address exactly the same as any other address … other
+than the need to sign on multiple machines.</p>
+<p>You start by collecting your variables, but you no longer need to
+worry about <code>scriptPubKey</code> or <code>redeemScript</code>.</p>
+<p>Here’s a new transaction sent to our new multisig address:</p>
+<pre><code>machine1$ utxo_txid=b9f3c4756ef8159d6a66414a4317f865882ee04beb57a0f8349dafcc98f5acbc
+machine1$ utxo_vout=0
+machine1$ recipient=$(bitcoin-cli getrawchangeaddress)</code></pre>
+<p>You create a raw transaction:</p>
+<pre><code>machine1$ rawtxhex=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.00005}&#39;&#39;&#39;)</code></pre>
+<p>Then you sign it:</p>
+<pre><code>machine1$ bitcoin-cli -named signrawtransactionwithwallet hexstring=$rawtxhex
+{
+  &quot;hex&quot;: &quot;02000000000101bcacf598ccaf9d34f8a057eb4be02e8865f817434a41666a9d15f86e75c4f3b90000000000ffffffff0188130000000000001600144f93c831ec739166ea425984170f4dc6bac75829040047304402205f84d40ba16ff49e60a7fc9228ef5917473aae1ab667dad01e113ca0fef3008b02201a50da2c65f38798aea94bcbd5bbf065bc1e38de44bacee69d525dcddcc11bba01004752210297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc2102a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f52ae00000000&quot;,
+  &quot;complete&quot;: false,
+  &quot;errors&quot;: [
+    {
+      &quot;txid&quot;: &quot;b9f3c4756ef8159d6a66414a4317f865882ee04beb57a0f8349dafcc98f5acbc&quot;,
+      &quot;vout&quot;: 0,
+      &quot;witness&quot;: [
+        &quot;&quot;,
+        &quot;304402205f84d40ba16ff49e60a7fc9228ef5917473aae1ab667dad01e113ca0fef3008b02201a50da2c65f38798aea94bcbd5bbf065bc1e38de44bacee69d525dcddcc11bba01&quot;,
+        &quot;&quot;,
+        &quot;52210297e681bff16cd4600138449e2527db4b2f83955c691a1b84254ecffddb9bfbfc2102a0d96e16458ff0c90db4826f86408f2cfa0e960514c0db547ff152d3e567738f52ae&quot;
+      ],
+      &quot;scriptSig&quot;: &quot;&quot;,
+      &quot;sequence&quot;: 4294967295,
+      &quot;error&quot;: &quot;CHECK(MULTI)SIG failing with non-zero signature (possibly need more signatures)&quot;
+    }
+  ]
+}
+</code></pre>
+<p>Note that you no longer had to give
+<code>signrawtransactionwithkey</code> extra help, because all of that
+extra information was already in your wallet. Most importantly, you
+didn’t make your private keys vulnerable by directly manipulating them.
+Instead the process was <em>exactly</em> the same as respending a normal
+UTXO, except that the transaction wasn’t fully signed at the end.</p>
+<h3 id="sign-it-on-other-machines">Sign It On Other Machines</h3>
+<p>The final step is exporting the partially signed <code>hex</code> to
+any other machines and signing it again:</p>
+<pre><code>machine2$ signedtx=$(bitcoin-cli -named signrawtransactionwithwallet hexstring=02000000014ecda61c45f488e35c613a7c4ae26335a8d7bfd0a942f026d0fb1050e744a67d000000009100473044022025decef887fe2e3eb1c4b3edaa155e5755102d1570716f1467bb0b518b777ddf022017e97f8853af8acab4853ccf502213b7ff4cc3bd9502941369905371545de28d0147522102e7356952f4bb1daf475c04b95a2f7e0d9a12cf5b5c48a25b2303783d91849ba421030186d2b55de166389aefe209f508ce1fbd79966d9ac417adef74b7c1b5e0777652aeffffffff0130e1be07000000001976a9148dfbf103e48df7d1993448aa387dc31a2ebd522d88ac00000000 | jq -r &#39;.hex&#39;)</code></pre>
+<p>When everyone that’s required has signed, you’re off to the
+races:</p>
+<pre><code>machine2$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx
+3ce88839ac6165aeadcfb188c490e1b850468eff571b4ca78fac64342751510d</code></pre>
+<p>As with the shortcut discussed in <a
+href="04_5_Sending_Coins_with_Automated_Raw_Transactions.md">§4.5:
+Sending Coins with Automated Raw Transactions</a>, the result is a lot
+easier, but you lose some control in the process.</p>
+<h2 id="summary-sending-spending-an-automated-multisig">Summary: Sending
+&amp; Spending an Automated Multisig</h2>
+<p>There’s an easier way to respend funds sent to multisig addresses
+that simply requires use of the <code>addmultisigaddress</code> command
+when you create your address. It doesn’t demonstrate the intricacies of
+P2SH respending, and it doesn’t give you expansive control, but if you
+just want to get your money, this is the way to go.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Expanding Bitcoin Transactions” with <a
+href="07_0_Expanding_Bitcoin_Transactions_PSBTs.md">Chapter Seven:
+Expanding Bitcoin Transactions with PSBTs</a>.</p>
+</body>
+</html>

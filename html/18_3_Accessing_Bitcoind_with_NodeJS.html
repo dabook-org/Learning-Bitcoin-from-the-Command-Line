@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_3_Accessing_Bitcoind_with_NodeJS</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-with-nodejs">18.3: Accessing Bitcoind with
+NodeJS</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section explains how to interact with <code>bitcoind</code>
+using the NodeJS programming language and the <a
+href="https://github.com/dgarage/bcrpc">BCRPC package</a>.</p>
+<h2 id="set-up-node.js">Set Up Node.js</h2>
+<p>BCRPC is built on node.js. Thus, you’ll first need to install the
+<code>node.js</code> and <code>npm</code> (the node package manager)
+packages for your system.</p>
+<p>If you’re using a Ubuntu machine, you can run the following commands
+to get a new version of <code>node.js</code> (as opposed to the horribly
+out-of-date version in the Ubuntu package system).</p>
+<pre><code>$ curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+$ sudo apt-get install -y nodejs
+$ sudo npm install mocha -g</code></pre>
+<h3 id="set-up-bcrpc">Set Up BCRPC</h3>
+<p>You can now clone the BCRPC package from GitHub and install its
+dependencies.</p>
+<pre><code>$ git clone https://github.com/dgarage/bcrpc.git
+$ cd bcrpc
+$ npm install</code></pre>
+<p>To test the BCRPC package, you must first set environmental variables
+for your rpcuser and rpcpassword. As usual, these come from
+<code>~/.bitcoin/bitcoin.conf</code>. You must also set the RPC port to
+18332 which should be correct for the standard testnet setup described
+in these documents.</p>
+<pre><code>$ export BITCOIND_USER=StandUp
+$ export BITCOIND_PASS=d8340efbcd34e312044c8431c59c792c
+$ export BITCOIND_PORT=18332</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Obviously, you’d never put your
+password in an environmental variable in a production environment.</p>
+</blockquote>
+<blockquote>
+<p>:link: <strong>MAINNET VS TESTNET:</strong> The port would be 8332
+for a mainnet setup.</p>
+</blockquote>
+<p>You can now verify everything is working correctly:</p>
+<pre><code>$ npm test
+
+&gt; bcrpc@0.2.2 test /home/user1/bcrpc
+&gt; mocha tests.js
+
+  BitcoinD
+    ✓ is running
+
+  bcrpc
+    ✓ can get info
+
+  2 passing (36ms)</code></pre>
+<p>Congratulations, you now have a Bitcoin-ready RPC wrapper for Node.js
+that is working with your Bitcoin setup.</p>
+<h3 id="create-a-bcrpc-project">Create a BCRPC Project</h3>
+<p>You can now create a new Node.js project and install BCRPC via
+npm.</p>
+<pre><code>$ cd ~
+$ mkdir myproject
+$ cd myproject
+$ npm init
+  [continue with default options]
+$ npm install bcrpc</code></pre>
+<h2 id="build-your-connection">Build Your Connection</h2>
+<p>In your <code>myproject</code> directory, create a <code>.js</code>
+file where you JavaScript code will be executed.</p>
+<p>You can initiate an RPC connection by creating an
+<code>RpcAgent</code>:</p>
+<pre><code>const RpcAgent = require(&#39;bcrpc&#39;);
+agent = new RpcAgent({port: 18332, user: &#39;StandUp&#39;, pass: &#39;d8340efbcd34e312044c8431c59c792c&#39;});</code></pre>
+<p>Obviously, your <code>user</code> and <code>pass</code> should again
+match what’s in your <code>~/.bitcoin/bitcoin.conf</code>, and you use
+<code>port 18332</code> if you’re on testnet.</p>
+<h3 id="make-an-rpc-call">Make an RPC Call</h3>
+<p>Using BCRPC, you can use the same RPC commands you would usually use
+via <code>bitcoin-cli</code> with your <code>RpcAgent</code>, except
+they need to be in camelCase. For example, <code>getblockhash</code>
+would be <code>getBlockHash</code> instead.</p>
+<p>To print the newest block number, you just call
+<code>getBlockCount</code> thourgh your <code>RpcAgent</code>:</p>
+<pre><code>agent.getBlockCount(function (err, blockCount) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(blockCount.result);
+});</code></pre>
+<h3 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h3>
+<p>The BCRPC functions can accept arguments. For example,
+<code>getBlockHash</code> takes <code>blockCount.result</code> as an
+input.</p>
+<pre><code>  agent.getBlockHash(blockCount.result, function (err, hash) {
+    if (err)
+      throw Error(JSON.stringify(err));
+    console.log(hash.result);
+  })</code></pre>
+<p>The result of the BCRPC functions is a JSON object containing
+information about any errors and the id of the request. When accessing
+your result, you add <code>.result</code> to the end of it to specify
+that you are interested in the actual result, not information about
+errors.</p>
+<h3 id="run-your-code">Run Your Code</h3>
+<p>You can find the <code>getinfo</code> code in <a
+href="src/18_3_getinfo.js">the src directory</a>.</p>
+<pre><code>$ node getinfo.js
+1831094
+00000000000002bf8b522a830180ad3a93b8eed33121f54b3842d8838580a53c</code></pre>
+<p>This is what output of the above example would look like if you
+replaced <code>console.log(blockCount.result);</code> and
+<code>console.log(hash.result);</code> with
+<code>console.log(blockCount);</code> and
+<code>console.log(hash);</code>, respectively:</p>
+<pre><code>{ result: 1774686, error: null, id: null }
+{
+  result: &#39;00000000000000d980c495a2b7addf09bb0a9c78b5b199c8e965ee54753fa5da&#39;,
+  error: null,
+  id: null
+}</code></pre>
+<h2 id="look-up-funds">Look Up Funds</h2>
+<p>It’s useful when accepting Bitcoin to check the received Bitcoin on a
+specific address in your wallet. For example, if you were running an
+online store accepting Bitcoin, for each payment from a customer, you
+would generate a new address, show that address to the customer, then
+check the balance of the address after some time, to make sure the
+correct amount has been received:</p>
+<pre><code>agent.getReceivedByAddress(&#39;mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha&#39;, function (err, addressInfo) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(addressInfo.result);
+});</code></pre>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> Obviously, you’ll need to
+enter an address recognized by your machine.</p>
+</blockquote>
+<p>By default this functions checks the transactions that have been
+confirmed once, however you can increase this to a higher number such as
+6:</p>
+<pre><code>agent.getReceivedByAddress(&#39;mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha&#39;, 6, function (err, addressInfo) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(addressInfo.result);
+});</code></pre>
+<h3 id="look-up-wallet-information">Look Up Wallet Information</h3>
+<p>You can also look up additional information about your wallet and
+view your balance, transaction count, et cetera:</p>
+<pre><code>agent.getWalletInfo(function (err, walletInfo) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(walletInfo.result);
+});</code></pre>
+<p>The source is available as <a
+href="src/18_3_walletinfo.js">walletinfo.js</a>.</p>
+<pre><code>$ node walletinfo.js
+0.008498
+{
+  walletname: &#39;&#39;,
+  walletversion: 169900,
+  balance: 0.010438,
+  unconfirmed_balance: 0,
+  immature_balance: 0,
+  txcount: 4,
+  keypoololdest: 1596567843,
+  keypoolsize: 999,
+  hdseedid: &#39;da5a1b058deb9e51ecffef1b0ddc069a5dfb2c5f&#39;,
+  keypoolsize_hd_internal: 1000,
+  paytxfee: 0,
+  private_keys_enabled: true,
+  avoid_reuse: false,
+  scanning: false
+}</code></pre>
+<p>Instead of printing all the details associated with your wallet, you
+can print specific information, such as your balance. Since a JSON
+object is being accessed, this can be done by changing the line
+<code>console.log(walletInfo.result);</code> to
+<code>console.log(walletInfo.result.balance);</code>:</p>
+<h2 id="create-an-address">Create an Address</h2>
+<p>You can also pass additional arguments to RPC commands. For example,
+the following generates a new legacy address, with the
+<code>-addresstype</code> flag.</p>
+<pre><code>agent.getNewAddress(&#39;-addresstype&#39;, &#39;legacy&#39;, function (err, newAddress) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(newAddress.result);
+});</code></pre>
+<p>This is the same as running the following from the command line:</p>
+<pre><code>$ bitcoin-cli getnewaddress -addresstype legacy
+mtGPcBvRPZFEHo2YX8un9qqPBydhG82uuZ</code></pre>
+<p>In BCRPC, you can generally use the same flags as in
+<code>bitcoin-cli</code> in BCRPC. Though you use camelCase
+(<code>getNewAddress</code>) for the methods, the flags, which are
+normally separated by spaces on the command line, are instead placed in
+strings and separated by commas.</p>
+<h2 id="send-a-transaction">Send a Transaction</h2>
+<p>You can send coins to an address most easily using the
+<code>sendToAddress</code> function:</p>
+<pre><code>agent.sendToAddress(newAddress.result, 0.00001, function(err, txid) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(txid.result);
+});</code></pre>
+<p>This should print the txid of the transaction:</p>
+<pre><code>1679bee019c61608340b79810377be2798efd4d2ec3ace0f00a1967af70666b9</code></pre>
+<h3 id="look-up-a-transaction">Look Up a Transaction</h3>
+<p>You may now wish to view a transaction, such as the one you just
+sent.</p>
+<pre><code>agent.getTransaction(txid.result, function (err, transaction) {
+  if (err)
+    throw Error(JSON.stringify(err));
+  console.log(transaction.result);
+});</code></pre>
+<p>You should get an output similar to this:</p>
+<pre><code>{
+  amount: 0.001,
+  confirmations: 4776,
+  blockhash: &#39;000000006628870b0a8a66abea9cf0d4e815c491f079e3fa9e658a87b5dc863a&#39;,
+  blockindex: 117,
+  blocktime: 1591857418,
+  txid: &#39;1661ce322c128e053b8ea8fcc22d17df680d2052983980e2281d692b9b4ab7df&#39;,
+  walletconflicts: [],
+  time: 1591857343,
+  timereceived: 1591857343,
+  &#39;bip125-replaceable&#39;: &#39;no&#39;,
+  details: [
+    {
+      address: &#39;mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha&#39;,
+      category: &#39;receive&#39;,
+      amount: 0.001,
+      label: &#39;&#39;,
+      vout: 0
+    }
+  ],
+  hex: &#39;02000000000101e9e8c3bd057d54e73baadc60c166860163b0e7aa60cab33a03e89fb44321f8d5010000001716001435c2aa3fc09ea53c3e23925c5b2e93b9119b2568feffffff02a0860100000000001976a914600c8c6a4abb0a502ea4de01681fe4fa1ca7800688ac65ec1c000000000017a91425b920efb2fde1a0277d3df11d0fd7249e17cf8587024730440220403a863d312946aae3f3ef0a57206197bc67f71536fb5f4b9ca71a7e226b6dc50220329646cf786cfef79d60de3ef54f702ab1073694022f0618731902d926918c3e012103e6feac9d7a8ad1ac6b36fb4c91c1c9f7fff1e7f63f0340e5253a0e4478b7b13f41fd1a00&#39;
+}</code></pre>
+<p>The full code is available as <a
+href="src/18_3_sendtx.js">sendtx.js</a>.</p>
+<h2 id="summary-accessing-bitcoind-with-node">Summary: Accessing
+Bitcoind with Node</h2>
+<p>With BCRPC you can access all the RPC commands available through
+<code>bitcoin-cli</code>, in JavaScript. The <a
+href="https://github.com/dgarage/bcrpc">BCRPC README</a> has some
+examples which use promises (the examples in this document use
+callbacks). The <a
+href="https://github.com/dgarage/bcrpc/blob/master/index.js">JavaScript
+behind it</a> is short and readable.</p>
+<p>Based on these examples you should be able to incorporate Bitcoin in
+a Node.js project and do things like sending and receiving coins.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoin in Other Languages” in <a
+href="18_4_Accessing_Bitcoind_with_Python.md">18.4: Accessing Bitcoin
+with Python</a>.</p>
+</body>
+</html>

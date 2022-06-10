@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>16_3_Receiving_Bitcoind_Notifications_with_C</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="receiving-notifications-in-c-with-zmq-libraries">16.3 Receiving
+Notifications in C with ZMQ Libraries</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p><a href="16_1_Accessing_Bitcoind_with_C.md">§16.1</a> and <a
+href="16_2_Programming_Bitcoind_with_C.md">§16.2</a> introduced RPC and
+JSON libraries for C, and in doing so showed one of the advantages of
+accessing Bitcoin’s RPC commands through a programming language: the
+ability to reasonably create much more complex programs. This chapter
+introduces a third library, for <a href="http://zeromq.org/">ZMQ</a>,
+and in doing so reveals another advantage: the ability to monitor for
+notifications. It will use that for coding a blockchain listener.</p>
+<blockquote>
+<p>:book: <strong><em>What is ZMQ?</em></strong> ZeroMQ (ZMQ)is a
+high-performance asynchronous messaging library that provides a message
+queue. ZeroMQ supports common messaging patterns (pub/sub,
+request/reply, client/server, and others) over a variety of transports
+(TCP, in-process, inter-process, multicast, WebSocket, and more), making
+inter-process messaging as simple as inter-thread messaging. You can
+find more details about ZMQ notifications and others kind of messages in
+<a
+href="https://github.com/Actinium-project/ChainTools/blob/master/docs/chainlistener.md">this
+repo</a>.</p>
+</blockquote>
+<h2 id="set-up-zmq">Set Up ZMQ</h2>
+<p>Before you can create a blockchain listener, you will need to
+configure <code>bitcoind</code> to allow ZMQ notifications, and then
+you’ll need to install a ZMQ library to take advantage of those
+notifications.</p>
+<h3 id="configure-bitcoind-for-zmq">Configure <code>bitcoind</code> for
+ZMQ</h3>
+<p>Bitcoin Core is ZMQ-ready, but you must specify ZMQ endpoints. ZeroMQ
+publish-sockets prepend each data item with an arbitrary topic prefix
+that allows subscriber clients to request only those items with a
+matching prefix. There are currently four topics supported by
+<code>bitcoind</code>:</p>
+<pre><code>$ bitcoind --help | grep zmq | grep address
+  -zmqpubhashblock=&lt;address&gt;
+  -zmqpubhashtx=&lt;address&gt;
+  -zmqpubrawblock=&lt;address&gt;
+  -zmqpubrawtx=&lt;address&gt;</code></pre>
+<p>You can run <code>bitcoind</code> with command-line arguments for ZMQ
+endpoints, as shown above, but you can also make an endpoint accessible
+by adding appropriate lines to your <code>~/.bitcoin/bitcoin.conf</code>
+file and restarting your daemon.</p>
+<pre><code>zmqpubrawblock=tcp://127.0.0.1:28332
+zmqpubrawtx=tcp://127.0.0.1:28333</code></pre>
+<p>You can then test your endpoints are working using the
+<code>getzmqnotifications</code> RPC:</p>
+<pre><code>$ bitcoin-cli getzmqnotifications
+[
+  {
+    &quot;type&quot;: &quot;pubrawblock&quot;,
+    &quot;address&quot;: &quot;tcp://127.0.0.1:28332&quot;,
+    &quot;hwm&quot;: 1000
+  },
+  {
+    &quot;type&quot;: &quot;pubrawtx&quot;,
+    &quot;address&quot;: &quot;tcp://127.0.0.1:28333&quot;,
+    &quot;hwm&quot;: 1000
+  }
+]</code></pre>
+<p>Your <code>bitcoind</code> will now issue ZMQ notifications</p>
+<h3 id="install-zmq">Install ZMQ</h3>
+<p>To take advantage of those notifications, you need a ZMQ library to
+go with C; we’ll thus be using a new ZMQ library instead of the
+<code>libbitcoinrpc</code> library in this section, but when you’re
+experimenting in the future, you’ll of course be able to combine
+them.</p>
+<p>Fortunately, ZMQ libraries are available through standard Debian
+packages:</p>
+<pre><code>$ sudo apt-get install libzmq3-dev
+$ sudo apt-get install libczmq-dev</code></pre>
+<p>You’re now ready to code!</p>
+<h2 id="write-your-notification-program">Write Your Notification
+Program</h2>
+<p>The following C program is a simple client that subscribes to a ZMQ
+connection point served by <code>bitcoind</code> and reads incoming
+messages.</p>
+<p>The program requires two parameters: the first parameter is the
+“server”, which is the TCP connection point exposed by
+<code>bitcoind</code>; and the second is the “topic”, which is currently
+<code>zmqpubhashblock</code>, <code>zmqpubhashtx</code>,
+<code>zmqpubrawblock</code>, or <code>zmqpubrawtx</code>. The topic must
+be supported through the <code>bitcoin.conf</code> and the server’s IP
+address and port must match what’s defined there.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;czmq.h&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">**</span> argv<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span>zmqserver<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span>topic<span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&lt;</span> <span class="dv">3</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">USAGE:</span><span class="sc">\n</span><span class="st">chainlistener &lt;tcp://localhost:port&gt; &lt;topic&gt;</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    zmqserver <span class="op">=</span> argv<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    topic <span class="op">=</span> argv<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<p>You will open a ZMQ socket to the defined server for the defined
+topic:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  zsock_t <span class="op">*</span>socket <span class="op">=</span> zsock_new_sub<span class="op">(</span>zmqserver<span class="op">,</span> topic<span class="op">);</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  assert<span class="op">(</span>socket<span class="op">);</span></span></code></pre></div>
+<p>After that, you wait:</p>
+<pre><code>  while(1) {
+    zmsg_t *msg;
+    int rc = zsock_recv(socket, &quot;m&quot;, &amp;msg);
+    assert(rc == 0);
+
+    char *header = zmsg_popstr(msg);
+    zframe_t *zdata = zmsg_pop(msg);
+    unsigned int *no = (unsigned int*)zmsg_popstr(msg);
+
+    char *data = zframe_strhex(zdata);
+    int len = zframe_size(zdata);
+    printf(&quot;Size: %d\n&quot;, len);
+    printf(&quot;Data: %s&quot;, data);
+    printf(&quot;\nNo: %d\n&quot;, *no);
+
+    free(header);
+    free(data);
+    free(no);
+    free(zdata);
+    zmsg_destroy(&amp;msg);
+    sleep(1);
+ }</code></pre>
+<p>While, waiting, you watch for messages on the ZMQ socket. Whenever
+you receive a message, you will <code>pop</code> it off the stack and
+report out its number, its length, and most importantly the data.</p>
+<p>That’s it!</p>
+<p>Of course when you’re done, you should clean up:</p>
+<pre><code>  zsock_destroy(&amp;socket);
+  return 0;
+}</code></pre>
+<h3 id="test-the-notification-code">Test the Notification Code</h3>
+<p>The source code is in the <a href="src/16_3_chainlistener.c">src
+directory</a> as usual. You should compile it:</p>
+<pre><code>$ cc -o chainlistener chainlistener.c -I/usr/local/include -L/usr/local/lib -lzmq -lczmq</code></pre>
+<p>Afterward, you can run it with the topics and addresses that you
+defined in your <code>bitcoin.conf</code>:</p>
+<pre><code>$ ./chainlistener tcp://127.0.0.1:28333 rawtx
+Size: 250
+Data: 02000000000101F5BD2032E5A9E6650D4E411AD272E391F26AFC3C9102B7C0C7444F8F74AE86010000000017160014AE9D51ADEEE8F46ED2017F41CD631D210F2ED9C5FEFFFFFF0203A732000000000017A9147231060F1CDF34B522E9DB650F44EDC6C0714E4C8710270000000000001976A914262437B129CF8592AB2EDC59C07D19C57729F72888AC02483045022100AE316D5F21657E3525271DE39EB285D8A0E89A20AB6413824E88CE47DCD0EFE702202F61E10C2A8F4A7125D5EB63AEF883D8E3584A0ECED0D349283AABB6CA5E066D0121035A77FE575A9005E3D3FF0682E189E753E82FA8BFF0A20F8C45F06DC6EBE3421079111B00
+No: 67
+Size: 249
+Data: 0200000000010165C986992F7DAD22BBCE3FCF0BF546EDBC3C599618B04CFA22D9E64EF0CE4C030000000017160014B58E0A5CD68B249F1C407E9AAE9CD0332AAA3067FEFFFFFF02637932000000000017A914CCC47261489036CB6B9AA610857793FF5752E5378710270000000000001976A914262437B129CF8592AB2EDC59C07D19C57729F72888AC0247304402206CCC3F3B4BE01D4E532A01C2DC6BC3B53E4FFB6B494C8B87DD603EFC648A159902201653841E8B16A814DC375129189BB7CF01CFF7D269E91178645B6A97F5C7F4F10121030E20F3D2F172281B8DC747F007DF24B352248AC09E48CA64016942A8F01D317079111B00
+No: 68
+Size: 250
+Data: 02000000000101E889CFC1FFE127BA49F6C1011388606A194109AE1EDAAB9BEE215E123C14A7920000000017160014577B0B3C2BF91B33B5BD70AE9E8BD8144F4B87E7FEFFFFFF02C34B32000000000017A914A9F1440402B46235822639C4FD2F78A31E8D269E8710270000000000001976A914262437B129CF8592AB2EDC59C07D19C57729F72888AC02483045022100B46318F53E1DCE63E7109DB4FA54AF40AADFC2FEB0E08263756BC3B7A6A744CB02200851982AF87DBABDC3DFC3362016ECE96AECFF50E24D9DCF264AE8966A5646FE0121039C90FCB46AEA1530E5667F8FF15CB36169D2AD81247472F236E3A3022F39917079111B00
+No: 69
+Size: 250
+Data: 0200000000010137527957C9AD6CFF0C9A74597E6EFCD7E1EBD53E942AB2FA34A831046CA11488000000001716001429BFF05B3CD79E9CCEFDB5AE82139F72EB3E9DB0FEFFFFFF0210270000000000001976A914262437B129CF8592AB2EDC59C07D19C57729F72888AC231E32000000000017A9146C8D5FE29BFDDABCED0D6F4D8E82DCBFD9D34A8B8702483045022100F259846BAE29EB2C7A4AD711A3BC6109DE69AE91E35B14CA2742157894DD9760022021464E09C00ABA486AEAA0C49FEE12D2850DC03F57F04A1A9E2CC4D0F4F1459C012102899F24A9D60132F4DD1A5BA6DCD1E4E4B6C728927BA482C2C4E511679F60CA5779111B00
+No: 70
+.......</code></pre>
+<h3 id="summary-receiving-bitcoind-notifications-with-c.md">Summary
+Receiving Bitcoind Notifications with C.md</h3>
+<p>By using the ZMQ framework, you can easily receive notifications by
+subscribing to a connection point exposed by <code>bitcoind</code>
+through its configuration file.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the Power of Notifications?</em></strong>
+With notifications, you’re no longer entirely dependent upon users to
+issue commands. Instead, you can create programs that monitor the
+Bitcoin blockchain and take appropriate actions when certain things
+occur. This in turn could be merged with the RPC commands that you
+programmed in previous sections. This is also a big step beyond what you
+could do with shell scripts: certainly, you can create infinite-loop
+listener shell scripts, but programming languages tend to be a better
+tool for that task.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Programming with RPC” in <a
+href="17_0_Programming_with_Libwally.md">Chapter 17: Programming Bitcoin
+with Libwally</a>.</p>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>20_4_Lightning_Network_Review</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="expanding-the-lightning-network">20.4: Expanding the Lightning
+Network</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>These two chapters have covered just a few of the most important
+activities with Lightning. There’s lots more that can be done, and lots
+of variety possible. What follows are some pointers forward.</p>
+<h2 id="use-c-lightning-plugins">Use c-lightning Plugins</h2>
+<p>c-lightning is a lightweight, highly customizable, and standard
+compliant implementation of the Lightning Network protocol. It extends
+it functionality using Plugins. Mainly, these are subprocesses that are
+initiated by the <code>lightningd</code> daemon and can interact with
+<code>lightningd</code> in a variety of ways:</p>
+<ul>
+<li>Command line options allow plugins to register their own command
+line arguments, which are then exposed through
+<code>lightningd</code>.</li>
+<li>JSON-RPC command passthrough allows plugins to add their own
+commands to the JSON-RPC interface.</li>
+<li>Event stream subscriptions provide plugins with a push-based
+notification mechanism for <code>lightnind</code>.</li>
+<li>Hooks are a primitive option that allows plugins to be notified
+about events in the <code>lightningd</code> daemon and modify its
+behavior or pass on custom behaviors.</li>
+</ul>
+<p>A plugin may be written in any language and can communicate with
+<code>lightningd</code> through the plugin’s stdin and stdout.
+JSON-RPCv2 is used as protocol on top of the two streams, with the
+plugin acting as server and <code>lightningd</code> acting as
+client.</p>
+<p>The <code>lightningd</code> GitHub repo maintains a updated list of
+<a href="https://github.com/lightningd/plugins">plugins</a>
+available.</p>
+<h2 id="use-mobile-wallets">Use Mobile Wallets</h2>
+<p>We currently know of two mobile lightning wallets that support the
+c-lightning implementation.</p>
+<p>For iOS devices FullyNoded is an open-source iOS Bitcoin wallet that
+connects via Tor V3 authenticated service to your own full node.
+FullyNoded functionality is currently under active development and in
+early beta testing phase.</p>
+<ul>
+<li><a
+href="https://github.com/Fonta1n3/FullyNoded/blob/master/Docs/Lightning.md">FullyNoded</a></li>
+</ul>
+<p>SparkWallet is a minimalistic wallet GUI for c-lightning, accessible
+over the web or through mobile and desktop apps for Android.</p>
+<ul>
+<li><a
+href="https://github.com/shesek/spark-wallet">SparkWallet</a></li>
+</ul>
+<h2 id="use-different-lightning-implementations">Use Different Lightning
+Implementations</h2>
+<p>c-lightning isn’t your only option. Today there are three widely used
+implementations of the Lightning Network. All of them follow the <a
+href="https://github.com/lightningnetwork/lightning-rfc">Basis of
+Lightning Technology (BOLT) documents</a>, which describe a layer-2
+protocol for off-chain bitcoin transfers. The specifications are
+currently a work-in-progress that is still being drafted.</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 8%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+<th style="text-align: center;">BitcoinStandup</th>
+<th>Language</th>
+<th>Repository</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>C-lighting</td>
+<td>Blockstream</td>
+<td style="text-align: center;">X</td>
+<td>C</td>
+<td><a
+href="https://github.com/ElementsProject/lightning">Download</a></td>
+</tr>
+<tr class="even">
+<td>LND</td>
+<td>Lightning Labs</td>
+<td style="text-align: center;">X</td>
+<td>Go</td>
+<td><a href="https://github.com/lightningnetwork/lnd">Download</a></td>
+</tr>
+<tr class="odd">
+<td>Eclair</td>
+<td>ACINQ</td>
+<td style="text-align: center;">-</td>
+<td>Scala</td>
+<td><a href="https://github.com/ACINQ/eclair">Download</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="maintain-backups">Maintain Backups</h2>
+<p>Your Lightning node needs to be online all the time, otherwise your
+counterparty could send a previous channel status and steal your funds.
+However, there is another scenario in which funds can be lost, and that
+is when a hardware failure occurs that prevents the node from
+establishing a cooperative closure with the counterparty. This will
+probably mean that if you do not have an exact copy of the state of the
+channel before the failure, you will have an invalid state that could
+cause the other node to assume it as an attempted fraud and use the
+penalty transaction. In this case, all funds will be lost. To avoid this
+undesirable situation a solution based on the high availability of
+postgresQL database <a
+href="https://github.com/gabridome/docs/blob/master/c-lightning_with_postgresql_reliability.md">exists</a>.</p>
+<p>We haven’t tested this solution.</p>
+<h2 id="summary-expanding-the-lightning-network">Summary: Expanding the
+Lightning Network</h2>
+<p>You can use different implementations, plugins, mobile wallets, or
+backups to expand your Lightning experience.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>You’ve completed Learning Bitcoin from the Command Line, though if
+you never visited the <a href="A0_Appendices.md">Appendices</a> of
+alternate setups, you can do so now.</p>
+<p>Otherwise, we encourage you to join developer communities, to
+program, and to put your new knowledge to work.</p>
+<p>You can also help us here at Blockchain Commons with Issues or PRs
+for Learning Bitcoin or for any of our other repos, or you can even
+become a <a
+href="https://github.com/sponsors/BlockchainCommons">Sponsor</a>. You
+can also help out by spreading the word: let people on social media know
+about the course and what you learned from it!</p>
+<p>Now get out there and make the Blockchain community a better
+place!</p>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>12_2_Using_Other_Script_Commands</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-other-script-commands">12.2: Using Other Script
+Commands</h1>
+<p>You may already have in hand most of the Bitcoin Script opcodes that
+you’ll be using in most scripts. However, Bitcoin Script offers a lot
+more options, which might be exactly what you need to create the
+financial instrument of your dreams.</p>
+<p>You should consult the <a
+href="https://en.bitcoin.it/wiki/Script">Bitcoin Script page</a> for a
+more thorough look at all of these and many other commands. This section
+only highlights the most notable opcodes.</p>
+<h2 id="understand-arithmetic-opcodes">Understand Arithmetic
+Opcodes</h2>
+<p>Arithmetic opcodes manipulate or test numbers.</p>
+<p>Manipulate one number:</p>
+<ul>
+<li>OP_1ADD (0x8b) — Increment by one</li>
+<li>OP_1SUB (0x8c) — Decrement by one</li>
+<li>OP_NEGATE (0x8f) — Flip the sign of the number</li>
+<li>OP_ABS (0x90) — Make the number positive</li>
+<li>OP_NOT (0x91) — Flips 1 and 0, else 0</li>
+</ul>
+<p>Also see: <code>OP_0NOTEQUAL</code> (0x92)</p>
+<p>Manipulate two numbers mathematically:</p>
+<ul>
+<li>OP_ADD (0x93) — Add two numbers</li>
+<li>OP_SUB (0x94) — Subtract two numbers</li>
+<li>OP_MIN (0xa3) — Return the smaller of two numbers</li>
+<li>OP_MAX (0xa4) — Return the larger of two numbers</li>
+</ul>
+<p>Manipulate two numbers logically:</p>
+<ul>
+<li>OP_BOOLAND (0x9a) — 1 if both numbers are not 0, else 0</li>
+<li>OP_BOOLOR (0x9b) — 1 if either number is not 0, else 0</li>
+</ul>
+<p>Test two numbers:</p>
+<ul>
+<li>OP_NUMEQUAL (0x9c) — 1 if both numbers are equal, else 0</li>
+<li>OP_LESSTHAN (0x9f) — 1 if first number is less than second, else
+0</li>
+<li>OP_GREATERTHAN (0xa0) — 1 if first number is greater than second,
+else 0</li>
+<li>OP_LESSTHANOREQUAL (0xa1) — 1 if first number is less than or equal
+to second, else 0</li>
+<li>OP_GREATERTHANOREQUAL (0xa2) — 1 if first number is greater than or
+equal to second, else 0</li>
+</ul>
+<p>Also see: <code>OP_NUMEQUALVERIFY</code> (0x9d),
+<code>OP_NUMNOTEQUAL</code> (0x9e)</p>
+<p>Test three numbers:</p>
+<ul>
+<li>OP_WITHIN (0xa5) — 1 if a number is in the range of two other
+numbers</li>
+</ul>
+<h2 id="understand-stack-opcodes">Understand Stack Opcodes</h2>
+<p>There are a shocking number of stack opcodes, but other than
+<code>OP_DROP</code>, <code>OP_DUP</code>, and sometimes
+<code>OP_SWAP</code> they’re generally not necessary if you’re careful
+about stack ordering. Nonetheless, here are a few of the more
+interesting ones:</p>
+<ul>
+<li>OP_DEPTH (0x74) — Pushes the size of the stack</li>
+<li>OP_DROP (0x75) — Pops the top stack item</li>
+<li>OP_DUP (0x76) — Duplicates the top stack item</li>
+<li>OP_PICK (0x79) — Duplicates the nth stack item as the top of the
+stack</li>
+<li>OP_ROLL (0x7a) — Moves the nth stack item to the top of the
+stack</li>
+<li>OP_SWAP (0x7c) — Swaps the top two stack items</li>
+</ul>
+<p>Also see: <code>OP_TOALTSTACK</code> (0x6b),
+<code>OP_FROMALTSTACK</code> (0x6c), <code>OP_2DROP</code> (0x6d),
+<code>OP_2DUP</code> (0x6e), <code>OP_3DUP</code> (0x6f),
+<code>OP_2OVER</code> (0x70), <code>OP_2ROT</code> (0x71),
+<code>OP_2SWAP</code> (0x72), <code>OP_IFDUP</code> (0x73),
+<code>OP_NIP</code> (0x77), <code>OP_OVER</code> (0x78),
+<code>OP_ROT</code> (0x7b), and <code>OP_TUCK</code> (0x7d).</p>
+<h2 id="understand-cryptographic-opcodes">Understand Cryptographic
+Opcodes</h2>
+<p>Finally, a variety of opcodes support hashing and signature
+checking:</p>
+<p>Hash:</p>
+<ul>
+<li>OP_RIPEMD160 (0xa6) — RIPEMD-160</li>
+<li>OP_SHA1 (0xa7) — SHA-1</li>
+<li>OP_SHA256 (0xa8) - SHA-256</li>
+<li>OP_HASH160 (0xa9) — SHA-256 + RIPEMD-160</li>
+<li>OP_HASH256 (0xaa) — SHA-256 + SHA-256</li>
+</ul>
+<p>Check Signatures:</p>
+<ul>
+<li>OP_CHECKSIG (0xac) — Check a signature</li>
+<li>OP_CHECKMULTISIG (0xae) — Check a m-of-n multisig</li>
+</ul>
+<p>Also see: <code>OP_CODESEPARATOR</code> (0xab),
+<code>OP_CHECKSIGVERIFY</code> (0xad), and
+<code>OP_CHECKMULTISIGVERIFY</code> (0xaf).</p>
+<h2 id="summary-using-other-script-commands">Summary: Using Other Script
+Commands</h2>
+<p>Bitcoin Script includes a wide array of arithemetic, stack, and
+cryptographic opcodes. Most of these additional opcodes are probably not
+as common as the ones discussed in previous sections, but nonetheless
+they’re available if they’re just what you need to write your
+Script!</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Advance through “Bitcoin Scripting” with <a
+href="13_0_Designing_Real_Bitcoin_Scripts.md">Chapter Thirteen:
+Designing Real Bitcoin Scripts</a>.</p>
+</body>
+</html>

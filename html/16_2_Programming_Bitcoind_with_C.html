@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>16_2_Programming_Bitcoind_with_C</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="programming-bitcoind-in-c-with-rpc-libraries">16.2: Programming
+Bitcoind in C with RPC Libraries</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p><a href="16_1_Accessing_Bitcoind_with_C.md">§16.1</a> laid out the
+methodology for creating C programs using RPC and JSON libraries. We’re
+now going to show the potential of those C libraries by laying out a
+simplistic, first cut of an actual Bitcoin program.</p>
+<h2 id="plan-for-your-code">Plan for Your Code</h2>
+<p>This section will create a simplistic first cut version of
+<code>sendtoaddress</code>, which will allow a user to send money to an
+address as long as he has a big enough UTXO. Here’s what we need to
+do:</p>
+<ol type="1">
+<li>Request an address and an amount</li>
+<li>Set an arbitrary fee</li>
+<li>Prepare Your RPC</li>
+<li>Find a UTXO that’s large enough for the amount + the fee</li>
+<li>Create a change address</li>
+<li>Create a raw transaction that sends from the UTXO to the address and
+the change address</li>
+<li>Sign the transaction</li>
+<li>Send the transaction</li>
+</ol>
+<h3 id="plan-for-your-future">Plan for Your Future</h3>
+<p>Since this is your first functional C program, we’re going to try and
+keep it simple (KISS). If we were producing an actual production
+program, we’d at least want to do the following:</p>
+<ol type="1">
+<li>Test and/or sanitize the inputs</li>
+<li>Calculate a fee automatically</li>
+<li>Think logically about which valid UTXO to use</li>
+<li>Combine multiple UTXOs if necessary</li>
+<li>Watch for more errors in the <code>libbitcoinrpc</code> or
+<code>jansson</code> commands</li>
+<li>Watch for errors in the RPC responses</li>
+</ol>
+<p>If you want to continue to expand this example, addressing the
+inadequacies of this example program would be a great place to
+start.</p>
+<h2 id="write-your-transaction-software">Write Your Transaction
+Software</h2>
+<p>Your now ready to undertake that plan step by step</p>
+<h3 id="step-1-request-an-address-and-an-amount">Step 1: Request an
+Address and an Amount</h3>
+<p>Inputting the information is easy enough via command line
+arguments:</p>
+<pre><code>if (argc != 3) {
+
+  printf(&quot;ERROR: Only %i arguments! Correct usage is &#39;%s [recipient] [amount]&#39;\n&quot;,argc-1,argv[0]);
+  exit(-1);
+
+}
+
+char *tx_recipient = argv[1];
+float tx_amount = atof(argv[2]);
+
+printf(&quot;Sending %4.8f BTC to %s\n&quot;,tx_amount,tx_recipient);</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> A real program would need much
+better sanitization of these variables.</p>
+</blockquote>
+<h3 id="step-2-set-an-arbitrary-fee">Step 2: Set an Arbitrary Fee</h3>
+<p>This example just an arbitrary 0.0005 BTC fee to ensure that the test
+transactions goes through quickly:</p>
+<pre><code>float tx_fee = 0.0005;
+float tx_total = tx_amount + tx_fee;</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> A real program would calculate a
+fee that minimized cost while ensuring the speed was sufficient for the
+sender.</p>
+</blockquote>
+<h3 id="step-3-prepare-your-rpc">Step 3: Prepare Your RPC</h3>
+<p>Obviously, you’re going to need to get all of your variables ready
+again, as discussed in <a
+href="16_1_Accessing_Bitcoind_with_C.md">§16.1: Accessing Bitcoind with
+C</a>. You also need to initialize your library, connect your RPC
+client, and prepare your response object:</p>
+<pre><code>bitcoinrpc_global_init();
+rpc_client = bitcoinrpc_cl_init_params (&quot;bitcoinrpc&quot;, &quot;YOUR-RPC-PASSWD&quot;, &quot;127.0.0.1&quot;, 18332);
+btcresponse = bitcoinrpc_resp_init();</code></pre>
+<h3 id="step-4-find-a-utxo">Step 4: Find a UTXO</h3>
+<p>To find a UTXO you must call the <code>listunspent</code> RPC:</p>
+<pre><code>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_LISTUNSPENT);
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);</code></pre>
+<p>However, the real work comes in decoding the response. The previous
+section noted that the <code>jansson</code> library was “somewhat
+clunky” and this is why: you have to create (and clear) a very large set
+of <code>json_t</code> objects in order to dig down to what you
+want.</p>
+<p>First, you must retrieve the <code>result</code> field from JSON:</p>
+<pre><code>json_t *lu_response = NULL;
+json_t *lu_result = NULL;
+
+lu_response = bitcoinrpc_resp_get (btcresponse);
+lu_result = json_object_get(lu_response,&quot;result&quot;);</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> You only get a result if there
+wasn’t an error. Here’s another place for better error checking for
+production code.</p>
+</blockquote>
+<p>Then, you go into a loop, examining each unspent transaction, which
+appears as an element in your JSON result array:</p>
+<pre><code>int i;
+
+const char *tx_id = 0;
+int tx_vout = 0;
+double tx_value = 0.0;
+
+for (i = 0 ; i &lt; json_array_size(lu_result) ; i++) {
+
+  json_t *lu_data = NULL;
+  lu_data = json_array_get(lu_result, i);
+  
+  json_t *lu_value = NULL;
+  lu_value = json_object_get(lu_data,&quot;amount&quot;);
+  tx_value = json_real_value(lu_value);</code></pre>
+<p>Is the UTXO large enough to pay out your transaction? If so, grab
+it!</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> A real-world program would think
+more carefully about which UTXO to grab, based on size and other
+factors. It probably wouldn’t just grab the first thing it saw that
+worked.</p>
+</blockquote>
+<pre><code>  if (tx_value &gt; tx_total) {
+
+    json_t *lu_txid = NULL;
+    lu_txid = json_object_get(lu_data,&quot;txid&quot;);
+    tx_id = strdup(json_string_value(lu_txid));
+
+    json_t *lu_vout = NULL;
+    lu_vout = json_object_get(lu_data,&quot;vout&quot;);
+    tx_vout = json_integer_value(lu_vout);
+
+    json_decref(lu_value);
+    json_decref(lu_txid);
+    json_decref(lu_vout);
+    json_decref(lu_data);
+    break;
+
+  } </code></pre>
+<p>You should clear your main JSON elements as well:</p>
+<pre><code>}
+
+json_decref(lu_result);
+json_decref(lu_response);</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> A real-world program would also
+make sure the UTXOs were <code>spendable</code>.</p>
+</blockquote>
+<p>If you didn’t find any large-enough UTXOs, you’ll have to report that
+sad fact to the user … and perhaps suggest that they should use a better
+program that will correctly merge UTXOs.</p>
+<pre><code>if (!tx_id) {
+
+  printf(&quot;Very Sad: You don&#39;t have any UTXOs larger than %f\n&quot;,tx_total);
+  exit(-1);
+}</code></pre>
+<blockquote>
+<p><strong>WARNING:</strong> A real program would use subroutines for
+this sort of lookup, so that you could confidentally call various RPCs
+from a library of C functions. We’re just going to blob it all into
+<code>main</code> as part of our KISS philosophy of simple examples.</p>
+</blockquote>
+<h3 id="step-5-create-a-change-address">Step 5: Create a Change
+Address</h3>
+<p>Repeat the standard RPC-lookup methodology to get a change
+address:</p>
+<pre><code>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_GETRAWCHANGEADDRESS);
+
+if (!rpc_method) {
+
+  printf(&quot;ERROR: Unable to initialize listunspent method!\n&quot;);
+  exit(-1);
+
+}
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+
+if (btcerror.code != BITCOINRPCE_OK) {
+
+printf(&quot;Error: listunspent error code %d [%s]\n&quot;, btcerror.code,btcerror.msg);
+
+  exit(-1);
+
+}
+
+lu_response = bitcoinrpc_resp_get (btcresponse);
+lu_result = json_object_get(lu_response,&quot;result&quot;);
+char *changeaddress = strdup(json_string_value(lu_result));</code></pre>
+<p>The only difference is in what particular information is extracted
+from the JSON object.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Here’s a place that a subroutine
+would be really nice: to abstract out the whole RPC method
+initialization and call.</p>
+</blockquote>
+<h3 id="step-6-create-a-raw-transaction">Step 6: Create a Raw
+Transaction</h3>
+<p>Creating the actual raw transaction is the other tricky part of
+programming your <code>sendtoaddress</code> replacement. That’s because
+it requires the creation of a complex JSON object as a paramter.</p>
+<p>To correctly create these parameters, you’ll need to review what the
+<code>createrawtransaction</code> RPC expects. Fortunately, this is easy
+to determine using the <code>bitcoin-cli help</code> functionality:</p>
+<pre><code>$ bitcoin-cli help createrawtransaction
+createrawtransaction [{&quot;txid&quot;:&quot;id&quot;,&quot;vout&quot;:n},...] {&quot;address&quot;:amount,&quot;data&quot;:&quot;hex&quot;,...} ( locktime )</code></pre>
+<p>To review, your inputs will be a JSON array containing one JSON
+object for each UTXO. Then the outputs will all be in one JSON object.
+It’s easiest to create these JSON elements from the inside out, using
+<code>jansson</code> commands.</p>
+<h4 id="step-6.1-create-the-input-parameters">Step 6.1: Create the Input
+Parameters</h4>
+<p>To create the input object for your UTXO, use
+<code>json_object</code>, then fill it with key-values using either
+<code>json_object_set_new</code> (for newly created references) or
+<code>json_object_set</code> (for existing references):</p>
+<pre><code>json_t *inputtxid = NULL;
+inputtxid = json_object();
+
+json_object_set_new(inputtxid,&quot;txid&quot;,json_string(tx_id));
+json_object_set_new(inputtxid,&quot;vout&quot;,json_integer(tx_vout));</code></pre>
+<p>You’ll note that you again have to translate each C variable type
+into a JSON variable type using the appropriate function, such as
+<code>json_string</code> or <code>json_integer</code>.</p>
+<p>To create the overall input array for all your UTXOs, use
+<code>json_array</code>, then fill it up with objects using
+<code>json_array_append</code>:</p>
+<pre><code>json_t *inputparams = NULL;
+inputparams = json_array();
+json_array_append(inputparams,inputtxid);</code></pre>
+<h4 id="step-6.2-create-the-output-parameters">Step 6.2: Create the
+Output Parameters</h4>
+<p>To create the output array for your transaction, follow the same
+format, creating a JSON object with <code>json_object</code>, then
+filling it with <code>json_object_set</code>:</p>
+<pre><code>json_t *outputparams = NULL;
+outputparams = json_object();
+
+char tx_amount_string[32];
+sprintf(tx_amount_string,&quot;%.8f&quot;,tx_amount);
+char tx_change_string[32];
+sprintf(tx_change_string,&quot;%.8f&quot;,tx_value - tx_total);
+
+json_object_set(outputparams, tx_recipient, json_string(tx_amount_string));
+json_object_set(outputparams, changeaddress, json_string(tx_change_string));</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> You might expect to input your
+Bitcoin values as numbers, using <code>json_real</code>. Unfortunately,
+this exposes one of the major problems with integrating the
+<code>jansson</code> library and Bitcoin. Bitcoin is only valid to eight
+significant digits past the decimal point. You might recall that
+.00000001 BTC is a satoshi, and that’s the smallest possible division of
+a Bitcoin. Doubles in C offer more significant digits than that, though
+they’re often imprecise out past eight decimals. If you try to convert
+straight from your double value in C (or a float value, for that matter)
+to a Bitcoin value, the imprecision will often create a Bitcoin value
+with more than eight significant digits. Before Bitcoin Core 0.12 this
+appears to work, and you could use <code>json_real</code>. But as of
+Bitcoin Core 0.12, if you try to give <code>createrawtransaction</code>
+a Bitcoin value with too many significant digits, you’ll instead get an
+error and the transaction will not be created. As a result, if the
+Bitcoin value has <em>ever</em> become a double or float, you must
+reformat it to eight significant digits past the digit before feeding it
+in as a string. This is obviously a kludge, so you should make sure it
+continues to work in future versions of Bitcoin Core.</p>
+</blockquote>
+<h4 id="step-6.3-create-the-parameter-array">Step 6.3: Create the
+Parameter Array</h4>
+<p>To finish creating your parameters, simply bundle them all up in a
+JSON array:</p>
+<pre><code>json_t *params = NULL;
+params = json_array();
+json_array_append(params,inputparams);
+json_array_append(params,outputparams);</code></pre>
+<h4 id="step-6.4-make-the-rpc-call">Step 6.4 Make the RPC Call</h4>
+<p>Use the normal method to create your RPC call:</p>
+<pre><code>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_CREATERAWTRANSACTION);</code></pre>
+<p>However, now you must feed it your parameters. This simply done with
+<code>bitcoinrpc_method_set_params</code>:</p>
+<pre><code>if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, &quot;Error: Could not set params for createrawtransaction&quot;);
+
+}</code></pre>
+<p>Afterward, run the RPC and get the results as usual:</p>
+<pre><code>bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+
+lu_response = bitcoinrpc_resp_get(btcresponse);
+lu_result = json_object_get(lu_response,&quot;result&quot;);
+
+char *tx_rawhex = strdup(json_string_value(lu_result));</code></pre>
+<h3 id="step-7.-sign-the-transaction">Step 7. Sign the Transaction</h3>
+<p>It’s a lot easier to assign a simple parameter to a function. You
+just create a JSON array, then assign the parameter to the array:</p>
+<pre><code>params = json_array();
+json_array_append_new(params,json_string(tx_rawhex));</code></pre>
+<p>Sign the transaction by following the typical rigamarole for creating
+an RPC call:</p>
+<pre><code>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_SIGNRAWTRANSACTION);
+if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, &quot;Error: Could not set params for signrawtransaction&quot;);
+
+}
+
+json_decref(params);
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+lu_response = bitcoinrpc_resp_get(btcresponse);</code></pre>
+<p>Again, using <code>jansson</code> to access the output can be a
+little tricky. Here you have to remember that <code>hex</code> is part
+of a JSON object, not a standalone result, as was the case when you
+created the raw transaction. Of course, you can always access this
+information from command line help:
+<code>bitcoin-cli help signrawtransaction</code>:</p>
+<pre><code>lu_result = json_object_get(lu_response,&quot;result&quot;);
+json_t *lu_signature = json_object_get(lu_result,&quot;hex&quot;);
+char *tx_signrawhex = strdup(json_string_value(lu_signature));
+json_decref(lu_signature);</code></pre>
+<blockquote>
+<p>:warning: <strong><em>WARNING:</em></strong> A real-world program
+would obviously carefully test the response of every RPC command to make
+sure there were no errors. That’s especially true for
+<code>signrawtransaction</code>, because you might end up with a
+partially signed transaction. Worse, if you don’t check the errors in
+the JSON object, you’ll just see the <code>hex</code> and not realize
+that it’s either unsigned or partially signed.</p>
+</blockquote>
+<h3 id="step-8.-send-the-transaction">Step 8. Send the Transaction</h3>
+<p>You can now send your transaction, using all of the previous
+techniques:</p>
+<pre><code>params = json_array();
+json_array_append_new(params,json_string(tx_signrawhex));
+
+rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_SENDRAWTRANSACTION);
+
+if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, &quot;Error: Could not set params for sendrawtransaction&quot;);
+
+}
+
+json_decref(params);
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+lu_response = bitcoinrpc_resp_get(btcresponse);
+lu_result = json_object_get(lu_response,&quot;result&quot;);
+
+char *tx_newid = strdup(json_string_value(lu_result));
+
+printf(&quot;Txid: %s\n&quot;,tx_newid);</code></pre>
+<p>The entire code, with a <em>little</em> more error-checking appears
+in the Appendix.</p>
+<h2 id="test-your-code">Test Your Code</h2>
+<p>The complete code can be found in the <a
+href="src/16_2_sendtoaddress.c">src directory</a>.</p>
+<p>Compile this as usual:</p>
+<pre><code>$ cc sendtoaddress.c -lbitcoinrpc -ljansson -o sendtoaddress</code></pre>
+<p>You can then use it to send funds to an address:</p>
+<pre><code>./sendtoaddress tb1qynx7f8ulv4sxj3zw5gqpe56wxleh5dp9kts7ns .001
+Txid: b93b19396f8baa37f5f701c7ca59d3128144c943af5294aeb48e3eb4c30fa9d2</code></pre>
+<p>You can see information on this transaction that we sent <a
+href="https://live.blockcypher.com/btc-testnet/tx/b93b19396f8baa37f5f701c7ca59d3128144c943af5294aeb48e3eb4c30fa9d2/">here</a>.</p>
+<h2 id="summary-programming-bitcoind-with-c">Summary: Programming
+Bitcoind with C</h2>
+<p>With access to a C library, you can create much more fully featured
+programs than it was reasonable to do so with shell scripts. But, it can
+take a lot of work! Even at 316 lines of code,
+<code>sendtoaddress.c</code> doesn’t cover nearly all of the intricacies
+requires to safely and intelligently transact bitcoins.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoind with C” in <a
+href="16_3_Receiving_Bitcoind_Notifications_with_C.md">16.3: Receiving
+Notifications in C with ZMQ Libraries</a>.</p>
+</body>
+</html>

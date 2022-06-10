@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>07_3_Integrating_with_Hardware_Wallets</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="integrating-with-hardware-wallets">7.3: Integrating with
+Hardware Wallets</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>One of the greatest powers of PSBTs is the ability to hand
+transactions off to hardware wallets. This will be a great development
+tool for you if you continue to program with Bitcoin. However, you can’t
+test it out now if you’re using one of the configurations we suggest for
+this course — a VM on Linode per <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/02_1_Setting_Up_a_Bitcoin-Core_VPS_with_StackScript.md">§2.1</a>
+or an even more farflung option such as AWS per <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/02_2_Setting_Up_Bitcoin_Core_Other.md">§2.2</a>
+— because obviously you won’t have any way to hook a hardware wallet up
+to your remote, virtual machine.</p>
+<blockquote>
+<p>:book: <strong><em>What is a Hardware Wallet?</em></strong> A
+hardware wallet is an electronic device that improves the security of a
+cryptocurrency by maintaining all the private keys on the device, rather
+than ever putting them on a computer directly connected to the internet.
+Hardware wallets have specific protocols for providing online
+interactions, usually managed by a program talking to the device through
+a USB port. In this chapter, we’ll be managing a hardware wallet with
+<code>bitcoin-cli</code> and the <code>hwy.py</code> program.</p>
+</blockquote>
+<p>You have three options for moving through this chapter on hardware
+wallets: (1) read along without testing the code; (2) install Bitcoin on
+a local machine to fully test these commands; or (3) skip straight ahead
+to <a href="08_0_Expanding_Bitcoin_Transactions_Other.md">Chapter 8:
+Expanding Bitcoin Transactions in Other Ways</a>. We suggest option #1,
+but if you really want to get your hands dirty we’ll also give some
+support for #2 by talking about using a Macintosh (a hardware-platform
+supported by <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup">Bitcoin
+Standup</a>) for testing.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> PSBTs are an innovation
+from Bitcoin Core v 0.17.0. Earlier versions of Bitcoin Core will not be
+able to work with the PSBT while it is in progress (though they will
+still be able to recognize the final transaction). The HWI interface
+appeared in Bitcoin Core v 0.18.0, but as long as you are using our
+suggested setup with Bitcoin Standup, it should work.</p>
+</blockquote>
+<p>The methodology described in this chapter for integrating with a
+hardware wallet depends on the <a
+href="https://github.com/bitcoin-core/HWI">Bitcoin Hardware Wallet
+Interface</a> released through Bitcoin Core and builds on the <a
+href="https://github.com/bitcoin-core/HWI/blob/master/README.md">installation</a>
+and <a href="https://hwi.readthedocs.io">usage</a> instructions found
+there.</p>
+<blockquote>
+<p>:warning: <strong>FRESHNESS WARNING:</strong> The HWI interface is
+very new and raw around the edges as of Bitcoin Core v 0.20.0. It may be
+hard to install correctly, and it may have unintuitive errors. What
+follows is a description of a working setup, but it took several tries
+to get it right, and your setup may vary.</p>
+</blockquote>
+<h2 id="install-bitcoin-core-on-a-local-machine">Install Bitcoin Core on
+a Local Machine</h2>
+<p><em>If you just plan to read over this section and not test out these
+commands until some future date when you have a local development
+environment, you can skip this subsection, which is about creating a
+Bitcoin Core installation on a local machine such as a Mac or Linux
+machine.</em></p>
+<p>There are alternate versions of the Bitcoin Standup script that you
+used to create your VM that will install on a MacOS or on a non-Linode
+Linux machine.</p>
+<p>If you have MacOS, you can install <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup-MacOS/blob/master/README.md">Bitcoin
+Standup MacOS</a>.</p>
+<p>If you have a local Linux machine, you can install <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup-Scripts/blob/master/README.md">Bitcoin
+Standup Linux Scripts</a>.</p>
+<p>Once you’ve gotten Bitcoin Standup running on your local machine,
+you’ll want to sync the “Testnet” blockchain, assuming that you’re
+continuing to follow the standard methodlogy of this course.</p>
+<p>We will be using a Macintosh and Testnet for the examples in this
+section.</p>
+<h3 id="create-an-alias-for-bitcoin-cli">Create an Alias for
+Bitcoin-CLI</h3>
+<p>Create an alias that runs <code>bitcoin-cli</code> from the correct
+directory with any appropriate flags.</p>
+<p>Here’s an example alias from a Mac:</p>
+<pre><code>$ alias bitcoin-cli=&quot;~/StandUp/BitcoinCore/bitcoin-0.20.0/bin/bitcoin-cli -testnet&quot;</code></pre>
+<p>You’ll note it not only gives us the full path, but also ensures that
+we stay on Testnet.</p>
+<h2 id="install-hwi-on-a-local-machine">Install HWI on a Local
+Machine</h2>
+<p><em>The following instructions again assume a Mac, and you can again
+skip this subsection if you’re just reading through this
+chapter.</em></p>
+<p>HWI is a Bitcoin Core program available in python that can be used to
+interact with hardware wallets.</p>
+<h3 id="install-python">Install Python</h3>
+<p>Because HWI is written in <code>python</code>, you’ll need to install
+that as well as a few auxilliary programs.</p>
+<p>If you don’t already have the <code>xcode</code> command line tools,
+you’ll need them:</p>
+<pre><code>$ xcode-select --install</code></pre>
+<p>If you don’t already have the Homebrew package manager, you should
+install that too. Current instructions are available at the <a
+href="https://brew.sh/">Homebrew site</a>. As of this writing, you
+simply need to:</p>
+<pre><code>$ /bin/bash -c &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)&quot;</code></pre>
+<p>For a first-time installation, you should also make sure your
+<code>/usr/local/Frameworks</code> directory is created correctly:</p>
+<pre><code>$ sudo mkdir /usr/local/Frameworks
+$ sudo chown $(whoami):admin /usr/local/Frameworks</code></pre>
+<p>If you’ve got all of that in place, you can finally install
+Python:</p>
+<pre><code>$ brew install python
+$ brew install libusb</code></pre>
+<h3 id="install-hwi">Install HWI</h3>
+<p>You’re now ready to install HWI, which requires cloning a GitHub repo
+and running an install script.</p>
+<p>If you don’t have <code>git</code> already installed on your Mac, you
+can do so just by trying to run it: <code>git --version</code>.</p>
+<p>You can then clone the HWI repo:</p>
+<pre><code>$ cd ~/StandUp
+$ git clone https://github.com/bitcoin-core/HWI.git</code></pre>
+<p>Afterward, you need to install the package and its dependencies:</p>
+<pre><code>$ cd HWI
+HWI$ python3 setup.py install</code></pre>
+<h3 id="create-an-alias-for-hwi">Create an Alias for HWI</h3>
+<p>You’ll want to create an alias here too, varied by your actual
+install location:</p>
+<pre><code>$ alias hwi=&quot;~/Standup/HWI/hwi.py --chain test&quot;</code></pre>
+<p>Again, we’ve included a reference to testnet in this alias.</p>
+<h2 id="prepare-your-ledger">Prepare Your Ledger</h2>
+<p><em>We had to choose a hardware-wallet platform too, for this HWI
+demonstration. Our choice was the Ledger, which has long been our
+testbed for hardware wallets. Please see <a
+href="https://github.com/bitcoin-core/HWI/blob/master/README.md#device-support">HWI’s
+device support info</a> for a list of other supported devices. If you
+use a device other than a Ledger, you’ll need to assess your own
+solutions for preparing it for usage on the Testnet, but otherwise you
+should be able to continue with the course as written.</em></p>
+<p>If you are working with Bitcoins on your Ledger, you probably won’t
+need to do anything. (But we don’t suggest that for use with this
+course).</p>
+<p>To work with Testnet coins, as suggested by this course, you’ll need
+to make a few updates:</p>
+<ol type="1">
+<li>Go to Settings on your Ledger Live app (it’s the gear), go to the
+“Experimental Features” tab, and turn on “Developer Mode”.</li>
+<li>Go to the “Manager” and install “Bitcoin Test”. The current version
+requires that you have “Bitcoin” installed first.</li>
+<li>Go to the “Manager”, scroll to your new “Bitcoin Test”, and “Add
+Account”</li>
+</ol>
+<h2 id="link-to-a-ledger">Link to a Ledger</h2>
+<p>In order for a Ledger to be accessible, you must login with your PIN
+and then call up the app that you want to use, in this case the “Bitcoin
+Test” app. You may need to repeat this from time to time if your Ledger
+falls asleep.</p>
+<p>Once you’ve done that, you can ask for HWI to access the Ledger with
+the <code>enumerate</code> command:</p>
+<pre><code>$ hwi enumerate
+[{&quot;type&quot;: &quot;ledger&quot;, &quot;model&quot;: &quot;ledger_nano_s&quot;, &quot;path&quot;: &quot;IOService:/AppleACPIPlatformExpert/PCI0@0/AppleACPIPCI/XHC1@14/XHC1@14000000/HS05@14100000/Nano S@14100000/Nano S@0/IOUSBHostHIDDevice@14100000,0&quot;, &quot;fingerprint&quot;: &quot;9a1d520b&quot;, &quot;needs_pin_sent&quot;: false, &quot;needs_passphrase_sent&quot;: false}]</code></pre>
+<p>If you receive information on your device, you’re set! As you can
+see, it verifies your hardware-wallet type, provides other identifying
+information, and tells you how to communicate with the device. The
+<code>fingerprint</code> (<code>9a1d520b</code>) is what you should pay
+particular attention to, because all interactions with your hardware
+wallet will require it.</p>
+<p>If you instead got <code>[]</code>, then either (1) you didn’t get
+your Ledger device ready by entering your PIN and choosing the correct
+application, or (2) there’s something wrong with your Python setup,
+probably a missing dependency: you should consider
+<code>uninstall</code>ing it and trying from scratch.</p>
+<h2 id="import-addresses">Import Addresses</h2>
+<p>Interacting with a hardware wallet usually comes in two parts:
+watching for funds and spending funds.</p>
+<p>You can watch for funds by importing addresses from your hardware
+wallet to your full node, using HWI and <code>bitcoin-cli</code>.</p>
+<h3 id="create-a-wallet">Create a Wallet</h3>
+<p>To use your hardware wallet with <code>bitcoin-cli</code>, you’ll
+want to create a specific named wallet in Bitcoin Core, using the
+<code>createwallet</code> RPC, which is a command we haven’t previously
+discussed.</p>
+<pre><code>$ bitcoin-cli --named createwallet wallet_name=&quot;ledger&quot; disable_private_keys=&quot;true&quot;
+{
+  &quot;name&quot;: &quot;ledger&quot;,
+  &quot;warning&quot;: &quot;&quot;
+}</code></pre>
+<p>In this case, you are creating a new wallet <code>ledger</code>
+without private keys (since those will be over on the Ledger
+device).</p>
+<blockquote>
+<p>:book: <strong><em>Why Name Wallets?</em></strong> To date, this
+course has used the default (““) wallet in Bitcoin Core. This is fine
+for many purposes, but is inadequate if you have a more complex
+situation, such as when you’re watching keys from a hardware wallet.
+Here, we want to be able to differentiate from the locally owned keys
+(which are kept in the”” wallet) and the remotely owned keys (which are
+kept in the “ledger” wallet).</p>
+</blockquote>
+<p>You can now see that the new wallet is in your wallets list:</p>
+<pre><code>$ bitcoin-cli listwallets
+[
+  &quot;&quot;,
+  &quot;ledger&quot;
+]</code></pre>
+<p>Because you’ve created a second wallet, some commands will now
+require a <code>-rpcwallet=</code> flag, to specify which one you’re
+using</p>
+<h3 id="import-the-keys">Import the Keys</h3>
+<p>You now have to import a watch-list of addresses from the hardware
+wallet. This is done with HWI’s <code>getkeypool</code> command:</p>
+<pre><code>$ hwi -f 9a1d520b getkeypool 0 1000
+[{&quot;desc&quot;: &quot;wpkh([9a1d520b/84h/1h/0h]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/0/*)#qttxy592&quot;, &quot;range&quot;: [0, 1000], &quot;timestamp&quot;: &quot;now&quot;, &quot;internal&quot;: false, &quot;keypool&quot;: true, &quot;active&quot;: true, &quot;watchonly&quot;: true}, {&quot;desc&quot;: &quot;wpkh([9a1d520b/84h/1h/0h]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/1/*)#3lw8ep4j&quot;, &quot;range&quot;: [0, 1000], &quot;timestamp&quot;: &quot;now&quot;, &quot;internal&quot;: true, &quot;keypool&quot;: true, &quot;active&quot;: true, &quot;watchonly&quot;: true}]</code></pre>
+<p>We address HWI with the <code>fingerprint</code> and ask for the
+first 1000 addresses. The WPKH (native Segwit) address type is used as a
+default. In return, we receive two descriptors for the key pool: one for
+receiving addresses and one for change addresses.</p>
+<blockquote>
+<p>:book: <strong><em>What is a key pool?</em></strong> A key pool is a
+group of pregenerated keys. Modern HD wallets create key pools by
+continuing to determine new hierarchical addresses based on the original
+seed. The idea of key pools was originally implemented to ease the
+backup requirements of wallets. This allowed a user to generate a
+keypool and then backup the wallet immediately, rather than requiring
+backups after every new address was created. The concept has also proven
+very useful in the modern day since it allows the importing of a whole
+set of future addresses from one device to another.</p>
+</blockquote>
+<p>The values returned by <code>getkeypool</code> are the same sorts of
+descriptors that we learned about in <a
+href="03_5_Understanding_the_Descriptor.md">§3.5: Understanding the
+Descriptor</a>. At the time, we said that they were most useful for
+moving addresses among different machines. Here’s the real-life example:
+moving addresses from a hardware wallet to Bitcoin Core node, so that
+our net-connected machine will be able to watch over the keys owned by
+the offline hardware wallet.</p>
+<p>Just as you learned in <a
+href="03_5_Understanding_the_Descriptor.md">§3.5</a>, you can examine
+these descriptors with the <code>getdescriptorinfo</code> RPC:</p>
+<pre><code>$ bitcoin-cli getdescriptorinfo &quot;wpkh([9a1d520b/84h/1h/0h]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/0/*)#qttxy592&quot;
+{
+  &quot;descriptor&quot;: &quot;wpkh([9a1d520b/84&#39;/1&#39;/0&#39;]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/0/*)#n65e7wjf&quot;,
+  &quot;checksum&quot;: &quot;qttxy592&quot;,
+  &quot;isrange&quot;: true,
+  &quot;issolvable&quot;: true,
+  &quot;hasprivatekeys&quot;: false
+}</code></pre>
+<p>As you’d expect, we do <em>not</em> have <code>privatekeys</code>,
+because hardware wallets hold on to those.</p>
+<p>With the descriptors in hand, you can import the keys into your new
+<code>ledger</code> wallet using the <code>importmulti</code> RPC that
+you also met in <a href="03_5_Understanding_the_Descriptor.md">§3.5</a>.
+In this case, just put the entire response you got back from HWI in
+<code>'</code>s.</p>
+<pre><code>$ bitcoin-cli -rpcwallet=ledger importmulti &#39;[{&quot;desc&quot;: &quot;wpkh([9a1d520b/84h/1h/0h]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/0/*)#qttxy592&quot;, &quot;range&quot;: [0, 1000], &quot;timestamp&quot;: &quot;now&quot;, &quot;internal&quot;: false, &quot;keypool&quot;: true, &quot;active&quot;: true, &quot;watchonly&quot;: true}, {&quot;desc&quot;: &quot;wpkh([9a1d520b/84h/1h/0h]tpubDD7KTtoGzK9GuWUQcr1uTJazsAkqoXhdrwGXWVix6nPpNZmSbagZWD4QSaMsyK8YohAirGDPrWdRiEpKzTFB7DrTrqfzHCn7yi5EsqeR93S/1/*)#3lw8ep4j&quot;, &quot;range&quot;: [0, 1000], &quot;timestamp&quot;: &quot;now&quot;, &quot;internal&quot;: true, &quot;keypool&quot;: true, &quot;active&quot;: true, &quot;watchonly&quot;: true}]&#39;
+[
+  {
+    &quot;success&quot;: true
+  },
+  {
+    &quot;success&quot;: true
+  }
+]</code></pre>
+<p>(Note that HWI helpfully output the derivation path with
+<code>h</code>s to show hardened derivations rather than
+<code>'</code>s, and calculated its checksum accordingly, so that we
+don’t have to do massive quoting like we did in §3.5.)</p>
+<p>You <em>could</em> now list all of the watch-only addresses that you
+received using the <code>getaddressesbylabel</code> command. All 1000 of
+the receive addresses are right there, in the <code>ledger</code>
+wallet!</p>
+<pre><code>$ bitcoin-cli -rpcwallet=ledger getaddressesbylabel &quot;&quot; | more
+{
+  &quot;tb1qqqvnezljtmc9d7x52udpc0m9zgl9leugd2ur7y&quot;: {
+    &quot;purpose&quot;: &quot;receive&quot;
+  },
+  &quot;tb1qqzvrm6hujdt93qctuuev5qc4499tq9fdk0prwf&quot;: {
+    &quot;purpose&quot;: &quot;receive&quot;
+  },
+...
+}</code></pre>
+<h2 id="receive-a-transaction">Receive a Transaction</h2>
+<p>Obviously, receiving a transaction is simple. You use
+<code>getnewaddress</code> to request one of those imported
+addresses:</p>
+<pre><code>$ bitcoin-cli -rpcwallet=ledger getnewaddress
+tb1qqqvnezljtmc9d7x52udpc0m9zgl9leugd2ur7y</code></pre>
+<p>Then you send money to it.</p>
+<p>The power of HWI is that you can watch the payments from your Bitcoin
+Core node, rather than having to plug in your hardware wallet and query
+it.</p>
+<pre><code>$ bitcoin-cli -rpcwallet=ledger listunspent
+[
+  {
+    &quot;txid&quot;: &quot;c733533eb1c052242f9ed89cd8927aedb41852156e684634ee7c74028774e595&quot;,
+    &quot;vout&quot;: 1,
+    &quot;address&quot;: &quot;tb1q948388a23pfsf52kz6skd5k4z4627jja2evztr&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;00142d4f139faa885304d15616a166d2d51574af4a5d&quot;,
+    &quot;amount&quot;: 0.01000000,
+    &quot;confirmations&quot;: 12,
+    &quot;spendable&quot;: false,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;wpkh([9a1d520b/84&#39;/1&#39;/0&#39;/0/0]02a013cf9c4b5f5689d9253036a3e477cf98689626f7814c94f092726f11b741ab)#9za8hlvk&quot;,
+    &quot;safe&quot;: true
+  },
+  {
+    &quot;txid&quot;: &quot;5b3c4aeb811f9a119fd633b12a6927415cc61b8654628df58e9141cab804bab8&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;tb1qqqvnezljtmc9d7x52udpc0m9zgl9leugd2ur7y&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;001400193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;,
+    &quot;amount&quot;: 0.01000000,
+    &quot;confirmations&quot;: 1,
+    &quot;spendable&quot;: false,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;wpkh([9a1d520b/84&#39;/1&#39;/0&#39;/0/569]030168d9482e2b02d7027fb4a89edc54adaa1adf709334f647d0a1b0533828aec5)#sx9haake&quot;,
+    &quot;safe&quot;: true
+  }
+]</code></pre>
+<h2 id="create-a-transaction-with-psbt">Create a Transaction with
+PSBT</h2>
+<p>Watching and receiving payments is just half the battle. You may also
+want to make payments using accounts held by your hardware wallet. This
+is the fourth real-life example for using PSBTs, per the process
+outlined in <a
+href="7_1_Creating_a_Partially_Signed_Bitcoin_Transaction.md">§7.1:
+Creating a Partially Signed Bitcoin Transaction</a>.</p>
+<p>The commands work exactly the same. In this case, use
+<code>walletcreatefundedpsbt</code> to form your PSBT because this is a
+situation where you don’t care what UTXOs are used:</p>
+<pre><code>$ bitcoin-cli -named -rpcwallet=ledger walletcreatefundedpsbt inputs=&#39;&#39;&#39;[]&#39;&#39;&#39; outputs=&#39;&#39;&#39;[{&quot;tb1qcaedd724gts3aug73m78c7nfsv9d8zs9q6h2kd&quot;:0.015}]&#39;&#39;&#39;
+{
+  &quot;psbt&quot;: &quot;cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giBgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxRiaHVILVAAAgAEAAIAAAACAAAAAADkCAAAAAQEfQEIPAAAAAAAWABQtTxOfqohTBNFWFqFm0tUVdK9KXSIGAqATz5xLX1aJ2SUwNqPkd8+YaJYm94FMlPCScm8Rt0GrGJodUgtUAACAAQAAgAAAAIAAAAAAAAAAAAAAIgID2UK1nupSfXC81nmB65XZ+pYlJp/W6wNk5FLt5ZCSx6kYmh1SC1QAAIABAACAAAAAgAEAAAABAAAAAA==&quot;,
+  &quot;fee&quot;: 0.00000209,
+  &quot;changepos&quot;: 1
+}</code></pre>
+<p>You can take a look at the PSBT and verify that it looks
+rational:</p>
+<pre><code>$ psbt=&quot;cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giBgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxRiaHVILVAAAgAEAAIAAAACAAAAAADkCAAAAAQEfQEIPAAAAAAAWABQtTxOfqohTBNFWFqFm0tUVdK9KXSIGAqATz5xLX1aJ2SUwNqPkd8+YaJYm94FMlPCScm8Rt0GrGJodUgtUAACAAQAAgAAAAIAAAAAAAAAAAAAAIgID2UK1nupSfXC81nmB65XZ+pYlJp/W6wNk5FLt5ZCSx6kYmh1SC1QAAIABAACAAAAAgAEAAAABAAAAAA==&quot;
+
+$ bitcoin-cli decodepsbt $psbt
+{
+  &quot;tx&quot;: {
+    &quot;txid&quot;: &quot;45f996d4ff8c9e9ab162f611c5b6ad752479ede9780f9903bdc80cd96619676d&quot;,
+    &quot;hash&quot;: &quot;45f996d4ff8c9e9ab162f611c5b6ad752479ede9780f9903bdc80cd96619676d&quot;,
+    &quot;version&quot;: 2,
+    &quot;size&quot;: 154,
+    &quot;vsize&quot;: 154,
+    &quot;weight&quot;: 616,
+    &quot;locktime&quot;: 0,
+    &quot;vin&quot;: [
+      {
+        &quot;txid&quot;: &quot;5b3c4aeb811f9a119fd633b12a6927415cc61b8654628df58e9141cab804bab8&quot;,
+        &quot;vout&quot;: 0,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;&quot;,
+          &quot;hex&quot;: &quot;&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      },
+      {
+        &quot;txid&quot;: &quot;c733533eb1c052242f9ed89cd8927aedb41852156e684634ee7c74028774e595&quot;,
+        &quot;vout&quot;: 1,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;&quot;,
+          &quot;hex&quot;: &quot;&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      }
+    ],
+    &quot;vout&quot;: [
+      {
+        &quot;value&quot;: 0.01500000,
+        &quot;n&quot;: 0,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 c772d6f95542e11ef11e8efc7c7a69830ad38a05&quot;,
+          &quot;hex&quot;: &quot;0014c772d6f95542e11ef11e8efc7c7a69830ad38a05&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1qcaedd724gts3aug73m78c7nfsv9d8zs9q6h2kd&quot;
+          ]
+        }
+      },
+      {
+        &quot;value&quot;: 0.00499791,
+        &quot;n&quot;: 1,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 f4e8dde5db370898b57c84566e3f76098850817d&quot;,
+          &quot;hex&quot;: &quot;0014f4e8dde5db370898b57c84566e3f76098850817d&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1q7n5dmewmxuyf3dtus3txu0mkpxy9pqtacuprak&quot;
+          ]
+        }
+      }
+    ]
+  },
+  &quot;unknown&quot;: {
+  },
+  &quot;inputs&quot;: [
+    {
+      &quot;witness_utxo&quot;: {
+        &quot;amount&quot;: 0.01000000,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 00193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;,
+          &quot;hex&quot;: &quot;001400193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;address&quot;: &quot;tb1qqqvnezljtmc9d7x52udpc0m9zgl9leugd2ur7y&quot;
+        }
+      },
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;030168d9482e2b02d7027fb4a89edc54adaa1adf709334f647d0a1b0533828aec5&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/0/569&quot;
+        }
+      ]
+    },
+    {
+      &quot;witness_utxo&quot;: {
+        &quot;amount&quot;: 0.01000000,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 2d4f139faa885304d15616a166d2d51574af4a5d&quot;,
+          &quot;hex&quot;: &quot;00142d4f139faa885304d15616a166d2d51574af4a5d&quot;,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;address&quot;: &quot;tb1q948388a23pfsf52kz6skd5k4z4627jja2evztr&quot;
+        }
+      },
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;02a013cf9c4b5f5689d9253036a3e477cf98689626f7814c94f092726f11b741ab&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/0/0&quot;
+        }
+      ]
+    }
+  ],
+  &quot;outputs&quot;: [
+    {
+    },
+    {
+      &quot;bip32_derivs&quot;: [
+        {
+          &quot;pubkey&quot;: &quot;03d942b59eea527d70bcd67981eb95d9fa9625269fd6eb0364e452ede59092c7a9&quot;,
+          &quot;master_fingerprint&quot;: &quot;9a1d520b&quot;,
+          &quot;path&quot;: &quot;m/84&#39;/1&#39;/0&#39;/1/1&quot;
+        }
+      ]
+    }
+  ],
+  &quot;fee&quot;: 0.00000209
+}</code></pre>
+<p>And as usual, <code>analyzepsbt</code> will show how far you’ve
+gotten:</p>
+<pre><code>$ bitcoin-cli analyzepsbt $psbt
+{
+  &quot;inputs&quot;: [
+    {
+      &quot;has_utxo&quot;: true,
+      &quot;is_final&quot;: false,
+      &quot;next&quot;: &quot;signer&quot;,
+      &quot;missing&quot;: {
+        &quot;signatures&quot;: [
+          &quot;00193c8bf25ef056f8d4571a1c3f65123e5fe788&quot;
+        ]
+      }
+    },
+    {
+      &quot;has_utxo&quot;: true,
+      &quot;is_final&quot;: false,
+      &quot;next&quot;: &quot;signer&quot;,
+      &quot;missing&quot;: {
+        &quot;signatures&quot;: [
+          &quot;2d4f139faa885304d15616a166d2d51574af4a5d&quot;
+        ]
+      }
+    }
+  ],
+  &quot;estimated_vsize&quot;: 208,
+  &quot;estimated_feerate&quot;: 0.00001004,
+  &quot;fee&quot;: 0.00000209,
+  &quot;next&quot;: &quot;signer&quot;
+}</code></pre>
+<p>Because you imported that keypool, <code>bitcoin-cli</code> has all
+the information it needs to fill in the inputs, it just can’t sign
+because the private keys are held on the hardware wallet.</p>
+<p>That’s where HWI comes in, with the <code>signtx</code> command. You
+just send along the PSBT:</p>
+<pre><code>$ hwi -f 9a1d520b signtx $psbt</code></pre>
+<p>Expect to have to do some fiddling with your hardware wallet at this
+point. The device will probably ask you to confirm the inputs, the
+outputs, and the fee. When you’re done, it should return a new PSBT.</p>
+<pre><code>{&quot;psbt&quot;: &quot;cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giAgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxUcwRAIgAxkQlk2fqEMxvP54WWyiFhlfSul9sd4GzKDhfGpmlewCIHYej3zXWWMgWI6rixxQw9yzGozDaFPqQNNIvcFPk+lfASIGAwFo2UguKwLXAn+0qJ7cVK2qGt9wkzT2R9ChsFM4KK7FGJodUgtUAACAAQAAgAAAAIAAAAAAOQIAAAABAR9AQg8AAAAAABYAFC1PE5+qiFME0VYWoWbS1RV0r0pdIgICoBPPnEtfVonZJTA2o+R3z5holib3gUyU8JJybxG3QatHMEQCIH5t6T2yufUP7glYZ8YH0/PhDFpotSmjgZUhvj6GbCFIAiBcgXzyYl7IjYuaF3pJ7AgW1rLYkjeCJJ2M9pVUrq5vFwEiBgKgE8+cS19WidklMDaj5HfPmGiWJveBTJTwknJvEbdBqxiaHVILVAAAgAEAAIAAAACAAAAAAAAAAAAAACICA9lCtZ7qUn1wvNZ5geuV2fqWJSaf1usDZORS7eWQksepGJodUgtUAACAAQAAgAAAAIABAAAAAQAAAAA=&quot;}
+$ psbt_f=&quot;cHNidP8BAJoCAAAAAri6BLjKQZGO9Y1iVIYbxlxBJ2kqsTPWnxGaH4HrSjxbAAAAAAD+////leV0hwJ0fO40RmhuFVIYtO16ktic2J4vJFLAsT5TM8cBAAAAAP7///8CYOMWAAAAAAAWABTHctb5VULhHvEejvx8emmDCtOKBU+gBwAAAAAAFgAU9Ojd5ds3CJi1fIRWbj92CYhQgX0AAAAAAAEBH0BCDwAAAAAAFgAUABk8i/Je8Fb41FcaHD9lEj5f54giAgMBaNlILisC1wJ/tKie3FStqhrfcJM09kfQobBTOCiuxUcwRAIgAxkQlk2fqEMxvP54WWyiFhlfSul9sd4GzKDhfGpmlewCIHYej3zXWWMgWI6rixxQw9yzGozDaFPqQNNIvcFPk+lfASIGAwFo2UguKwLXAn+0qJ7cVK2qGt9wkzT2R9ChsFM4KK7FGJodUgtUAACAAQAAgAAAAIAAAAAAOQIAAAABAR9AQg8AAAAAABYAFC1PE5+qiFME0VYWoWbS1RV0r0pdIgICoBPPnEtfVonZJTA2o+R3z5holib3gUyU8JJybxG3QatHMEQCIH5t6T2yufUP7glYZ8YH0/PhDFpotSmjgZUhvj6GbCFIAiBcgXzyYl7IjYuaF3pJ7AgW1rLYkjeCJJ2M9pVUrq5vFwEiBgKgE8+cS19WidklMDaj5HfPmGiWJveBTJTwknJvEbdBqxiaHVILVAAAgAEAAIAAAACAAAAAAAAAAAAAACICA9lCtZ7qUn1wvNZ5geuV2fqWJSaf1usDZORS7eWQksepGJodUgtUAACAAQAAgAAAAIABAAAAAQAAAAA=&quot;</code></pre>
+<p>When you analyze this, you’ll see that it’s ready to be
+finalized:</p>
+<pre><code>$ bitcoin-cli analyzepsbt $psbt_f
+{
+  &quot;inputs&quot;: [
+    {
+      &quot;has_utxo&quot;: true,
+      &quot;is_final&quot;: false,
+      &quot;next&quot;: &quot;finalizer&quot;
+    },
+    {
+      &quot;has_utxo&quot;: true,
+      &quot;is_final&quot;: false,
+      &quot;next&quot;: &quot;finalizer&quot;
+    }
+  ],
+  &quot;estimated_vsize&quot;: 208,
+  &quot;estimated_feerate&quot;: 0.00001004,
+  &quot;fee&quot;: 0.00000209,
+  &quot;next&quot;: &quot;finalizer&quot;
+}</code></pre>
+<p>At this point you’re back into standard territory:</p>
+<pre><code>$ bitcoin-cli finalizepsbt $psbt_f
+{
+  &quot;hex&quot;: &quot;02000000000102b8ba04b8ca41918ef58d6254861bc65c4127692ab133d69f119a1f81eb4a3c5b0000000000feffffff95e5748702747cee3446686e155218b4ed7a92d89cd89e2f2452c0b13e5333c70100000000feffffff0260e3160000000000160014c772d6f95542e11ef11e8efc7c7a69830ad38a054fa0070000000000160014f4e8dde5db370898b57c84566e3f76098850817d024730440220031910964d9fa84331bcfe78596ca216195f4ae97db1de06cca0e17c6a6695ec0220761e8f7cd7596320588eab8b1c50c3dcb31a8cc36853ea40d348bdc14f93e95f0121030168d9482e2b02d7027fb4a89edc54adaa1adf709334f647d0a1b0533828aec50247304402207e6de93db2b9f50fee095867c607d3f3e10c5a68b529a3819521be3e866c214802205c817cf2625ec88d8b9a177a49ec0816d6b2d8923782249d8cf69554aeae6f17012102a013cf9c4b5f5689d9253036a3e477cf98689626f7814c94f092726f11b741ab00000000&quot;,
+  &quot;complete&quot;: true
+}
+$ hex=02000000000102b8ba04b8ca41918ef58d6254861bc65c4127692ab133d69f119a1f81eb4a3c5b0000000000feffffff95e5748702747cee3446686e155218b4ed7a92d89cd89e2f2452c0b13e5333c70100000000feffffff0260e3160000000000160014c772d6f95542e11ef11e8efc7c7a69830ad38a054fa0070000000000160014f4e8dde5db370898b57c84566e3f76098850817d024730440220031910964d9fa84331bcfe78596ca216195f4ae97db1de06cca0e17c6a6695ec0220761e8f7cd7596320588eab8b1c50c3dcb31a8cc36853ea40d348bdc14f93e95f0121030168d9482e2b02d7027fb4a89edc54adaa1adf709334f647d0a1b0533828aec50247304402207e6de93db2b9f50fee095867c607d3f3e10c5a68b529a3819521be3e866c214802205c817cf2625ec88d8b9a177a49ec0816d6b2d8923782249d8cf69554aeae6f17012102a013cf9c4b5f5689d9253036a3e477cf98689626f7814c94f092726f11b741ab00000000
+$ bitcoin-cli sendrawtransaction $hex
+45f996d4ff8c9e9ab162f611c5b6ad752479ede9780f9903bdc80cd96619676d</code></pre>
+<p>You’ve successfully sent funds using the private keys held on your
+hardware wallet!</p>
+<h2 id="learn-other-hwi-commands">Learn Other HWI Commands</h2>
+<p>There are a variety of other commands available for use with HWI. At
+the time of this writing, they are:</p>
+<pre><code>numerate,getmasterxpub,signtx,getxpub,signmessage,getkeypool,getdescriptors,displayaddress,setup,wipe,restore,backup,promptpin,togglepassphrase,sendpin</code></pre>
+<h2 id="summary-integrating-with-hardware-wallets">Summary: Integrating
+with Hardware Wallets</h2>
+<p>Hardware wallets can offer better protection by keeping your private
+keys offline, protected in the hardware. Fortunately, there’s still a
+way to interact with them using <code>bitcoin-cli</code>. You just
+install HWI and it will then allow you to (1) import public keys to
+watch them; and (2) sign transactions using your hardware wallet.</p>
+<blockquote>
+<p>:fire: <strong><em>What’s the power of HWI?</em></strong> HWI lets
+you interact with hardware wallets using all of the commands of
+<code>bitcoin-cli</code> that you’ve learned to date. You can make raw
+transactions of any sort, then send PSBTs to hardware wallets for
+signing. Thus, you have all of the power of Bitcoin Core, but you also
+have the security of a hardware device.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Expand Bitcoin Transactions more with <a
+href="08_0_Expanding_Bitcoin_Transactions_Other.md">Chapter Eight:
+Expanding Bitcoin Transactions in Other Ways</a>.</p>
+</body>
+</html>

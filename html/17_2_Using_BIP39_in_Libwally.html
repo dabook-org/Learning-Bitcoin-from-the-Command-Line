@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>17_2_Using_BIP39_in_Libwally</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-bip39-in-libwally">17.2: Using BIP39 in Libwally</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>One of Libwally’s greatest powers is that it can lay bare the
+underlying work of generating seeds, private keys, and ultimately
+addresses. To start with, it supports <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">BIP39</a>,
+which is the BIP that defines mnemonic codes for Bitcoin — something
+that’s entirely unsupported, to date, by Bitcoin Core.</p>
+<blockquote>
+<p>:book: <strong><em>What is a Mnemonic Code?</em></strong> Bitcoin
+addresses (and their corresponding private keys and underlying seeds)
+are long, unintelligible lists of characters and numbers, which are not
+only impossible to remember, but also easy to mistype. Mnemonic codes
+are a solution for this that allow users to record 12 (or 24) words in
+their language — something that’s much less prone to mistakes. These
+codes can then be used to fully restore a BIP32 seed that’s the basis of
+an HD wallet.</p>
+</blockquote>
+<blockquote>
+<p>:book: <strong><em>What is a Seed?</em></strong> We briefly touched
+on seeds in <a href="03_5_Understanding_the_Descriptor.md">§3.5:
+Understanding the Descriptor</a>. It’s the random number that’s used to
+generate a whole sequence of private keys (and thus addresses) in an HD
+wallet. We’ll return to seeds in the next section, which is all about HD
+wallets and Libwally. For now, just know that a BIP39 mnemonic code
+corresponds to the seed for a BIP32 hierarchical deterministic
+wallet.</p>
+</blockquote>
+<h2 id="create-mnemonic-codes">Create Mnemonic Codes</h2>
+<p>All Bitcoin keys start with entropy. This first use of Libwally, and
+its BIP39 mnemonics, thus shows how to generate entropy and to get a
+mnemonic code from that.</p>
+<blockquote>
+<p>:book: <strong><em>What is Entropy?</em></strong> Entropy is a fancy
+way of saying randomness, but it’s a carefully measured randomness
+that’s used as the foundation of a true-random-number generated (TRG).
+Its measured in “bits”, with more bits of entropy resulting in more
+randomness (and thus more protection for what’s being generated). For
+Bitcoin, entropy is the foundation of your seed, which in an HD wallet
+generates all of your addresses.</p>
+</blockquote>
+<p>You’ll always start work with Libwally by initializing the library
+and testing the results, as first demonstrated in <a
+href="17_1_Setting_Up_Libwally.md">§17.1</a>:</p>
+<pre><code>  int lw_response;
+
+  lw_response = wally_init(0);
+
+  if (lw_response) {
+
+    printf(&quot;Error: Wally_init failed: %d\n&quot;,lw_response);
+    exit(-1);
+    
+  }</code></pre>
+<p>Now you’re ready to entropize.</p>
+<h3 id="create-entropy">Create Entropy</h3>
+<p>Using <code>libsodium</code>, you can create entropy with the
+<code>randombytes_buf</code> command:</p>
+<pre><code>  unsigned char entropy[16];  
+  randombytes_buf(entropy, 16);</code></pre>
+<p>This example, which will be the only way we use the
+<code>libsodium</code> library, creates 16 bytes of entropy. Generally,
+to create a secure mnemonic code, you should use between 128 and 256
+bits of entropy, which is 16 to 32 bytes.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Again, be very certain that
+you’re very comfortable with your method for entropy generation before
+you use it in a real-world program.</p>
+</blockquote>
+<h3 id="translate-into-a-mnemonic">Translate into a Mnemonic</h3>
+<p>16 bytes of entropy is sufficient to create a 12-character Mnemonic
+code, which is done with Libwally’s
+<code>bip39_mnemonic_from_bytes</code> function:</p>
+<pre><code>  char *mnem = NULL;
+  lw_response = bip39_mnemonic_from_bytes(NULL,entropy,16,&amp;mnem);</code></pre>
+<p>Note that you have to pass along the byte size, so if you were to
+increase the size of your entropy, to generate a longer mnemonic phrase,
+you’d also need to increase the value in this function.</p>
+<blockquote>
+<p><strong>NOTE:</strong> There are mnemonic word lists for different
+languages! The default is to use the English-language list, which is the
+<code>NULL</code> variable in these Libwally mnemonic commands, but you
+can alternatively request a different language!</p>
+</blockquote>
+<p>That’s it! You’ve created a mnemonic phrase!</p>
+<blockquote>
+<p>:book: <strong><em>How is the Mnemonic Phrase Created?</em></strong>
+You can learn about that in <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki">BIP39</a>,
+but if you prefer, Greg Walker has an <a
+href="https://learnmeabitcoin.com/technical/mnemonic">excellent
+example</a>: basically, you add a checksum, then you covert each set of
+11 bits into a word from the word list. You can do this with the
+commands <code>bip39_get_wordlist</code> and <code>bip39_get_word</code>
+if you don’t trust the <code>bip39_mnemonic_from_bytes</code>
+command.</p>
+</blockquote>
+<h3 id="translate-into-a-seed">Translate into a Seed</h3>
+<p>There are some functions, such as <code>bip32_key_from_seed</code>
+(which we’ll meet in the next section) that require you to have the seed
+rather than the Mnemonic. The two things are functionally identical: if
+you have the seed, you can generate the mnemonic, and vice-versa.</p>
+<p>If you need to generate the seed from your mnemonic, you just use the
+<code>bip39_mnemonic_to_seed</code> command:</p>
+<pre><code>  unsigned char seed[BIP39_SEED_LEN_512];
+  size_t seed_len;
+  
+  lw_response = bip39_mnemonic_to_seed(mnem,NULL,seed,BIP39_SEED_LEN_512,&amp;seed_len);</code></pre>
+<p>Note that all BIP39 seeds are current 512 bytes; nonetheless you have
+to set the size of your variable appropriately, and pass along that size
+to <code>bip39_mnemonic_to_seed</code>.</p>
+<h3 id="print-your-seed">Print Your Seed</h3>
+<p>If you want to see what your seed looks like in hex, you can use the
+<code>wally_hex_from_bytes</code> function to turn your seed into a
+readable (but not-great-for-people) hex code:</p>
+<pre><code>  char *seed_hex;
+  wally_hex_from_bytes(seed,sizeof(seed),&amp;seed_hex);
+  printf(&quot;Seed: %s\n&quot;,seed_hex);</code></pre>
+<p>If you’ve done everything right, you should get back a 64-byte seed.
+(That’s the <code>BIP39_SEED_LEN_512</code> variable you’ve been
+throwing around, which defines a default seed length as 512 bits or 64
+bytes.)</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> You definitely should test that
+your seed length is 64 bytes in some way, because it’s easy to mess up,
+for example by using the wrong variable type when you run
+<code>bip39_mnemonic_to_seed</code>.</p>
+</blockquote>
+<h2 id="test-mnemonic-code">Test Mnemonic Code</h2>
+<p>The full code for generating entropy, generating a BIP39 mnemonic,
+validating the mnemonic, and generating a seed can be found in the <a
+href="src/17_2_genmnemonic.c">src directory</a>. Download it and
+compile:</p>
+<pre><code>$ cc genmnemonic.c -lwallycore -lsodium -o genmnemonic</code></pre>
+<p>Then you can run the test:</p>
+<pre><code>Mnemonic: parent wasp flight sweet miracle inject lemon matter label column canyon trend
+Mnemonic validated!
+Seed: 47b04cfb5d8fd43d371497f8555a27a25ca0a04aafeb6859dd4cbf37f6664b0600c4685c1efac29c082b1df29081f7a46f94a26f618fc6fd38d8bc7b6cd344c7</code></pre>
+<h2 id="summary-using-bip39-in-libwally">Summary: Using BIP39 in
+Libwally</h2>
+<p>BIP39 allows you generate a set of 12-24 Mnemonic words from a seed
+(and the Libwally library also allows you to validate it!).</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of BIP39?</em></strong> Bitcoin
+seeds and private keys are prone to all sorts of lossage. You mistype a
+single digit, and your money is gone forever. Mnemonic Words are a much
+more user-friendly way of representing the same data, but because
+they’re words in the language of the user’s choice, they’re less prone
+to mistakes. The power of BIP39 is thus to improve the accessibility,
+usability, and safety of Bitcoin.</p>
+</blockquote>
+<blockquote>
+<p>:fire: <strong><em>What is the power of BIP39 in
+Libwally?</em></strong> Bitcoind doesn’t currently support mnemonic
+words, so using Libwally can allow you to generate mnemonic words in
+conjunction with addresses held by <code>bitcoind</code> (though as
+we’ll see in §17.7, it requires a bit of a work-around at present to
+import your keys into Bitcoin Core).</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Programming Bitcoin with Libwally” in <a
+href="17_3_Using_BIP32_in_Libwally.md">17.3: Using BIP32 in
+Libwally</a>.</p>
+</body>
+</html>

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>11_3_Using_CSV_in_Scripts</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-csv-in-scripts">11.3: Using CSV in Scripts</h1>
+<p><code>nLockTime</code> and <code>OP_CHECKLOCKTIMEVERIFY</code> (or
+CLTV) are just one side of the timelock equation. On the other side are
+<code>nSequence</code> and <code>OP_CHECKSEQUENCEVERIFY</code>, which
+can be used to check against relative times rather than absolute
+times.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> CSV became available with
+Bitcoin Core 0.12.1, in spring 2016.</p>
+</blockquote>
+<h2 id="understand-nsequence">Understand nSequence</h2>
+<p>Every input into a transaction has an <code>nSequence</code> (or if
+you prefer <code>sequence</code>) value. It’s been a prime tool for
+Bitcoin expansions as discussed previously in <a
+href="05_2_Resending_a_Transaction_with_RBF.md">§5.2: Resending a
+Transaction with RBF</a> and <a
+href="08_1_Sending_a_Transaction_with_a_Locktime.md">§8.1 Sending a
+Transaction with a Locktime</a>, where it was used to signal RBF and
+<code>nLockTime</code>, respectively. However, there’s one more use for
+<code>nSequence</code>, described by <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki">BIP
+68</a>: you can use it to create a relative timelock on a
+transaction.</p>
+<p>A relative timelock is a lock that’s placed on a specific input of a
+transaction and that’s calculated in relation to the mining date of the
+UTXO being used in the input. For example, if a UTXO was mined at block
+#468260 and a transaction was created where the input for that UTXO was
+given an <code>nSequence</code> of 100, then the new transaction could
+not be mined until at least block #468360.</p>
+<p>Easy!</p>
+<blockquote>
+<p>:information_source: <strong>NOTE — SEQUENCE:</strong> This is the
+third use of the <code>nSequence</code> value in Bitcoin. Any
+<code>nSequence</code> value without the 32nd bit set (1&lt;&lt;31), so
+0x00000001 to 0x7ffffffff, will be interpreted as a relative timelock if
+<code>nVersion ≥ 2</code> (which is the default starting in Bitcoin Core
+0.14.0). You should be careful to ensure that relative timelocks don’t
+conflict with the other two uses of <code>nSequence</code>, for
+signalling <code>nTimeLock</code> and RBF. <code>nTimeLock</code>
+usually sets a value of 0xffffffff-1, where a relative timelock is
+disallowed; and RBF usually sets a value of “1”, where a relative
+timelock is irrelevent, because it defines a timelock of 1 block.</p>
+</blockquote>
+<blockquote>
+<p>In general, remember: with a <code>nVersion</code> value of 2, a
+<code>nSequence</code> value of 0x00000001 to 0x7fffffff allows relative
+timelock, RBF, and <code>nTimeLock</code>; a <code>nSequence</code>
+value of 0x7fffffff to 0xffffffff-2 allows RBF and
+<code>nTimeLock</code>; a <code>nSequence</code> value of 0xffffffff-1
+allows only <code>nTimeLock</code>; a <code>nSequence</code> value of
+0xffffffff allows none; and <code>nVersion</code> can be set to 1 to
+disallow relative timelocks for any value of <code>nSequence</code>.
+Whew!</p>
+</blockquote>
+<h3 id="create-a-csv-relative-block-time">Create a CSV Relative Block
+Time</h3>
+<p>The format for using <code>nSequence</code> to represent relative
+time locks is defined in <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki">BIP
+68</a> and is slightly more complex than just inputting a number, like
+you did for <code>nTimeLock</code>. Instead, the BIP specifications
+breaks up the four byte number into three parts:</p>
+<ul>
+<li>The first two bytes are used to specify a relative locktime.</li>
+<li>The 23rd bit is used to positively signal if the lock refers to a
+time rather than a blockheight.</li>
+<li>The 32nd bit is used to positively signal if relative timelocks are
+deactivated.</li>
+</ul>
+<p>With that said, the construction of a block-based relative timelock
+is still quite easy, because the two flagged bits are set to
+<code>0</code>, so you just set <code>nSequence</code> to a value
+between 1 and 0xffff (65535). The new transaction can be mined that
+number of blocks after the associated UTXO was mined.</p>
+<h3 id="create-a-csv-relative-time">Create a CSV Relative Time</h3>
+<p>You can instead set <code>nSequence</code> as a relative time, where
+the lock lasts for 512 seconds times the value of
+<code>nSequence</code>.</p>
+<p>In order to do that:</p>
+<ol type="1">
+<li>Decide how far in the future to set your relative timelock.</li>
+<li>Convert that to seconds.</li>
+<li>Divide by 512.</li>
+<li>Round that value up or down and set it as
+<code>nSequence</code>.</li>
+<li>Set the 23rd bit to true.</li>
+</ol>
+<p>To set a time 6 months n the future, you must first calculate as
+follows:</p>
+<pre><code>$ seconds=$((6*30*24*60*60))
+$ nvalue=$(($seconds/512))</code></pre>
+<p>Then, turn it into hex:</p>
+<pre><code>$ hexvalue=$(printf &#39;%x\n&#39; $nvalue)</code></pre>
+<p>Finally, bitwise-or the 23rd bit into the hex value you created:</p>
+<pre><code>$ relativevalue=$(printf &#39;%x\n&#39; $((0x$hexvalue | 0x400000)))
+$ echo $relativevalue
+4224679</code></pre>
+<p>If you convert that back you’ll see that 4224679 =
+10000000111011010100111. The 23rd digit is set to a “1”; meanwhile the
+first 2 bytes, 0111011010100111, convert to 76A7 in hex or 30375 in
+decimal. Multiply that by 512 and you get 15.55 million seconds, which
+indeed is 180 days.</p>
+<h2 id="create-a-transaction-with-a-relative-timelock">Create a
+Transaction with a Relative Timelock</h2>
+<p>So you want to create a simple transaction with a relative timelock?
+All you have to do is issue a transaction where the
+<code>nSequence</code> in an input is set as shown above: with the
+<code>nSequence</code> for that input set such that the first two bytes
+define the timelock, the 23rd bit defines the type of timelock, and the
+32nd bit is set to false.</p>
+<p>Issue the transaction and you’ll see that it can’t legally be mined
+until enough blocks or enough time has passed beyond the time that the
+UTXO was mined.</p>
+<p>Except pretty much no one does this. The <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki">BIP
+68</a> definitions for <code>nSequence</code> were incorporated into
+Bitcoin Core at the same time as <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0112.mediawiki">BIP
+112</a>. which describes the CSV opcode, the <code>nSequence</code>
+equivalent to the CLTV opcode. Just like CLTV, CSV offers increased
+capabilities. So, almost all usage of relative timelocks has been with
+the CSV opcode, not with the raw <code>nSequence</code> value on its
+own.</p>
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 31%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th>Absolute Timelock</th>
+<th>Relative Timelock</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Lock Transaction</strong></td>
+<td>nTimeLock</td>
+<td>nSequence</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Lock Output</strong></td>
+<td>OP_CHECKLOCKTIMEVERIFY</td>
+<td>OP_CHECKSEQUENCEVERIFY</td>
+</tr>
+</tbody>
+</table>
+<h2 id="understand-the-csv-opcode">Understand the CSV Opcode</h2>
+<p><code>OP_SEQUENCEVERIFY</code> in Bitcoin Scripts works pretty much
+like <code>OP_LOCKTIMEVERIFY</code>.</p>
+<p>You might require a UTXO be held for a hundred blocks past its
+mining:</p>
+<pre><code>100 OP_CHECKSEQUENCEVERIFY</code></pre>
+<p>Or your might make a more complex calculation to require that a UTXO
+be held for six months, in which case you’ll end up with a more complex
+number:</p>
+<pre><code>4224679 OP_CHECKSEQUENCEVERIFY</code></pre>
+<p>In this case we’ll use a shorthand:</p>
+<pre><code>&lt;+6Months&gt; OP_CHECKSEQUENCEVERIFY</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Remember that a relative timelock
+is a time span since the mining of the UTXO used as an input. It is
+<em>not</em> a timespan after you create the transaction. If you use a
+UTXO that’s already been confirmed a hundred times, and you place a
+relative timelock of 100 blocks on it, it will be eligible for mining
+immediately. Relative timelocks have some very specific uses, but they
+probably don’t apply if your only goal is to determine some set time in
+the future.</p>
+</blockquote>
+<h3 id="understand-how-csv-really-works">Understand How CSV Really
+Works</h3>
+<p>CSV has many of the same subtleties in usage as CLTV:</p>
+<ul>
+<li>The <code>nVersion</code> field must be set to 2 or more.</li>
+<li>The <code>nSequence</code> field must be set to less than
+0x80000000.</li>
+<li>When CSV is run, there must be an operand on the stack that’s
+between 0 and 0xf0000000-1.</li>
+<li>Both the stack operand and <code>nSequence</code> must have the same
+value on the 23rd bit.</li>
+<li>The <code>nSequence</code> must be greater than or equal to the
+stack operand.</li>
+</ul>
+<p>Just as with CLTV, when you are respending a UTXO with a CSV in its
+locking conditions, you must set the <code>nSequence</code> to enable
+the transaction. You’ll usually set it to the exact value in the locking
+script.</p>
+<h2 id="write-a-csv-script">Write a CSV Script</h2>
+<p>Just like <code>OP_CHECKLOCKTIMEVERIFY</code>,
+<code>OP_CHECKSEQUENCEVERIFY</code> includes an implicit
+<code>OP_VERIFY</code> and leaves its arguments on the stack, requiring
+an <code>OP_DROP</code> when you’re all done.</p>
+<p>A script that would lock funds until six months had passed following
+the mining of the input, and that would then require a standard
+P2PKH-style signature would look as follows:</p>
+<pre><code>&lt;+6Months&gt; OP_CHECKSEQUENCEVERIFY OP_DROP OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG</code></pre>
+<h3 id="encode-a-csv-script">Encode a CSV Script</h3>
+<p>When you encode a CSV script, be careful how you encode the integer
+value for the relative locktime. It should be passed as a 3-byte
+integer, which means that you’re ignoring the top byte, which could
+inactivate the relative locktime. Since it’s an integer, be sure you
+convert it to little-endian.</p>
+<p>This can be done with the <code>integer2lehex.sh</code> shell script
+from the previous chapter.</p>
+<p>For a relative time of 100 blocks:</p>
+<pre><code>$ ./integer2lehex.sh 100
+Integer: 100
+LE Hex: 64
+Length: 1 bytes
+Hexcode: 0164</code></pre>
+<p>Though that should be padded out to <code>000064</code>, requiring a
+code of <code>03000064</code>.</p>
+<p>For a relative time of 6 months:</p>
+<pre><code>$ ./integer2lehex.sh 4224679
+Integer: 4224679
+LE Hex: a77640
+Length: 3 bytes
+Hexcode: 03a77640</code></pre>
+<h2 id="spend-a-csv-utxo">Spend a CSV UTXO</h2>
+<p>To spend a UTXO locked with a CSV script, you must set the
+<code>nSequence</code> of that input to a value greater than the
+requirement in the script, but less than the time between the UTXO and
+the present block. Yes, this means that you need to know the exact
+requirement in the locking script … but you have a copy of the
+<code>redeemScript</code>, so if you don’t know the requirements, you
+deserialize it, and then set the <code>nSequence</code> to the number
+that’s shown there.</p>
+<h2 id="summary-using-csv-in-scripts">Summary: Using CSV in Scripts</h2>
+<p><code>nSequence</code> and CSV offer an alternative to
+<code>nLockTime</code> and CLTV where you lock a transaction based on a
+relative time since the input was mined, rather than basing the lock on
+a set time in the future. They work almost identically, other than the
+fact that the <code>nSequence</code> value is encoded slightly
+differently than the <code>nLockTime</code> value, with specific bits
+meaning specific things.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of CSV?</em></strong> CSV isn’t
+just a lazy way to lock, when you don’t want to calculate a time in the
+future. Instead, it’s a totally different paradigm, a lock that you
+would use if it was important to create a specific minimum duration
+between when a transaction is mined and when its funds can be respent.
+The most obvious usage is (once more) for an escrow, when you want a
+precise time between the input of funds and their output. However, it
+has much more powerful possibilities in off-chain transactions,
+including payment channels. These applications are by definition built
+on transactions that are not actually put onto the blockchain, which
+means that if they are later put on the blockchain an enforced
+time-lapse can be very helpful. <a
+href="https://en.bitcoin.it/wiki/Hashed_Timelock_Contracts">Hashed
+Timelock Contracts</a> have been one such implementation, empowering the
+Lightning payment network. They’re discussed in <a
+href="13_3_Empowering_Bitcoin_with_Scripts.md">§13.3: Empowering Bitcoin
+with Scripts</a>.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Advance through “Bitcoin Scripting” with <a
+href="12_0_Expanding_Bitcoin_Scripts.md">Chapter Twelve: Expanding
+Bitcoin Scripts</a>.</p>
+</body>
+</html>

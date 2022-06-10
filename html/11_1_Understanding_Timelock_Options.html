@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>11_1_Understanding_Timelock_Options</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="understanding-timelock-options">11.1: Understanding Timelock
+Options</h1>
+<p>In <a href="08_1_Sending_a_Transaction_with_a_Locktime.md">§8.1:
+Sending a Transaction with a Locktime</a>, <code>nLocktime</code>
+offered a great first option for locking transactions so that they
+couldn’t be spent until some point in the future — based either on time
+or blockheight. But, that’s not the only way to put a timelock on a
+transaction.</p>
+<h2 id="understand-the-limitations-of-nlocktime">Understand the
+Limitations of nLockTime</h2>
+<p><code>nLockTime</code> is a simple and powerful way to lock a
+transaction, but it has some limitations:</p>
+<ol type="1">
+<li><strong>No Divisions.</strong> <code>nLocktime</code> locks the
+entire transaction.</li>
+<li><strong>No Networking.</strong> Most modern nodes won’t accept a
+<code>nLockTime</code> into the mempool until it’s almost ready to
+finalize.</li>
+<li><strong>No Scripts.</strong> The original, simple use of
+<code>nLockTime</code> didn’t allow it to be used in Scripts.</li>
+<li><strong>No Protection.</strong> <code>nLockTime</code> allows the
+funds to be spent with a different, non-locked transaction.</li>
+</ol>
+<p>The last item was often the dealbreaker for <code>nLockTime</code>.
+It prevented a transaction from being spent, but it didn’t prevent the
+funds from being used in a different transaction. So, it had uses, but
+they all depended on trust.</p>
+<h2 id="understand-the-possibilities-of-timelock-scripts">Understand the
+Possibilities of Timelock Scripts</h2>
+<p>In more recent years, Bitcoin Core has expanded to allow the
+manipulation of timelocks at the opcode level with
+<em>OP_CHECKLOCKTIMEVERIFY</em> (CLTV) and
+<em>OP_CHECKSEQUENCEVERIFY</em> (CSV). These both work under a new
+methodology that further empowers Bitcoin.</p>
+<p><em>They Are Opcodes.</em> Because they’re opcodes, CLTV and CSV can
+be used as part of more complex redemption conditions. Most often
+they’re linked with the conditionals described in the next chapter.</p>
+<p><em>They Lock Outputs.</em> Because they’re opcodes that are included
+in transactions as part of a <code>sigPubKey</code>, they just lock that
+single output. That means that the transactions are accepted onto the
+Bitcoin network and that the UTXOs used to fund those transactions are
+spent. There’s no going back on a transaction timelocked with CLTV or
+CSV like there is with a bare <code>nLockTime</code>. Respending the
+resultant UTXO then requires that the timelock conditions be met.</p>
+<p>Here’s one catch for using timelocks: <em>They’re one-way locks.</em>
+Timelocks are designed so that they unlock funds at a certain time. They
+cannot then relock a fund: once a timelocked fund is available to spend,
+it remains available to spend.</p>
+<h3 id="understand-the-possibilities-of-cltv">Understand the
+Possibilities of CLTV</h3>
+<p><em>OP_CHECKLOCKTIMEVERIFY</em> or CLTV is a match for the classic
+<code>nLockTime</code> feature, but in the new opcode-based paradigm. It
+allows a UTXO to become accessible at a certain time or at a certain
+blockheight.</p>
+<p>CLTV was first detailed in <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki">BIP
+65</a>.</p>
+<h3 id="understand-the-possibilities-of-csv">Understand the
+Possibilities of CSV</h3>
+<p><em>OP_CHECKSEQUENCEVERIFY</em> or CSV depends on a new sort of
+“relative locktime”, which is set in the transaction’s
+<em>nSequence</em> field. As usual, it can be set as either a time or a
+blockheight. If it’s set as a time, “n”, then a relative-timelocked
+transaction is spendable “n x 512” seconds after its UTXO was mined, and
+if it’s set as a block, “n”, then a relative-timelocked transaction is
+spendable “n” blocks after its UTXO was mined.</p>
+<p>The use of <code>nSequence</code> for a relative timelock was first
+detailed in <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki">BIP
+68</a>, then the CSV opcode was added in <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0112.mediawiki">BIP
+112</a>.</p>
+<h2 id="summary-understanding-timelock-options">Summary: Understanding
+Timelock Options</h2>
+<p>You now have four options for Timelock:</p>
+<ul>
+<li><code>nLockTime</code> to keep a transaction off the blockchain
+until a specific time.</li>
+<li><code>nSequence</code> to keep a transaction off the blockchain
+until a relative time.</li>
+<li>CLTV to make a UTXO unspendable until a specific time.</li>
+<li>CSV to make a UTXO unspendable until a relative time.</li>
+</ul>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Empowering Timelock” with <a
+href="11_2_Using_CLTV_in_Scripts.md">§11.2: Using CLTV in
+Scripts</a>.</p>
+</body>
+</html>

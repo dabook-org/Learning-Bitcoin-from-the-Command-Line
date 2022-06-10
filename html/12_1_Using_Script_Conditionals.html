@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>12_1_Using_Script_Conditionals</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-script-conditionals">12.1: Using Script Conditionals</h1>
+<p>There’s one final aspect of Bitcoin Scripting that’s crucial to
+unlocking its true power: conditionals allow you create various paths of
+execution.</p>
+<h2 id="understand-verify">Understand Verify</h2>
+<p>You’ve already seen one conditional in scripts:
+<code>OP_VERIFY</code> (0x69). It pops the top item on the stack and
+sees if it’s true; if not <em>it ends execution of the script</em>.</p>
+<p>Verify is usually incorporated into other opcodes. You’ve already
+seen <code>OP_EQUALVERIFY</code> (0xad),
+<code>OP_CHECKLOCKTIMEVERIFY</code> (0xb1), and
+<code>OP_CHECKSEQUENCEVERIFY</code> (0xb2). Each of these opcodes does
+its core action (equal, checklocktime, or checksequence) and then does a
+verify afterward. The other verify opcodes that you haven’t seen are:
+<code>OP_NUMEQUALVERIFY</code> (0x9d), <code>OP_CHECKSIGVERIFY</code>
+(0xad), and <code>OP_CHECKMULTISIGVERIFY</code> (0xaf).</p>
+<p>So how is <code>OP_VERIFY</code> a conditional? It’s the most
+powerful sort of conditional. Using <code>OP_VERIFY</code>, <em>if</em>
+a condition is true, the Script continues executing, <em>else</em> the
+Script exits. This is how you check conditions that are absolutely
+required for a Script to succeed. For example, the P2PKH script
+(<code>OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG</code>)
+has two required conditions: (1) that the supplied public key match the
+public-key hash; and (2) that the supplied signature match that public
+key. An <code>OP_EQUALVERIFY</code> is used for the comparison of the
+hashed public key and the public-key hash because it’s an absolutely
+required condition. You don’t <em>want</em> the script to continue on if
+that fails.</p>
+<p>You may notice there’s no <code>OP_VERIFY</code> at the end of this
+(or most any) script, despite the final condition being required as
+well. That’s because Bitcoin effectively does an <code>OP_VERIFY</code>
+at the very end of each Script, to ensure that the final stack result is
+true. You don’t <em>want</em> to do an <code>OP_VERIFY</code> before the
+end of the script, because you need to leave something on the stack to
+be tested!</p>
+<h2 id="understand-ifthen">Understand If/Then</h2>
+<p>The other major conditional in Bitcoin Script is the classic
+<code>OP_IF</code> (0x63) / <code>OP_ELSE</code> (0x67) /
+<code>OP_ENDIF</code> (0x68). This is typical flow control: if
+<code>OP_IF</code> detects a true statement, it executes the block under
+it; otherwise, if there’s an <code>OP_ELSE</code>, it executes that; and
+<code>OP_ENDIF</code> marks the end of the final block.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> These conditionals are
+technically opcodes too, but as with small numbers, we’re going to leave
+the <code>OP_</code> prefix off for brevity and clarity. Thus we’ll
+write <code>IF</code>, <code>ELSE</code>, and <code>ENDIF</code> instead
+of <code>OP_IF</code>, <code>OP_ELSE</code>, and
+<code>OP_ENDIF</code>.</p>
+</blockquote>
+<h3 id="understand-ifthen-ordering">Understand If/Then Ordering</h3>
+<p>There are two big catches to conditionals. They make it harder to
+read and assess scripts if you’re not careful.</p>
+<p>First, the <code>IF</code> conditional checks the truth of what’s
+<em>before it</em> (which is to say what’s in the stack), not what’s
+after it.</p>
+<p>Second, the <code>IF</code> conditional tends to be in the locking
+script and what it’s checking tends to be in the unlocking script.</p>
+<p>Of course, you might say, that’s how Bitcoin Script works.
+Conditionals use reverse Polish notation and they adopt the standard
+unlocking/locking paradigm, just like <em>everything else</em> in
+Bitcoin Scripting. That’s all true, but it also goes contrary to the
+standard way we read IF/ELSE conditionals in other programming
+languages; thus, it’s easy to unconsciously read Bitcoin conditionals
+wrong.</p>
+<p>Consider the following code:
+<code>IF OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; ENDIF OP_EQUALVERIFY OP_CHECKSIG</code>.</p>
+<p>Looking at conditionals in prefix notation might lead you to read
+this as:</p>
+<pre><code>IF (OP_DUP) THEN
+
+    OP_HASH160 
+    OP_PUSHDATA &lt;pubKeyHashA&gt; 
+
+ELSE 
+
+    OP_DUP 
+    OP_HASH160 
+    OP_PUSHDATA &lt;pubKeyHashB&gt; 
+
+ENDIF 
+ 
+ OP_EQUALVERIFY 
+ OP_CHECKSIG</code></pre>
+<p>So, you might think, if the <code>OP_DUP</code> is successful, then
+we get to do the first block, else the second. But that doesn’t make any
+sense! Why wouldn’t the <code>OP_DUP</code> succeed?!</p>
+<p>And, indeed, it doesn’t make any sense, because we accidentally read
+the statement using the wrong notation. The correct reading of this
+is:</p>
+<pre><code>IF 
+  
+    OP_DUP
+    OP_HASH160 
+    OP_PUSHDATA &lt;pubKeyHashA&gt; 
+
+ELSE 
+
+    OP_DUP 
+    OP_HASH160 
+    OP_PUSHDATA &lt;pubKeyHashB&gt; 
+
+ENDIF 
+ 
+ OP_EQUALVERIFY 
+ OP_CHECKSIG</code></pre>
+<p>The statement that will evaluate to <code>True</code> or
+<code>False</code> is placed on the stack <em>prior</em> to running the
+<code>IF</code>, then the correct block of code is run based on that
+result.</p>
+<p>This particular example code is intended as a poor man’s 1-of-2
+multisignature. The owner of <code>&lt;privKeyA&gt;</code> would put
+<code>&lt;signatureA&gt; &lt;pubKeyA&gt; True</code> in his unlocking
+script, while the owner of <code>&lt;privKeyB&gt;</code> would put
+<code>&lt;signatureB&gt; &lt;pubKeyB&gt; False</code> in her unlocking
+script. That trailing <code>True</code> or <code>False</code> is what’s
+checked by the <code>IF</code>/<code>ELSE</code> statement. It tells the
+script which public-key hash to check against, then the
+<code>OP_EQUALVERIFY</code> and the <code>OP_CHECKSIG</code> at the end
+do the real work.</p>
+<h3 id="run-an-ifthen-multisig">Run an If/Then Multisig</h3>
+<p>With a core understanding of Bitcoin conditionals in hand, we’re now
+ready to run through a script. We’re going to do so by creating a slight
+variant of our poor man’s 1-of-2 multisignature where our users don’t
+have to remember if they’re <code>True</code> or <code>False</code>.
+Instead, if need be, the script checks both public-key hashes, just
+requiring one success:</p>
+<pre><code>OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL
+IF
+
+    OP_CHECKSIG
+
+ELSE
+
+    OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG
+    
+ENDIF
+</code></pre>
+<p>Remember your reverse Polish notation! That <code>IF</code> statement
+if referring to the <code>OP_EQUAL</code> before it, not the
+<code>OP_CHECKSIG</code> after it!</p>
+<h4 id="run-the-true-branch">Run the True Branch</h4>
+<p>Here’s how it actally runs if unlocked with
+<code>&lt;signatureA&gt; &lt;pubKeyA&gt;</code>:</p>
+<pre><code>Script: &lt;signatureA&gt; &lt;pubKeyA&gt; OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ ]</code></pre>
+<p>First, we put constants on the stack:</p>
+<pre><code>Script: OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; ]</code></pre>
+<p>Then we run the first few, obvious commands, <code>OP_DUP</code> and
+<code>OP_HASH160</code> and push another constant:</p>
+<pre><code>Script: OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyA&gt; OP_DUP
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; &lt;pubKeyA&gt; ]
+
+Script: &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyA&gt; OP_HASH160
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; &lt;pubKeyHashA&gt; ]
+
+Script: OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; &lt;pubKeyHashA&gt; &lt;pubKeyHashA&gt; ]</code></pre>
+<p>Next we run the <code>OP_EQUAL</code>, which is what’s going to feed
+the <code>IF</code>:</p>
+<pre><code>Script: IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyHashA&gt; &lt;pubKeyHashA&gt; OP_EQUAL
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; True ]</code></pre>
+<p>Now the <code>IF</code> runs, and since there’s a <code>True</code>,
+it only runs the first block, eliminating all the rest:</p>
+<pre><code>Script: OP_CHECKSIG
+Running: True IF
+Stack: [ &lt;signatureA&gt; &lt;pubKeyA&gt; ]</code></pre>
+<p>And the <code>OP_CHECKSIG</code> will end up <code>True</code> as
+well:</p>
+<pre><code>Script: 
+Running: &lt;signatureA&gt; &lt;pubKeyA&gt; OP_CHECKSIG
+Stack: [ True ]</code></pre>
+<h4 id="run-the-false-branch">Run the False Branch</h4>
+<p>Here’s how it actally runs if unlocked with
+<code>&lt;signatureB&gt; &lt;pubKeyB&gt;</code>:</p>
+<pre><code>Script: &lt;signatureB&gt; &lt;pubKeyB&gt; OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ ]</code></pre>
+<p>First, we put constants on the stack:</p>
+<pre><code>Script: OP_DUP OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; ]</code></pre>
+<p>Then we run the first few, obvious commands, <code>OP_DUP</code> and
+<code>OP_HASH160</code> and push another constant:</p>
+<pre><code>Script: OP_HASH160 &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyB&gt; OP_DUP
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyB&gt; ]
+
+Script: &lt;pubKeyHashA&gt; OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyB&gt; OP_HASH160
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyHashB&gt; ]
+
+Script: OP_EQUAL IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyHashB&gt; &lt;pubKeyHashA&gt; ]</code></pre>
+<p>Next we run the <code>OP_EQUAL</code>, which is what’s going to feed
+the <code>IF</code>:</p>
+<pre><code>Script: IF OP_CHECKSIG ELSE OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG ENDIF
+Running: &lt;pubKeyHashB&gt; &lt;pubKeyHashA&gt; OP_EQUAL
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; False ]</code></pre>
+<p>Whoop! The result was <code>False</code> because
+<code>&lt;pubKeyHashB&gt;</code> does not equal
+<code>&lt;pubKeyHashA&gt;</code>. Now when the <code>IF</code> runs, it
+collapses down to just the <code>ELSE</code> statement:</p>
+<pre><code>Script: OP_DUP OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG
+Running: False IF
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; ]</code></pre>
+<p>Afterward, we go through the whole rigamarole again, starting with
+another <code>OP_DUP</code>, but eventually testing against the other
+<code>pubKeyHash</code>:</p>
+<pre><code>Script: OP_HASH160 &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG
+Running: &lt;pubKeyB&gt; OP_DUP
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyB&gt; ]
+
+Script: &lt;pubKeyHashB&gt; OP_EQUALVERIFY OP_CHECKSIG
+Running: &lt;pubKeyB&gt; OP_HASH160
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyHashB&gt; ]
+
+Script: OP_EQUALVERIFY OP_CHECKSIG
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; &lt;pubKeyHashB&gt; &lt;pubKeyHashB&gt; ]
+
+Script:OP_CHECKSIG
+Running: &lt;pubKeyHashB&gt; &lt;pubKeyHashB&gt; OP_EQUALVERIFY 
+Stack: [ &lt;signatureB&gt; &lt;pubKeyB&gt; ]
+
+Script: 
+Running: &lt;signatureB&gt; &lt;pubKeyB&gt; OP_CHECKSIG
+Stack: [ True ]</code></pre>
+<p>This probably isn’t nearly as efficient as a true Bitcoin multisig,
+but it’s a good example of how results pushed onto the stack by previous
+tests can be used to feed future conditionals. In this case, it’s the
+failure of the first signature which tells the conditional that it
+should go check the second one.</p>
+<h2 id="understand-other-conditionals">Understand Other
+Conditionals</h2>
+<p>There are a few other conditionals of note. The big one is
+<code>OP_NOTIF</code> (0x64), which is the opposite of
+<code>OP_IF</code>: it executes the following block if the top item is
+<code>False</code>. An <code>ELSE</code> can be placed with it, which as
+usual is executed if the first block is not executed. You still end with
+<code>OP_ENDIF</code>.</p>
+<p>There’s also an <code>OP_IFDUP</code> (0x73), which duplicates the
+top stack item only if it’s not 0.</p>
+<p>These options are used much less often than the main
+<code>IF</code>/<code>ELSE</code>/<code>ENDIF</code> construction.</p>
+<h2 id="summary-using-script-conditionals">Summary: Using Script
+Conditionals</h2>
+<p>Conditionals in Bitcoin Script allow you to halt the script (using
+<code>OP_VERIFY</code>) or to choose different branches of execution
+(using <code>OP_IF</code>). However, reading <code>OP_IF</code> can be a
+bit tricky. Remember that it’s the item pushed onto the stack
+<em>before</em> the <code>OP_IF</code> is run that controls its
+execution; that item will typically be part of the unlocking script (or
+else a direct result of items in the unlocking script).</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of conditionals?</em></strong>
+Script Conditionals are the final major building block in Bitcoin
+Script. They’re what are required to turn simple, static Bitcoin Scripts
+into complex, dynamic Bitcoin Scripts that can evaluate differently
+based on different times, different circumstances, or different user
+inputs. In other words, they’re the final basis of smart contracts.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Expanding Bitcoin Scripts” with <a
+href="12_2_Using_Other_Script_Commands.md">§12.2: Using Other Script
+Commands</a>.</p>
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_1_Accessing_Bitcoind_with_Go</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-with-go">18.1: Accessing Bitcoind with
+Go</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section explains how to interact with <code>bitcoind</code>
+using the Go programming language and the <a
+href="https://github.com/btcsuite/btcd/tree/master/rpcclient">btcd
+rpcclient</a>. Note that it has some quirks and some limitations.</p>
+<h2 id="set-up-go">Set Up Go</h2>
+<p>To prepare for Go usage on your UNIX machine, first install curl if
+you haven’t already:</p>
+<pre><code>$ sudo apt install curl</code></pre>
+<p>Then, look at the <a href="https://golang.org/dl/">Go downloads
+page</a>, get the link for the latest download, and download it using
+<code>curl</code>. For a Debian setup, you will want to use the
+<code>linux-amd64</code> version:</p>
+<pre><code>$ curl -O https://dl.google.com/go/go1.15.1.linux-amd64.tar.gz</code></pre>
+<p>Once it finishes downloading, compare the hash of the download to the
+hash on the <a href="https://golang.org/dl/">Go downloads page</a>:</p>
+<pre><code>$ sha256sum go1.15.1.linux-amd64.tar.gz 
+70ac0dbf60a8ee9236f337ed0daa7a4c3b98f6186d4497826f68e97c0c0413f6  go1.15.1.linux-amd64.tar.gz</code></pre>
+<p>The hashes should match. If so, extract the tarball and install Go on
+your system:</p>
+<pre><code>$ tar xfv go1.15.1.linux-amd64.tar.gz 
+$ sudo chown -R root:root ./go
+$ sudo mv go /usr/local</code></pre>
+<p>Now you need to create a Go path to specify your environment. Open
+the <code>~/.profile</code> file with an editor of your choice and add
+the following to the end of it:</p>
+<pre><code>export GOPATH=$HOME/work
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin</code></pre>
+<p>Then, refresh your profile:</p>
+<pre><code>$ source ~/.profile</code></pre>
+<p>Lastly, create the directory for your Go workspace:</p>
+<pre><code>$ mkdir $HOME/work</code></pre>
+<h3 id="set-up-btcd-rpcclient">Set Up <code>btcd</code>
+<code>rpcclient</code></h3>
+<p>You’ll be using the <code>rpcclient</code> that comes with
+<code>btcd,</code> a Bitcoin implementation written in Go. Although
+<code>rpcclient</code> was originally designed to work with the
+<code>btcd</code> Bitcoin full node, it also works with Bitcoin Core. It
+has some quirks which we will be looking at.</p>
+<p>You can use <code>go get</code> to download it:</p>
+<pre><code>$ go get github.com/btcsuite/btcd/rpcclient</code></pre>
+<p>To test that it works, navigate to the directory with the Bitcoin
+Core examples:</p>
+<pre><code>$ cd $GOPATH/src/github.com/btcsuite/btcd/rpcclient/examples/bitcoincorehttp</code></pre>
+<p>Modify the <code>main.go</code> file and enter the details associated
+with your Bitcoin core setup, which can be found in
+<code>~/.bitcoin/bitcoin.conf</code>:</p>
+<pre><code>        Host:         &quot;localhost:18332&quot;,
+        User:         &quot;StandUp&quot;,
+        Pass:         &quot;6305f1b2dbb3bc5a16cd0f4aac7e1eba&quot;,</code></pre>
+<blockquote>
+<p><strong>MAINNET VS TESTNET:</strong> The port would be 8332 for a
+mainnet setup.</p>
+</blockquote>
+<p>You can now run a test:</p>
+<pre><code>$ go run main.go</code></pre>
+<p>You should see the block count printed:</p>
+<pre><code>2020/09/01 11:41:24 Block count: 1830861</code></pre>
+<h3 id="create-a-rpcclient-project">Create a <code>rpcclient</code>
+Project</h3>
+<p>You will typically be creating projects in your
+<code>~/work/src/myproject/bitcoin</code> directory:</p>
+<pre><code>$ mkdir -p ~/work/src/myproject/bitcoin
+$ cd ~/work/src/myproject/bitcoin</code></pre>
+<p>Each project should have the following <code>imports</code>:</p>
+<pre><code>import (
+    &quot;log&quot;
+    &quot;fmt&quot;
+    &quot;github.com/btcsuite/btcd/rpcclient&quot;
+)</code></pre>
+<p>This <code>import</code> declaration allows you to import relevant
+libraries. For every example here, you will need to import
+<code>"log", "fmt"</code> and
+<code>"github.com/btcsuite/btcd/rpcclient"</code>. You may need to
+import additional libraries for some examples. * <code>log</code> is
+used for printing out error messages. After each time the Bitcoin node
+is called, an <code>if</code> statement will check if there are any
+errors. If there are errors, <code>log</code> is used to print them out.
+* <code>fmt</code> is used for printing out output. *
+<code>rpcclient</code> is obviously the <code>rpcclient</code>
+library</p>
+<h2 id="build-your-connection">Build Your Connection</h2>
+<p>Every <code>bitcoind</code> function in Go begins with creating the
+RPC connection, using the <code>ConnConfig</code> function:</p>
+<pre><code>    connCfg := &amp;rpcclient.ConnConfig{
+        Host:         &quot;localhost:18332&quot;,
+        User:         &quot;StandUp&quot;,
+        Pass:         &quot;431451790e3eee1913115b9dd2fbf0ac&quot;,
+        HTTPPostMode: true,
+        DisableTLS:   true,
+    }
+    client, err := rpcclient.New(connCfg, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Shutdown()</code></pre>
+<p>The <code>connCfg</code> parameters allow you to choose the Bitcoin
+RPC port, username, password and whether you are on testnet or
+mainnet.</p>
+<blockquote>
+<p><strong>NOTE:</strong> Again, be sure to substitute the
+<code>User</code> and <code>Pass</code> with the one found in your
+<code>~/.bitcoin/bitcon.conf</code>.</p>
+</blockquote>
+<p>The<code>rpcclient.New(connCfg, nil)</code> function then configures
+<code>client</code> to connect to your Bitcoin node.</p>
+<p>The <code>defer client.Shutdown()</code> line is for disconnecting
+from your Bitcoin node, once the <code>main()</code> function finishes
+executing. After the <code>defer client.Shutdown()</code> line is where
+the exciting stuff goes — and it will be pretty easy to use. That’s’s
+because <code>rpcclient</code> helpfully turns the
+<code>bitcoin-cli</code> commands into functions using PascalCase. For
+example, <code>bitcoin-cli getblockcount</code> will be
+<code>client.GetBlockCount</code> in Go.</p>
+<h3 id="make-an-rpc-call">Make an RPC Call</h3>
+<p>All that’s required now is to make an informational call like
+<code>GetBlockCount</code> or <code>GetBlockHash</code> using your
+<code>client</code>:</p>
+<pre><code>    blockCount, err := client.GetBlockCount()
+    if err != nil {
+        log.Fatal(err)
+    }
+    blockHash, err := client.GetBlockHash(blockCount)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf(&quot;%d\n&quot;, blockCount)
+    fmt.Printf(&quot;%s\n&quot;, blockHash.String())</code></pre>
+<h3 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h3>
+<p>The <code>rpcclient</code> functions can take inputs as well; for
+example <code>client.GetBlockHash(blockCount)</code> takes the block
+count as an input. The <code>client.GetBlockHash(blockCount)</code> from
+above would look like this as a <code>bitcoin-cli</code> command:</p>
+<pre><code>$ bitcoin-cli getblockhash 1830868
+00000000000002d53b6b9bba4d4e7dc44a79cebd1024d1bcfb9b3cc07d6cad9c</code></pre>
+<p>However, a quirk with hashes in <code>rpcclient</code> is that they
+will typically print in a different encoding if you were to print then
+normally with <code>blockHash</code>. In order to print them as a
+string, you need to use <code>blockHash.String()</code>.</p>
+<h3 id="run-your-code">Run Your Code</h3>
+<p>You can download the complete code from the <a
+href="src/18_1_blockinfo.go">src directory</a>.</p>
+<p>You can then run:</p>
+<pre><code>$ go run blockinfo.go 
+1830868
+00000000000002d53b6b9bba4d4e7dc44a79cebd1024d1bcfb9b3cc07d6cad9c</code></pre>
+<p>The latest block number along with its hash should be printed
+out.</p>
+<h2 id="look-up-funds">Look up Funds</h2>
+<p>Due to limitations of the <code>btcd</code> <code>rpcclient</code>,
+you can’t make a use of the <code>getwalletinfo</code> function.
+However, you can make use of the <code>getbalance</code> RPC:</p>
+<pre><code>    wallet, err := client.GetBalance(&quot;*&quot;)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println(wallet)</code></pre>
+<p><code>client.GetBalance("*")</code> requires the <code>"*"</code>
+input, due to a quirk with <code>btcd</code>. The asterisk signifies
+that you want to get the balance of all of your wallets.</p>
+<p>If you run <a href="src/18_1_getbalance.go">the src code</a>, you
+should get an output similar to this:</p>
+<pre><code>$ go run getbalance.go 
+0.000689 BTC</code></pre>
+<h2 id="create-an-address">Create an Address</h2>
+<p>You can generate addresses in Go, but you can’t specify the address
+type:</p>
+<p>This requires the use of a special <code>chaincfg</code> function, to
+specify which network the addresses are being created for. This
+specification is only required during address generation, which is why
+it is only used in this example. You can include this in other examples
+as well, but it isn’t necessary.</p>
+<p>Be sure to import
+<code>"github.com/btcsuite/btcd/chaincfg"</code>:</p>
+<pre><code>import (
+    &quot;log&quot;
+    &quot;fmt&quot;
+    &quot;github.com/btcsuite/btcd/rpcclient&quot;
+    &quot;github.com/btcsuite/btcd/chaincfg&quot;
+)</code></pre>
+<p>Then call <code>connCfG</code> with the
+<code>chaincfg.TestNet3Params.Name</code> parameter:</p>
+<pre><code>    connCfg := &amp;rpcclient.ConnConfig{
+        Host:         &quot;localhost:18332&quot;,
+        User:         &quot;bitcoinrpc&quot;,
+        Pass:         &quot;431451790e3eee1913115b9dd2fbf0ac&quot;,
+        HTTPPostMode: true,
+        DisableTLS:   true,
+        Params: chaincfg.TestNet3Params.Name,
+    }
+    client, err := rpcclient.New(connCfg, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Shutdown()</code></pre>
+<blockquote>
+<p><strong>MAINNET VS TESTNET:</strong>
+<code>Params: chaincfg.TestNet3Params.Name,</code> should be
+<code>Params: chaincfg.MainNetParams.Name,</code> on mainnet.</p>
+</blockquote>
+<p>You can then create your address:</p>
+<pre><code>    address, err := client.GetNewAddress(&quot;&quot;)
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println(address)</code></pre>
+<p>A quirk with <code>client.GetNewAddress("")</code> is that an empty
+string needs to be included for it to work.</p>
+<p>Running <a href="17_1_getaddress.go">the source</a> produces the
+following results:</p>
+<pre><code>$ go run getaddress.go 
+tb1qutkcj34pw0aq7n9wgp3ktmz780szlycwddfmza</code></pre>
+<h3 id="decode-an-address">Decode an Address</h3>
+<p>Creating an address took a look extra work, in specifying the
+appropiate chain. Using an address also will because you’ll have to
+decode it prior to use.</p>
+<p>The means that you’ll have to import both the
+<code>"github.com/btcsuite/btcutil"</code> and
+<code>"github.com/btcsuite/btcd/chaincfg"</code> libraries. *
+<code>btcutil</code> allows for a Bitcoin address to be decoded in a way
+that the<code>rpcclient</code> can understand. This is necessary when
+working with addresses in <code>rpcclient</code>. *
+<code>chaincfg</code> is (again) used to configure your chain as the
+Testnet chain. This is necessary for address decoding since the
+addresses used on Mainnet and Testnet are different.</p>
+<pre><code>import (
+    &quot;log&quot;
+    &quot;fmt&quot;
+    &quot;github.com/btcsuite/btcd/rpcclient&quot;
+    &quot;github.com/btcsuite/btcutil&quot;
+    &quot;github.com/btcsuite/btcd/chaincfg&quot;
+)</code></pre>
+<p>The defaultNet variable is now used to specify whether your Bitcoin
+node is on testnet or on mainnet. That information (and the
+<code>btcutil</code> object) is then used to decode the address.</p>
+<blockquote>
+<p><strong>MAINNET VS TESTNET:</strong>
+<code>&amp;chaincfg.TestNet3Params</code> should be
+<code>&amp;chaincfg.MainNetParams</code> on mainnet.</p>
+</blockquote>
+<pre><code>    defaultNet := &amp;chaincfg.TestNet3Params
+    addr, err := btcutil.DecodeAddress(&quot;mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha&quot;, defaultNet)
+    if err != nil {
+        log.Fatal(err)
+    }</code></pre>
+<blockquote>
+<p><strong>NOTE:</strong> Change the address
+(<code>mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha</code>) for one actually your
+wallet; you can use <code>bitcoin-cli listunspent</code> to find some
+addresses with funds for this test. If you want to be really fancy,
+modify the Go code to take an argument, then write a script that runs
+<code>listunspent</code>, saves the info to a variable, and runs the Go
+code on that.</p>
+</blockquote>
+<p>Only afterward do you use the <code>getreceivedbyaddress</code> RPC,
+on your decoded address:</p>
+<pre><code>    wallet, err := client.GetReceivedByAddress(addr)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println(wallet)</code></pre>
+<p>When you run <a href="src/18_1_getamountreceived.go">the code</a>,
+you should get output similar to:</p>
+<pre><code>$ go run getamountreceived.go 
+0.0085 BTC</code></pre>
+<h2 id="send-a-transaction">Send a Transaction</h2>
+<p>You’ve now got all the puzzle pieces in place to send a transaction.
+You’re going to want to:</p>
+<ol type="1">
+<li>Import the correct libraries, including <code>chaincfg</code> to
+specify a network and <code>btcutil</code> to decode an address.</li>
+<li>Choose an address to send to.</li>
+<li>Decode that address.</li>
+<li>Run <code>sendtoaddress</code> to send funds the easy way.</li>
+</ol>
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+    &quot;fmt&quot;
+    &quot;github.com/btcsuite/btcd/rpcclient&quot;
+    &quot;github.com/btcsuite/btcutil&quot;
+    &quot;github.com/btcsuite/btcd/chaincfg&quot;
+)
+
+func main() {
+    connCfg := &amp;rpcclient.ConnConfig{
+        Host:         &quot;localhost:18332&quot;,
+        User:         &quot;StandUp&quot;,
+        Pass:         &quot;431451790e3eee1913115b9dd2fbf0ac&quot;,
+        HTTPPostMode: true,
+        DisableTLS:   true,
+    }
+    client, err := rpcclient.New(connCfg, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Shutdown()
+
+    defaultNet := &amp;chaincfg.TestNet3Params
+    addr, err := btcutil.DecodeAddress(&quot;n2eMqTT929pb1RDNuqEnxdaLau1rxy3efi&quot;, defaultNet)
+    if err != nil {
+        log.Fatal(err)
+    }
+    sent, err := client.SendToAddress(addr, btcutil.Amount(1e4))
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println(sent)
+}</code></pre>
+<p>When you run <a href="src/18_1_sendtransaction.go">the code</a>, the
+txid of the transaction is outputted:</p>
+<pre><code>$ go run sendtransaction.go
+9aa4cd6559e0d69059eae142c35bfe78b71a8084e1fcc2c74e2a9675e9e7489d</code></pre>
+<h3 id="look-up-a-transaction">Look Up a Transaction</h3>
+<p>To lookup a transaction, such as the one you just sent, you’ll need
+to once again do some conversions, this time of txid.
+<code>"github.com/btcsuite/btcd/chaincfg/chainhash"</code> is imported
+in order to allow hashes to be stored in the Go code.
+<code>chainhash.NewHashFromStr("hash")</code> converts a hash in a
+string to a format that works with rpcclient.</p>
+<pre><code>package main
+
+import (
+    &quot;log&quot;
+    &quot;fmt&quot;
+    &quot;github.com/btcsuite/btcd/rpcclient&quot;
+    &quot;github.com/btcsuite/btcd/chaincfg/chainhash&quot;
+)
+
+func main() {
+    connCfg := &amp;rpcclient.ConnConfig{
+        Host:         &quot;localhost:18332&quot;,
+        User:         &quot;StandUp&quot;,
+        Pass:         &quot;431451790e3eee1913115b9dd2fbf0ac&quot;,
+        HTTPPostMode: true,
+        DisableTLS:   true,
+    }
+    client, err := rpcclient.New(connCfg, nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer client.Shutdown()
+
+    chash, err := chainhash.NewHashFromStr(&quot;1661ce322c128e053b8ea8fcc22d17df680d2052983980e2281d692b9b4ab7df&quot;)
+    if err != nil {
+        log.Fatal(err)
+    }
+    transactions, err := client.GetTransaction(chash)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Println(transactions)
+}</code></pre>
+<blockquote>
+<p><strong>NOTE:</strong> Again, you’ll want to change out the txid for
+one actually recognized by your system.</p>
+</blockquote>
+<p>When you run <a href="17_1_lookuptransaction.go">the code</a> it will
+print out the details associated with a transaction, such as its amount
+and how many times it has been confirmed:</p>
+<pre><code>$ go run lookuptransaction.go
+{
+  &quot;amount&quot;: 0.00100000,
+  &quot;confirmations&quot;: 4817,
+  &quot;blockhash&quot;: &quot;000000006628870b0a8a66abea9cf0d4e815c491f079e3fa9e658a87b5dc863a&quot;,
+  &quot;blockindex&quot;: 117,
+  &quot;blocktime&quot;: 1591857418,
+  &quot;txid&quot;: &quot;1661ce322c128e053b8ea8fcc22d17df680d2052983980e2281d692b9b4ab7df&quot;,
+  &quot;walletconflicts&quot;: [
+  ],
+  &quot;time&quot;: 1591857343,
+  &quot;timereceived&quot;: 1591857343,
+  &quot;bip125-replaceable&quot;: &quot;no&quot;,
+  &quot;details&quot;: [
+    {
+      &quot;address&quot;: &quot;mpGpCMX6SuUimDZKiVViuhd7EGyVxkNnha&quot;,
+      &quot;category&quot;: &quot;receive&quot;,
+      &quot;amount&quot;: 0.00100000,
+      &quot;label&quot;: &quot;&quot;,
+      &quot;vout&quot;: 0
+    }
+  ],
+  &quot;hex&quot;: &quot;02000000000101e9e8c3bd057d54e73baadc60c166860163b0e7aa60cab33a03e89fb44321f8d5010000001716001435c2aa3fc09ea53c3e23925c5b2e93b9119b2568feffffff02a0860100000000001976a914600c8c6a4abb0a502ea4de01681fe4fa1ca7800688ac65ec1c000000000017a91425b920efb2fde1a0277d3df11d0fd7249e17cf8587024730440220403a863d312946aae3f3ef0a57206197bc67f71536fb5f4b9ca71a7e226b6dc50220329646cf786cfef79d60de3ef54f702ab1073694022f0618731902d926918c3e012103e6feac9d7a8ad1ac6b36fb4c91c1c9f7fff1e7f63f0340e5253a0e4478b7b13f41fd1a00&quot;
+}</code></pre>
+<h2 id="summary-accessing-bitcoind-with-go">Summary: Accessing Bitcoind
+with Go</h2>
+<p>Although the <code>btcd</code> <code>rpcclient</code> has some
+limits, you can still perform the main RPC commands in Go. The
+documentation for <code>rpcclient</code> is available on <a
+href="https://godoc.org/github.com/btcsuite/btcd/rpcclient">Godoc</a>.
+If the documentation doesn’t have what you’re looking for, also consult
+the <a href="https://github.com/btcsuite/btcd">btcd repository</a>. It
+is generally well documented and easy to read. Based on these examples
+you should be able to incorporate Bitcoin in a Go project and do things
+like send and receive coins.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoin in Other Languages” in <a
+href="18_2_Accessing_Bitcoind_with_Java.md">18.2: Accessing Bitcoin with
+Java</a>.</p>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>16_1_Accessing_Bitcoind_with_C</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-in-c-with-rpc-libraries">16.1: Accessing
+Bitcoind in C with RPC Libraries</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>You’ve already seen one alternative way to access the Bitcoind’s RPC
+ports: <code>curl</code>, which was covered in a <a
+href="04_4__Interlude_Using_Curl.md">Chapter 4 Interlude</a>.
+Interacting with <code>bitcoind</code> through an RPC library in C is no
+different than that, you just need some good libraries to help you out.
+This section introduces a package called <code>libbitcoinrpc</code>,
+which allows you to access JSON-RPC <code>bitcoind</code> port. It uses
+a <code>curl</code> library for accessing the data and it uses the
+<code>jansson</code> library for encoding and decoding the JSON.</p>
+<h2 id="set-up-libbitcoinrpc">Set Up libbitcoinrpc</h2>
+<p>To use <code>libbitcoinrpc</code>, you need to install a basic C
+setup and the dependent packages <code>libcurl</code>,
+<code>libjansson</code>, and <code>libuuid</code>. The following will do
+so on your Bitcoin Standup server (or any other Ubuntu server).</p>
+<pre><code>$ sudo apt-get install make gcc libcurl4-openssl-dev libjansson-dev uuid-dev
+Suggested packages:
+  libcurl4-doc libidn11-dev libkrb5-dev libldap2-dev librtmp-dev libssh2-1-dev
+The following NEW packages will be installed:
+  libcurl4-openssl-dev libjansson-dev uuid-dev
+0 upgraded, 3 newly installed, 0 to remove and 4 not upgraded.
+Need to get 358 kB of archives.
+After this operation, 1.696 kB of additional disk space will be used.
+Do you want to continue? [Y/n] y</code></pre>
+<p>You can then download <a
+href="https://github.com/gitmarek/libbitcoinrpc/blob/master/README.md">libbitcoinrpc
+from Github</a>. Clone it or grab a zip file, as you prefer.</p>
+<pre><code>$ sudo apt-get install git
+$ git clone https://github.com/gitmarek/libbitcoinrpc</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING</strong> A change in the
+“signrawtransaction” RPC caused signing with <code>libbitcoinrpc</code>
+to segfault for Bitcoin 0.17 or higher. A <a
+href="https://github.com/gitmarek/libbitcoinrpc/pull/1/commits">PR has
+been submitted</a> to resolve the problem, but if it hasn’t yet been
+merged, you can just make the one simple change in the source code to
+<code>src/bitcoinrpc_method.c</code> before compiling.</p>
+</blockquote>
+<h3 id="compiling-libbitcoinrpc">Compiling libbitcoinrpc</h3>
+<p>Before you can compile and install the package, you’ll probably need
+to adjust your <code>$PATH</code>, so that you can access
+<code>/sbin/ldconfig</code>:</p>
+<pre><code>$ PATH=&quot;/sbin:$PATH&quot;</code></pre>
+<p>For an Ubuntu system, you’ll also want to adjust the
+<code>INSTALL_LIBPATH</code> in the <code>libbitcoinrpc</code>
+<code>Makefile</code> to install to <code>/usr/lib</code> instead of
+<code>/usr/local/lib</code>:</p>
+<pre><code>$ emacs ~/libbitcoinrpc/Makefile 
+...
+INSTALL_LIBPATH    := $(INSTALL_PREFIX)/usr/lib</code></pre>
+<p>(If you prefer not to sully your <code>/usr/lib</code>, the
+alternative is to change your <code>etc/ld.so.conf</code> or its
+dependent files appropriately … but for a test setup on a test machine,
+this is probably fine.)</p>
+<p>Likewise, you’ll also want to adjust the
+<code>INSTALL_HEADERPATH</code> in the <code>libbitcoinrpc</code>
+<code>Makefile</code> to install to <code>/usr/include</code> instead of
+<code>/usr/local/include</code>:</p>
+<pre><code>...
+INSTALL_HEADERPATH    := $(INSTALL_PREFIX)/usr/include</code></pre>
+<p>Then you can compile:</p>
+<pre><code>$ cd libbitcoinrpc
+~/libbitcoinrpc$ make
+
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc_err.o -c src/bitcoinrpc_err.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc_global.o -c src/bitcoinrpc_global.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc.o -c src/bitcoinrpc.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc_resp.o -c src/bitcoinrpc_resp.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc_cl.o -c src/bitcoinrpc_cl.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -o src/bitcoinrpc_method.o -c src/bitcoinrpc_method.c
+gcc -fPIC -O3 -g -Wall -Werror -Wextra -std=c99 -D VERSION=\&quot;0.2\&quot; -shared -Wl,-soname,libbitcoinrpc.so.0 \
+src/bitcoinrpc_err.o src/bitcoinrpc_global.o src/bitcoinrpc.o src/bitcoinrpc_resp.o src/bitcoinrpc_cl.o src/bitcoinrpc_method.o \
+-o .lib/libbitcoinrpc.so.0.2 \
+-Wl,--copy-dt-needed-entries -luuid -ljansson -lcurl
+ldconfig -v -n .lib
+.lib:
+    libbitcoinrpc.so.0 -&gt; libbitcoinrpc.so.0.2 (changed)
+ln -fs libbitcoinrpc.so.0 .lib/libbitcoinrpc.so</code></pre>
+<p>If that works, you can install the package:</p>
+<pre><code>$ sudo make install
+Installing to 
+install .lib/libbitcoinrpc.so.0.2 /usr/local/lib
+ldconfig  -n /usr/local/lib
+ln -fs libbitcoinrpc.so.0 /usr/local/lib/libbitcoinrpc.so
+install -m 644 src/bitcoinrpc.h /usr/local/include
+Installing docs to /usr/share/doc/bitcoinrpc
+mkdir -p /usr/share/doc/bitcoinrpc
+install -m 644 doc/*.md /usr/share/doc/bitcoinrpc
+install -m 644 CREDITS /usr/share/doc/bitcoinrpc
+install -m 644 LICENSE /usr/share/doc/bitcoinrpc
+install -m 644 Changelog.md /usr/share/doc/bitcoinrpc
+Installing man pages
+install -m 644 doc/man3/bitcoinrpc*.gz /usr/local/man/man3</code></pre>
+<h2 id="prepare-your-code">Prepare Your Code</h2>
+<p><code>libbitcoinrpc</code> has well-structured and simple methods for
+connecting to your <code>bitcoind</code>, executing RPC calls, and
+decoding the response.</p>
+<p>To use <code>libbitcoinrpc</code>, make sure that your code files
+include the appropriate headers:</p>
+<pre><code>#include &lt;jansson.h&gt;
+#include &lt;bitcoinrpc.h&gt;</code></pre>
+<p>You’ll also need to link in the appropriate libraries whenever you
+compile:</p>
+<pre><code>$ cc yourcode.c -lbitcoinrpc -ljansson -o yourcode</code></pre>
+<h2 id="build-your-connection">Build Your Connection</h2>
+<p>Building the connection to your <code>bitcoind</code> server takes a
+few simple steps.</p>
+<p>First, initialize the library:</p>
+<pre><code>bitcoinrpc_global_init();</code></pre>
+<p>Then connect to your <code>bitcoind</code> with
+<code>bitcoinrpc_cl_init_params</code>. The four arguments for
+<code>bitcoinrpc_cl_init_params</code> are username, password, IP
+address, and port. You should already know all of this information from
+your work with <a href="04_4__Interlude_Using_Curl.md">Curl</a>. As
+you’ll recall, the IP address 127.0.0.1 and port 18332 should be correct
+for the standard testnet setup described in these documents, while you
+can extract the user and password from
+<code>~/.bitcoin/bitcoin.conf</code>.</p>
+<pre><code>$ cat bitcoin.conf 
+server=1
+dbcache=1536
+par=1
+maxuploadtarget=137
+maxconnections=16
+rpcuser=StandUp
+rpcpassword=6305f1b2dbb3bc5a16cd0f4aac7e1eba
+rpcallowip=127.0.0.1
+debug=tor
+prune=550
+testnet=1
+[test]
+rpcbind=127.0.0.1
+rpcport=18332
+[main]
+rpcbind=127.0.0.1
+rpcport=8332
+[regtest]
+rpcbind=127.0.0.1
+rpcport=18443</code></pre>
+<p>Which you then place in the
+<code>bitcoinrpc_cl_init_params</code>:</p>
+<pre><code>bitcoinrpc_cl_t *rpc_client;
+rpc_client = bitcoinrpc_cl_init_params(&quot;StandUp&quot;, &quot;6305f1b2dbb3bc5a16cd0f4aac7e1eba&quot;, &quot;127.0.0.1&quot;, 18332);</code></pre>
+<blockquote>
+<p><strong>MAINNET VS TESTNET:</strong> The port would be 8332 for a
+mainnet setup.</p>
+</blockquote>
+<p>If <code>rpc_client</code> is successfully initialized, you’ll be
+able to send off RPC commands.</p>
+<p>Later, when you’re all done with your <code>bitcoind</code>
+connection, you should close it:</p>
+<pre><code>bitcoinrpc_global_cleanup();</code></pre>
+<h3 id="test-the-test-code">Test the Test Code</h3>
+<p>Test code can be found at <a
+href="src/16_1_testbitcoin.c">16_1_testbitcoin.c in the src
+directory</a>. Download it to your testnet machine, then insert the
+correct RPC password (and change the RPC user if you didn’t create your
+server with StandUp).</p>
+<p>You can compile and run this as follows:</p>
+<pre><code>$ cc testbitcoin.c -lbitcoinrpc -ljansson -o testbitcoin
+$ ./testbitcoin 
+Successfully connected to server!</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> If you forget to enter your RPC
+password in this or any other code samples that depend on RPC, you will
+receive a mysterious <code>ERROR CODE 5</code>.</p>
+</blockquote>
+<h2 id="make-an-rpc-call">Make an RPC Call</h2>
+<p>In order to use an RPC method using <code>libbitcoinrpc</code>, you
+must initialize a variable of type <code>bitcoinrpc_method_t</code>. You
+do so with the appropriate value for the method you want to use, all of
+which are listed in the <a
+href="https://github.com/gitmarek/libbitcoinrpc/blob/master/doc/reference.md">bitcoinrpc
+Reference</a>.</p>
+<pre><code>bitcoinrpc_method_t *getmininginfo  = NULL;
+getmininginfo = bitcoinrpc_method_init(BITCOINRPC_METHOD_GETMININGINFO);</code></pre>
+<p>Usually you would set parameters next, but <code>getmininginfo</code>
+requires no parameters, so you can skip that for now.</p>
+<p>You must also create two other objects, a “response object” and an
+“error object”. They can be initialized as follows:</p>
+<pre><code>bitcoinrpc_resp_t *btcresponse  = NULL;
+btcresponse = bitcoinrpc_resp_init();
+
+bitcoinrpc_err_t btcerror;</code></pre>
+<p>You use the <code>rpc_client</code> variable that you already learned
+about in the previous test, and add on your <code>getmininginfo</code>
+method and the two other objects:</p>
+<pre><code>bitcoinrpc_call(rpc_client, getmininginfo, btcresponse, &amp;btcerror);</code></pre>
+<h3 id="output-your-response">Output Your Response</h3>
+<p>You’ll want to know what the RPC call returned. To do so, retrieve
+the output of your call as a JSON object with
+<code>bitcoinrpc_resp_get</code> and save it into a standard
+<code>jansson</code> object, of type <code>json_t</code>:</p>
+<pre><code>json_t *jsonresponse = NULL;
+jsonresponse = bitcoinrpc_resp_get(btcresponse);</code></pre>
+<p>If you want to output the complete JSON results of the RPC call, you
+can do so with a simple invocation of <code>json_dumps</code>, also from
+the <code>jansson</code> library:</p>
+<pre><code>printf (&quot;%s\n&quot;, json_dumps(j, JSON_INDENT(2)));</code></pre>
+<p>However, since you’re now writing complete programs, you probably
+want to do more subtle work, such as pulling out individual JSON values
+for specific usage. The <a
+href="https://jansson.readthedocs.io/en/2.10/apiref.html">jansson
+Reference</a> details how to do so.</p>
+<p>Just as when you were using <a
+href="04_4__Interlude_Using_Curl.md">Curl</a>, you’ll find that RPC
+returns a JSON object containing an <code>id</code>, an
+<code>error</code>, and most importantly a JSON object of the
+<code>result</code>.</p>
+<p>The <code>json_object_get</code> function will let you retrieve a
+value (such as the <code>result</code>) from a JSON object by key:</p>
+<pre><code>json_t *jsonresult = NULL;
+jsonresult = json_object_get(jsonresponse,&quot;result&quot;);
+printf (&quot;%s\n&quot;, json_dumps (jsonresult, JSON_INDENT(2)));</code></pre>
+<p>However, you probably want to drill down further, to get a specific
+variable. Once you’ve retrieved the appropriate value, you will need to
+convert it to a standard C object by using the appropriate
+<code>json_*_value</code> function. For example, accessing an integer
+uses <code>json_integer_value</code>:</p>
+<pre><code>json_t *jsonblocks = NULL;
+jsonblocks = json_object_get(jsonresult,&quot;blocks&quot;);
+
+int blocks;
+blocks = json_integer_value(jsonblocks);
+printf(&quot;Block Count: %d\n&quot;,blocks);</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> It’s extremely easy to segfault
+your C code when working with <code>jansson</code> objects if you get
+confused with what type of object you’re retrieving. Make careful use of
+<code>bitcoin-cli help</code> to know what you should expect, and if you
+experience a segmentation fault, first look at your JSON retrieval
+functions.</p>
+</blockquote>
+<h3 id="test-the-info-code">Test the Info Code</h3>
+<p>Retrieve the test code from <a href="src/16_1_getmininginfo.c">the
+src directory</a>.</p>
+<pre><code>$ cc getmininginfo.c -lbitcoinrpc -ljansson -o getmininginfo
+$ ./getmininginfo 
+Full Response: {
+  &quot;result&quot;: {
+    &quot;blocks&quot;: 1804406,
+    &quot;difficulty&quot;: 4194304,
+    &quot;networkhashps&quot;: 54842097951591.781,
+    &quot;pooledtx&quot;: 127,
+    &quot;chain&quot;: &quot;test&quot;,
+    &quot;warnings&quot;: &quot;Warning: unknown new rules activated (versionbit 28)&quot;
+  },
+  &quot;error&quot;: null,
+  &quot;id&quot;: &quot;474ccddd-ef8c-4e3f-93f7-fde72fc08154&quot;
+}
+
+Just the Result: {
+  &quot;blocks&quot;: 1804406,
+  &quot;difficulty&quot;: 4194304,
+  &quot;networkhashps&quot;: 54842097951591.781,
+  &quot;pooledtx&quot;: 127,
+  &quot;chain&quot;: &quot;test&quot;,
+  &quot;warnings&quot;: &quot;Warning: unknown new rules activated (versionbit 28)&quot;
+}
+
+Block Count: 1804406</code></pre>
+<h2 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h2>
+<p>But what if your RPC call <em>did</em> have arguments?</p>
+<h3 id="create-a-json-array">Create a JSON Array</h3>
+<p>To send parameters to your RPC call using <code>libbitcoinrpc</code>
+you have to wrap them in a JSON array. Since an array is just a simple
+listing of values, all you have to do is encode the parameters as
+ordered elements in the array.</p>
+<p>Create the JSON array using the <code>json_array</code> function from
+<code>jansson</code>:</p>
+<pre><code>json_t *params = NULL;
+params = json_array();</code></pre>
+<p>You’ll then reverse the procedure that you followed to access JSON
+values: you’ll convert C-typed objects to JSON-typed objects using the
+<code>json_*</code> functions. Afterward, you’ll append them to the
+array:</p>
+<pre><code>json_array_append_new(params,json_string(tx_rawhex));</code></pre>
+<p>Note that there are two variants to the append command:
+<code>json_array_append_new</code>, which appends a newly created
+variable, and <code>json_array_append</code>, which appends an existing
+variable.</p>
+<p>This simple <code>json_array_append_new</code> methodology will serve
+for the majority of RPC commands with parameters, but some RPC commands
+require more complex inputs. In these cases you may need to create
+subsidiary JSON objects or JSON arrays, which you will then append to
+the parameters array as usual. The next section contains an example of
+doing so using <code>createrawtransaction</code>, which contains a JSON
+array of JSON objects for the inputs, a JSON object for the outputs, and
+the <code>locktime</code> parameter.</p>
+<h3 id="assign-the-parameters">Assign the Parameters</h3>
+<p>When you’ve created your parameters JSON array, you simply assign it
+after you’ve initialized your RPC method, as follows:</p>
+<pre><code>bitcoinrpc_method_set_params(rpc_method, params)</code></pre>
+<p>This section doesn’t include a full example of this more complex
+methodology, but we’ll see it in action multiple times in our first
+comprehensive RPC-based C program, in the next section.</p>
+<h2 id="summary-accessing-bitcoind-with-c">Summary: Accessing Bitcoind
+with C</h2>
+<p>By linking to the <code>bitcoinrpc</code> RPC and
+<code>jansson</code> JSON libraries, you can easily access
+<code>bitcoind</code> via RPC calls from a C library. To do so, you
+create an RPC connection, then make individual RPC calls, some of them
+with parameters. <code>jansson</code> then allows you to decode the JSON
+responses. The next section will demonstrate how this can be used for a
+pragmatic, real-world program.</p>
+<ul>
+<li>:fire: <strong><em>What is the power of C?</em></strong> C allows
+you to take the next step beyond shell-scripting, permitting the
+creation of more comprehensive and robust programs.</li>
+</ul>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoind with C” in <a
+href="16_2_Programming_Bitcoind_with_C.md">16.2: Programming Bitcoind in
+C with RPC Libraries</a>.</p>
+</body>
+</html>

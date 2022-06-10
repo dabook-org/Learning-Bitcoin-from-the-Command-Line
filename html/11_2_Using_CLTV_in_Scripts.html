@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>11_2_Using_CLTV_in_Scripts</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-cltv-in-scripts">11.2: Using CLTV in Scripts</h1>
+<p><code>OP_CHECKLOCKTIMEVERIFY</code> (or CLTV) is the natural
+complement to <code>nLockTime</code>. It moves the idea of locking
+transactions by an absolute time or blockheight into the realm of
+opcodes, allowing for the locking of individual UTXOs.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> CLTV became available
+with Bitcoin Core 0.11.2, but should be fairly widely deployed at this
+time.</p>
+</blockquote>
+<h2 id="remember-nlocktime">Remember nLockTime</h2>
+<p>Before digging into CLTV, we should first recall how
+<code>nLockTime</code> works.</p>
+<p>As detailed in <a
+href="08_1_Sending_a_Transaction_with_a_Locktime.md">§8.1: Sending a
+Transaction with a Locktime</a>, locktime is enabled by setting two
+variables, <code>nLockTime</code> and the <code>nSequence</code>. The
+<code>nSequence</code> must be set to less than 0xffffffff (usually:
+0xffffffff-1), then the <code>nLockTime</code> is interpreted as
+follows:</p>
+<ul>
+<li>If the <code>nLockTime</code> is less than 500 million, it is
+interpreted as a blockheight.</li>
+<li>If the <code>nLockTime</code> is 500 million or more, it is
+interpreted as a UNIX timestamp.</li>
+</ul>
+<p>A transaction with <code>nLockTime</code> set cannot be spent (or
+even put on the block chain) until either the blockheight or time is
+reached. In the meantime, the transaction can be cancelled by respending
+any of the UTXOs that make up the transaction.</p>
+<h2 id="understand-the-cltv-opcode">Understand the CLTV Opcode</h2>
+<p><code>OP_CHECKLOCKTIMEVERIFY</code> works within the same paradigm of
+absolute blockheights or absolute UNIX times, but it runs as part of a
+Bitcoin Script. It reads one argument, which can be a blockheight or an
+absolute UNIX time. Through a somewhat convoluted methodology, it
+compares that argument to the current time. If it’s too early, the
+script fails; if the time condition has been met, the script carries
+on.</p>
+<p>Because CLTV is just part of a script (and presumably part of a P2SH
+transaction), a CLTV transaction is not kept out of the mempool like an
+<code>nLockTime</code> transaction is; as soon as it’s verified, it goes
+onto the blockchain, and the funds are considered spent. The trick is
+that all the outputs that were locked with the CLTV aren’t available for
+<em>respending</em> until the CLTV allows it.</p>
+<h3 id="understand-a-cltv-absolute-time">Understand a CLTV Absolute
+Time</h3>
+<p>This is how <code>OP_CHECKLOCKTIMEVERIFY</code> would be used to
+check against May 24, 2017:</p>
+<pre><code>1495652013 OP_CHECKLOCKTIMEVERIFY</code></pre>
+<p>But we’ll usually depict this in an abstraction like this:</p>
+<pre><code>&lt;May24&gt; OP_CHECKLOCKTIMEVERIFY</code></pre>
+<p>Or this:</p>
+<pre><code>&lt;AbsoluteTime&gt; OP_CHECKLOCKTIMEVERIFY</code></pre>
+<h3 id="understand-a-cltv-absolute-block-height">Understand a CLTV
+Absolute Block Height</h3>
+<p>This is how <code>OP_CHECKLOCKTIMEVERIFY</code> would check against a
+blockheight that was reached on May 24, 2017:</p>
+<pre><code>467951 OP_CHECKLOCKTIMEVERIFY</code></pre>
+<p>But we’ll usually abtract it like this:</p>
+<pre><code>&lt;AbsoluteBlockHeight&gt; OP_CHECKLOCKTIMEVERIFY</code></pre>
+<h3 id="understand-how-cltv-really-works">Understand How CLTV Really
+Works</h3>
+<p>The above explanation is sufficient to use and understand CLTV.
+However, <a
+href="https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki">BIP
+65</a> lays out all the details.</p>
+<p>A locking script will only allow a transaction to respend a UTXO
+locked with a CLTV if <code>OP_CHECKLOCKTIMEVALUE</code> verifies all of
+the following:</p>
+<ul>
+<li>The <code>nSequence</code> field must be set to less than
+0xffffffff, usually 0xffffffff-1 to avoid confilcts with relative
+timelocks.</li>
+<li>CLTV must pop an operand off the stack and it must be 0 or
+greater.</li>
+<li>Both the stack operand and <code>nLockTime</code> must either be
+above or below 500 million, to depict the same sort of absolute
+timelock.</li>
+<li>The <code>nLockTime</code> value must be greater than or equal to
+the stack operand.</li>
+</ul>
+<p>So the first thing to note here is that <code>nLockTime</code> is
+still used with CLTV. To be precise, it’s required in the transaction
+that tries to <em>respend</em> a CLTV-timelocked UTXO. That means that
+it’s not a part of the script’s requirements. It’s just the timer that’s
+used to release the funds, <em>as defined in the script</em>.</p>
+<p>This is managed through a clever understanding of how
+<code>nLockTime</code> works: a value for <code>nLockTime</code> must
+always be chosen that is less than or equal to the present time (or
+blockheight), so that the respending transaction can be put on the
+blockchain. However, due to CLTV’s requirements, a value must also be
+chosen that is greater than or equal to CLTV’s operand. The union of
+these two sets is <code>NULL</code> until the present time matches the
+CLTV operand. Afterward, any value can be chosen between CLTV’s operand
+and the present time. Usually, you’d just set it to the present time (or
+block).</p>
+<h2 id="write-a-cltv-script">Write a CLTV Script</h2>
+<p><code>OP_CHECKLOCKTIMEVERIFY</code> includes an
+<code>OP_VERIFY</code>, which means that it will immediately halt the
+script if its verification does not succeed. It has one other quirk:
+unlike most “verify” commands, it leaves what it’s testing on the stack
+(just in case you want to make any other checks against the time). This
+means that an <code>OP_CHECKLOCKTIMEVERIFY</code> is usually followed by
+an <code>OP_DROP</code> to clear the stack.</p>
+<p>The following simple locking script could be used to transform a
+P2PKH output to a timelocked-P2PKH transaction:</p>
+<pre><code>&lt;NextYear&gt; OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG</code></pre>
+<h3 id="encode-a-cltv-script">Encode a CLTV Script</h3>
+<p>Of course, as with any complex Bitcoin Scripts, this CLTV script
+would actually be encoded in a P2SH script, as explained in <a
+href="10_1_Understanding_the_Foundation_of_P2SH.md">§10.1: Understanding
+the Foundation of P2SH</a> and <a
+href="10_2_Building_the_Structure_of_P2SH.md">§10.2: Building the
+Structure of P2SH</a>.</p>
+<p>Assuming that <code>&lt;NextYear&gt;</code> were the integer
+“1546288031” (little-endian hex: 0x9f7b2a5c) and
+<code>&lt;pubKeyHash&gt;</code> were
+“371c20fb2e9899338ce5e99908e64fd30b789313”, this
+<code>redeemScript</code> would be built as:</p>
+<pre><code>OP_PUSHDATA (4 bytes) 0x9f7b2a5c OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 OP_PUSHDATA (20 bytes) 0x371c20fb2e9899338ce5e99908e64fd30b789313 OP_EQUALVERIFY OP_CHECKSIG</code></pre>
+<p>Which translates into hex as:</p>
+<pre><code>04 9f7b2a5c b1 75 76 a9 14 371c20fb2e9899338ce5e99908e64fd30b789313 88 ac</code></pre>
+<p>Or if you prefer:</p>
+<pre><code>$ btcc 0x9f7b2a5c OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 0x371c20fb2e9899338ce5e99908e64fd30b789313 OP_EQUALVERIFY OP_CHECKSIG
+049f7b2a5cb17576a914371c20fb2e9899338ce5e99908e64fd30b78931388ac</code></pre>
+<p>The <code>decodescript</code> RPC can verify that we got it
+right:</p>
+<pre><code>{
+  &quot;asm&quot;: &quot;1546288031 OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 371c20fb2e9899338ce5e99908e64fd30b789313 OP_EQUALVERIFY OP_CHECKSIG&quot;,
+  &quot;type&quot;: &quot;nonstandard&quot;,
+  &quot;p2sh&quot;: &quot;2MxANZMPo1b2jGaeKTv9rwcBEiXcXYCc3x9&quot;,
+  &quot;segwit&quot;: {
+    &quot;asm&quot;: &quot;0 07e55bf1eaedf43ec52af57b77ad7330506c209a70d17fa2e1853304aa8e4e5b&quot;,
+    &quot;hex&quot;: &quot;002007e55bf1eaedf43ec52af57b77ad7330506c209a70d17fa2e1853304aa8e4e5b&quot;,
+    &quot;reqSigs&quot;: 1,
+    &quot;type&quot;: &quot;witness_v0_scripthash&quot;,
+    &quot;addresses&quot;: [
+      &quot;tb1qqlj4hu02ah6ra3f274ah0ttnxpgxcgy6wrghlghps5esf25wfedse4yw4w&quot;
+    ],
+    &quot;p2sh-segwit&quot;: &quot;2N4HTwMjVdm38bdaQ5h3X3VktLY74D2qBoK&quot;
+  }
+}</code></pre>
+<p>We’re not going to continuously show how all Bitcoin Scripts are
+encoded into P2SH transactions, but will instead offer these shorthands:
+when we describe a script, it will be a <code>redeemScript</code>, which
+would normally be serialized and hashed in a locking script and
+serialized in the unlocking script; when we show an unlocking procedure,
+it will be the second round of validation, following the confirmation of
+the locking script hash.</p>
+<h2 id="spend-a-cltv-utxo">Spend a CLTV UTXO</h2>
+<p>In order to spend a UTXO that is locked with a CLTV, you must set
+<code>nLockTime</code> on your new transaction. Usually, you just want
+to set it to the present time or the present block, as appropriate. As
+long the CLTV time or blockheight is in the past, and as long as you
+supply any other data required by the unlocking script, you’ll be able
+to process the UTXO.</p>
+<p>In the case of the above example, the following unlocking script
+would suffice, provided that <code>nLockTime</code> was set to somewhere
+in advance of the <code>&lt;NextYear&gt;</code> date, and provided it
+was indeed at least <code>&lt;NextYear&gt;</code>:</p>
+<pre><code>&lt;signature&gt; &lt;pubKey&gt;</code></pre>
+<h3 id="run-a-cltv-script">Run a CLTV Script</h3>
+<p>To run the Script, you would first concatenate the unlocking and
+locking scripts:</p>
+<pre><code>Script: &lt;signature&gt; &lt;pubKey&gt; &lt;NextYear&gt; OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG
+Stack: [ ]</code></pre>
+<p>The three constants would be pushed onto the stack:</p>
+<pre><code>Script: OP_CHECKLOCKTIMEVERIFY OP_DROP OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG
+Stack: [ &lt;signature&gt; &lt;pubKey&gt; &lt;NextYear&gt; ]</code></pre>
+<p>Then, <code>OP_CHECKLOCKTIMEVERIFY</code> runs. It finds something on
+the stack and verifies that <code>nSequence</code> isn’t 0xffffffff.
+Finally, it compares <code>&lt;NextYear&gt;</code> with
+<code>nLockTime</code>. If they are both the same sort of representation
+and if <code>nLockTime ≥ &lt;NextYear&gt;</code>, then it successfully
+processes (else, it ends the script):</p>
+<pre><code>Script: OP_DROP OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG
+Running: &lt;NextYear&gt; OP_CHECKLOCKTIMEVERIFY
+Stack: [ &lt;signature&gt; &lt;pubKey&gt; &lt;NextYear&gt; ]</code></pre>
+<p>Then, <code>OP_DROP</code> gets rid of that
+<code>&lt;NextYear&gt;</code> left around:</p>
+<pre><code>Script: OP_DUP OP_HASH160 &lt;pubKeyHash&gt; OP_EQUALVERIFY OP_CHECKSIG
+Running: &lt;NextYear&gt; OP_DROP
+Stack: [ &lt;signature&gt; &lt;pubKey&gt; ]</code></pre>
+<p>Finally, the remainder of the script runs, which is a normal check of
+a signature and public key.</p>
+<h2 id="summary-using-cltv-in-scripts">Summary: Using CLTV in
+Scripts</h2>
+<p><code>OP_CHECKLOCKTIMEVERIFY</code> is a simple opcode that looks at
+a single argument, interprets it as a blockheight or UNIX timestamp, and
+only allows its UTXO to be unlocked if that blockheight or UNIX
+timestamp is in the past. Setting <code>nLockTime</code> on the spending
+transaction is what allows Bitcoin to make this calculation.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the Power of CLTV?</em></strong> You’ve
+already seem that simple locktimes were one of the bases of Smart
+Contracts. CLTV takes the next step. Now you can both guarantee that a
+UTXO can’t be spent before a certain time <em>and</em> guarantee that it
+won’t be spent either. In its simplest form, this could be used to
+create a trust that someone could only access when they reached 18 or a
+retirement fund that they could only access when they turned 50. However
+its true power comes when combined with conditionals, where the CLTV
+only activates in certain situations.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Empowering Timelock” with <a
+href="11_3_Using_CSV_in_Scripts.md">§11.3: Using CSV in Scripts</a>.</p>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>06_2_Spending_a_Transaction_to_a_Multisig</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="spending-a-transaction-with-a-multisig">6.2: Spending a
+Transaction with a Multisig</h1>
+<p>The classic, and complex, way of spending funds sent to a
+multisignature address using <code>bitcoin-cli</code> requires that you
+do a lot of foot work.</p>
+<h2 id="find-your-funds">Find Your Funds</h2>
+<p>To start with, you need to find your funds; your computer doesn’t
+know to look for them, because they’re not associated with any addresses
+in your wallet. You can alert <code>bitcoind</code> to do so using the
+<code>importaddress</code> command:</p>
+<pre><code>$ bitcoin-cli -named importaddress address=2NAGfA4nW6nrZkD5je8tSiAcYB9xL2xYMCz</code></pre>
+<p>If you’ve got a pruned node (and you probably do), you’ll instead
+need to tell it no to rescan:</p>
+<pre><code>$ bitcoin-cli -named importaddress address=2NAGfA4nW6nrZkD5je8tSiAcYB9xL2xYMCz rescan=&quot;false&quot;</code></pre>
+<p>If you prefer, you can import the address using its descriptor (and
+this is generally the better, more standardized answer):</p>
+<pre><code>$ bitcoin-cli importmulti &#39;[{&quot;desc&quot;: &quot;sh(multi(2,02da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d191,02bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa3))#0pazcr4y&quot;, &quot;timestamp&quot;: &quot;now&quot;, &quot;watchonly&quot;: true}]&#39;
+[
+  {
+    &quot;success&quot;: true
+  }
+]</code></pre>
+<p>Afterward the funds should show up when you <code>listunspent</code>
+… but they still aren’t easily spendable. (In fact, your wallet may
+claim they’re not <code>spendable</code> at all!)</p>
+<p>If for some reason you’re not able to incorporate the address into
+your wallet, you can use <code>gettransaction</code> to get info instead
+(or look at a block explorer).</p>
+<pre><code>$ bitcoin-cli -named gettransaction txid=b164388854f9701051809eed166d9f6cedba92327e4296bf8a265a5da94f6521 verbose=true
+{
+  &quot;amount&quot;: -0.00006500,
+  &quot;fee&quot;: -0.00001000,
+  &quot;confirmations&quot;: 3,
+  &quot;blockhash&quot;: &quot;0000000000000165b5f602920088a7e36b11214161d6aaebf5229e3ed4f10adc&quot;,
+  &quot;blockheight&quot;: 1773282,
+  &quot;blockindex&quot;: 9,
+  &quot;blocktime&quot;: 1592959320,
+  &quot;txid&quot;: &quot;b164388854f9701051809eed166d9f6cedba92327e4296bf8a265a5da94f6521&quot;,
+  &quot;walletconflicts&quot;: [
+  ],
+  &quot;time&quot;: 1592958753,
+  &quot;timereceived&quot;: 1592958753,
+  &quot;bip125-replaceable&quot;: &quot;no&quot;,
+  &quot;details&quot;: [
+    {
+      &quot;address&quot;: &quot;2N8MytPW2ih27LctLjn6LfLFZZb1PFSsqBr&quot;,
+      &quot;category&quot;: &quot;send&quot;,
+      &quot;amount&quot;: -0.00006500,
+      &quot;vout&quot;: 0,
+      &quot;fee&quot;: -0.00001000,
+      &quot;abandoned&quot;: false
+    }
+  ],
+  &quot;hex&quot;: &quot;020000000001011b95a6055174ec64b82ef05b6aefc38f34d0e57197e40281ecd8287b4260dec60000000000ffffffff01641900000000000017a914a5d106eb8ee51b23cf60d8bd98bc285695f233f38702473044022070275f81ac4129e1d167ef7e700739f2899ea4c7f1adef3a4da29436f14fb97e02207310d4ec449eba49f0fa404ae45b9c82431d883490c7a0ed882ad0b5d7a623d0012102883bb5463e37d55252d8b3d5c2141b007b37c8a7db6211f75c955acc5ea325eb00000000&quot;,
+  &quot;decoded&quot;: {
+    &quot;txid&quot;: &quot;b164388854f9701051809eed166d9f6cedba92327e4296bf8a265a5da94f6521&quot;,
+    &quot;hash&quot;: &quot;bdf4e3bc5d354a5dfa5528f172480976321d989d7e5806ac14f1fe9b0b1c093a&quot;,
+    &quot;version&quot;: 2,
+    &quot;size&quot;: 192,
+    &quot;vsize&quot;: 111,
+    &quot;weight&quot;: 441,
+    &quot;locktime&quot;: 0,
+    &quot;vin&quot;: [
+      {
+        &quot;txid&quot;: &quot;c6de60427b28d8ec8102e49771e5d0348fc3ef6a5bf02eb864ec745105a6951b&quot;,
+        &quot;vout&quot;: 0,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;&quot;,
+          &quot;hex&quot;: &quot;&quot;
+        },
+        &quot;txinwitness&quot;: [
+          &quot;3044022070275f81ac4129e1d167ef7e700739f2899ea4c7f1adef3a4da29436f14fb97e02207310d4ec449eba49f0fa404ae45b9c82431d883490c7a0ed882ad0b5d7a623d001&quot;,
+          &quot;02883bb5463e37d55252d8b3d5c2141b007b37c8a7db6211f75c955acc5ea325eb&quot;
+        ],
+        &quot;sequence&quot;: 4294967295
+      }
+    ],
+    &quot;vout&quot;: [
+      {
+        &quot;value&quot;: 0.00006500,
+        &quot;n&quot;: 0,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;OP_HASH160 a5d106eb8ee51b23cf60d8bd98bc285695f233f3 OP_EQUAL&quot;,
+          &quot;hex&quot;: &quot;a914a5d106eb8ee51b23cf60d8bd98bc285695f233f387&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;scripthash&quot;,
+          &quot;addresses&quot;: [
+            &quot;2N8MytPW2ih27LctLjn6LfLFZZb1PFSsqBr&quot;
+          ]
+        }
+      }
+    ]
+  }
+}</code></pre>
+<h2 id="set-up-your-variables">Set Up Your Variables</h2>
+<p>When you’re ready to spend the funds received by a multisignature
+address, you’re going need to collect a <em>lot</em> of data: much more
+than you need when you spend a normal P2PKH or SegWit UTXO. That’s in
+part because the info on the multisig address isn’t in your wallet, and
+in part because you’re spending money that was sent to a P2SH
+(pay-to-script-hash) address, and that’s a lot more demanding.</p>
+<p>In total, you’re going to need to collect three things: extended
+information about the UTXO; the redeemScript; and all the private keys
+involved. You’ll of course need a new recipient address too. The private
+keys need to wait for the signing step, but everything else can be done
+now.</p>
+<h3 id="access-the-utxo-information">Access the UTXO information</h3>
+<p>To start with, grab the <code>txid</code> and the <code>vout</code>
+for the transaction that you want to spend, as usual. In this case, it
+was retrieved from the <code>gettransaction</code> info, above:</p>
+<pre><code>$ utxo_txid=b164388854f9701051809eed166d9f6cedba92327e4296bf8a265a5da94f6521
+$ utxo_vout=0</code></pre>
+<p>However, you need to also access a third bit of information about the
+UTXO, its <code>scriptPubKey</code>/<code>hex</code>, which is the
+script that locked the transaction. Again, you’re probably doing this by
+looking at the details of the transaction:</p>
+<pre><code>$ utxo_spk=a914a5d106eb8ee51b23cf60d8bd98bc285695f233f387</code></pre>
+<h3 id="record-the-redeem-script">Record the Redeem Script</h3>
+<p>Hopefully, you saved the <code>redeemScript</code>. Now you should
+record it in a variable.</p>
+<p>This was drawn from our creation of the address in the previous
+section.</p>
+<pre><code>redeem_script=&quot;522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae&quot;</code></pre>
+<h3 id="decide-your-recipient">Decide Your Recipient</h3>
+<p>We’re just going to send the money back to ourself. This is useful
+because it frees the funds up from the multisig, converting them into a
+normal P2PKH transaction that can later be confirmed by a single private
+key:</p>
+<pre><code>$ recipient=$(bitcoin-cli getrawchangeaddress)</code></pre>
+<h2 id="create-your-transaction">Create Your Transaction</h2>
+<p>You can now create your transaction. This is no different than
+usual.</p>
+<pre><code>$ rawtxhex=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.00005}&#39;&#39;&#39;)
+$ echo $rawtxhex
+020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b10000000000ffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000</code></pre>
+<h2 id="sign-your-transaction">Sign Your Transaction</h2>
+<p>You’re now ready to sign your transaction. This is a multi-step
+process because you’ll need to do it on multiple machines, each of which
+will contribute their own private keys.</p>
+<h3 id="dump-your-first-private-key">Dump Your First Private Key</h3>
+<p>Because this transaction isn’t making full use of your wallet, you’re
+going to need to directly access your private keys. Start on
+<code>machine1</code>, where you should retrieve any of that user’s
+private keys that were involved in the multisig:</p>
+<pre><code>machine1$ bitcoin-cli -named dumpprivkey address=$address1
+cNPhhGjatADfhLD5gLfrR2JZKDE99Mn26NCbERsvnr24B3PcSbtR</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Directly accessing your private
+keys from the shell is very dangerous behavior and should be done with
+extreme care if you’re using real money. At the least, don’t save the
+information into a variable that could be accessed from your machine.
+Removing your shell’s history is another great step. At the most, don’t
+do it.</p>
+</blockquote>
+<h3 id="make-your-first-signature">Make Your First Signature</h3>
+<p>You can now make your first signature with the
+<code>signrawtransactionwithkey</code> command. Here’s where things are
+different: you’re going to need to coach the command on how to sign. You
+do these by adding the following new information:</p>
+<ul>
+<li>Include a <code>prevtxs</code> argument that includes the
+<code>txid</code>, the <code>vout</code>, the <code>scriptPubKey</code>,
+and the <code>redeemScript</code> that you recorded, each of them an
+individual key-value pair in the JSON object.</li>
+<li>Include a <code>privkeys</code> argument that lists the private keys
+you dumped on this machine.</li>
+</ul>
+<pre><code>machine1$ bitcoin-cli -named signrawtransactionwithkey hexstring=$rawtxhex prevtxs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39;, &quot;scriptPubKey&quot;: &quot;&#39;$utxo_spk&#39;&quot;, &quot;redeemScript&quot;: &quot;&#39;$redeem_script&#39;&quot; } ]&#39;&#39;&#39; privkeys=&#39;[&quot;cNPhhGjatADfhLD5gLfrR2JZKDE99Mn26NCbERsvnr24B3PcSbtR&quot;]&#39;
+{
+  &quot;hex&quot;: &quot;020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b100000000920047304402201c97b48215f261055e41b765ab025e77a849b349698ed742b305f2c845c69b3f022013a5142ef61db1ff425fbdcdeb3ea370aaff5265eee0956cff9aa97ad9a357e3010047522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352aeffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000&quot;,
+  &quot;complete&quot;: false,
+  &quot;errors&quot;: [
+    {
+      &quot;txid&quot;: &quot;b164388854f9701051809eed166d9f6cedba92327e4296bf8a265a5da94f6521&quot;,
+      &quot;vout&quot;: 0,
+      &quot;witness&quot;: [
+      ],
+      &quot;scriptSig&quot;: &quot;0047304402201c97b48215f261055e41b765ab025e77a849b349698ed742b305f2c845c69b3f022013a5142ef61db1ff425fbdcdeb3ea370aaff5265eee0956cff9aa97ad9a357e3010047522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352ae&quot;,
+      &quot;sequence&quot;: 4294967295,
+      &quot;error&quot;: &quot;CHECK(MULTI)SIG failing with non-zero signature (possibly need more signatures)&quot;
+    }
+  ]
+}
+</code></pre>
+<p>That produces scary errors and says that it’s <code>failing</code>.
+This is all fine. You can see that the signature has been partially
+successfully because the <code>hex</code> has gotten longer. Though the
+transaction has been partially signed, it’s not done because it needs
+more signatures.</p>
+<h3 id="repeat-for-other-signers">Repeat for Other Signers</h3>
+<p>You can now pass the transaction on, to be signed again by anyone
+else required for the multisig. They do this by running the same signing
+command that you did but: (1) with the longer <code>hex</code> that you
+output from
+(<code>bitcoin-cli -named signrawtransactionwithkey hexstring=$rawtxhex prevtxs='''[ { "txid": "'$utxo_txid'", "vout": '$utxo_vout', "scriptPubKey": "'$utxo_spk'", "redeemScript": "'$redeem_script'" } ]''' privkeys='["cMgb3KM8hPATCtgMKarKMiFesLft6eEw3DY6BB8d97fkeXeqQagw"]' | jq -r '.hex'</code>);
+and (2) with their own private key.</p>
+<blockquote>
+<p>:information_source: <strong>NOTE — M-OF-N VS N-OF-N:</strong>
+Obviously, if you have an n-of-n signature (like the 2-of-2
+multisignature in this example), then everyone has to sign, but if you
+hae a m-of-n multisignature where “m &lt; n”, then the signature will be
+complete when only some (“m”) of the signers have signed.</p>
+</blockquote>
+<p>To do so first they access their private keys:</p>
+<pre><code>machine2$ bitcoin-cli -named dumpprivkey address=$address2
+cVhqpKhx2jgfLUWmyR22JnichoctJCHPtPERm11a2yxnVFKWEKyz</code></pre>
+<p>Second, they sign the new <code>hex</code> using all the same
+<code>prevtxs</code> values:</p>
+<pre><code>machine1$  bitcoin-cli -named signrawtransactionwithkey hexstring=020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b100000000920047304402201c97b48215f261055e41b765ab025e77a849b349698ed742b305f2c845c69b3f022013a5142ef61db1ff425fbdcdeb3ea370aaff5265eee0956cff9aa97ad9a357e3010047522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352aeffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000 prevtxs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39;, &quot;scriptPubKey&quot;: &quot;&#39;$utxo_spk&#39;&quot;, &quot;redeemScript&quot;: &quot;&#39;$redeem_script&#39;&quot; } ]&#39;&#39;&#39; privkeys=&#39;[&quot;cVhqpKhx2jgfLUWmyR22JnichoctJCHPtPERm11a2yxnVFKWEKyz&quot;]&#39;
+{
+  &quot;hex&quot;: &quot;020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b100000000d90047304402201c97b48215f261055e41b765ab025e77a849b349698ed742b305f2c845c69b3f022013a5142ef61db1ff425fbdcdeb3ea370aaff5265eee0956cff9aa97ad9a357e301473044022000a402ec4549a65799688dd531d7b18b03c6379416cc8c29b92011987084e9f402205470e24781509c70e2410aaa6d827aa133d6df2c578e96a496b885584fb039200147522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352aeffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000&quot;,
+  &quot;complete&quot;: true
+}</code></pre>
+<p>Third, they may need to send on the even longer
+<code>hexstring</code> they produce to additional signers.</p>
+<p>But in this case, we now see that the signature is
+<code>complete</code>!</p>
+<h2 id="send-your-transaction">Send Your Transaction</h2>
+<p>When done, you should fall back on the standard JQ methodology to
+save your <code>hexstring</code> and then to send it:</p>
+<pre><code>$ signedtx=$(bitcoin-cli -named signrawtransactionwithkey hexstring=020000000121654fa95d5a268abf96427e3292baed6c9f6d16ed9e80511070f954883864b100000000920047304402201c97b48215f261055e41b765ab025e77a849b349698ed742b305f2c845c69b3f022013a5142ef61db1ff425fbdcdeb3ea370aaff5265eee0956cff9aa97ad9a357e3010047522102da2f10746e9778dd57bd0276a4f84101c4e0a711f9cfd9f09cde55acbdd2d1912102bfde48be4aa8f4bf76c570e98a8d287f9be5638412ab38dede8e78df82f33fa352aeffffffff0188130000000000001600142c48d3401f6abed74f52df3f795c644b4398844600000000 prevtxs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39;, &quot;scriptPubKey&quot;: &quot;&#39;$utxo_spk&#39;&quot;, &quot;redeemScript&quot;: &quot;&#39;$redeem_script&#39;&quot; } ]&#39;&#39;&#39; privkeys=&#39;[&quot;cVhqpKhx2jgfLUWmyR22JnichoctJCHPtPERm11a2yxnVFKWEKyz&quot;]&#39; | jq -r .hex)
+$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx
+99d2b5717fed8875a1ed3b2827dd60ae3089f9caa7c7c23d47635f6f5b397c04</code></pre>
+<h2
+id="understand-the-importance-of-this-expanded-signing-methodology">Understand
+the Importance of This Expanded Signing Methodology</h2>
+<p>This took some work, and as you’ll soon learn, the foolishness with
+the private keys, the redeem script, and the scriptpubkey isn’t actually
+required to redeem from multisignature addresses using newer versions of
+Bitcoin Core. So, what was the point?</p>
+<p>This redemption methodology shows a standard way to sign and reuse
+P2SH transactions. In short, to redeem P2SH funds, a
+<code>signrawtransactionwithkey</code> needs to:</p>
+<ol type="1">
+<li>Include the <code>scriptPubKey</code>, which explains the P2SH
+cryptographic puzzle.</li>
+<li>Include the <code>redeemScript</code>, which solves the P2SH
+cryptographic puzzle, and introduces a new puzzle of its own.</li>
+<li>Be run on each machine holding required private keys.</li>
+<li>Include the relevant signatures, which solve the redeemScript
+puzzle.</li>
+</ol>
+<p>Here, we saw this methodology used to redeem multisig funds. In the
+future you can also use it to redeem funds that were locked with other,
+more complex P2SH scripts, as explained starting in Chapter 9.</p>
+<h2 id="summary-spending-a-transaction-with-a-multisig">Summary:
+Spending a Transaction with a Multisig</h2>
+<p>It turns out that spending money sent to a multisig address can take
+quite a bit of work. But as long as you have your original addresses and
+your redeemScript, you can do it by signing a raw transaction with each
+different address, and providing some more information along the
+way.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Expanding Bitcoin Transactions” with <a
+href="06_3_Sending_an_Automated_Multisig.md">§6.3: Sending &amp;
+Spending an Automated Multisig</a>.</p>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>17_6_Using_Other_Functions_in_Libwally</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="using-other-functions-in-libwally">17.6: Using Other Functions
+in Libwally</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>Libwally is an extensive library that provides a considerable amount
+of wallet-related functionality, much of it not available through
+<code>bitcoin-cli</code>. Following is an overview of some functionality
+not previously covered in this chapter.</p>
+<h2 id="use-cryptographic-functions">Use Cryptographic Functions</h2>
+<p>A number of cryptographic functions can be directly accessed from
+Libwally:</p>
+<ul>
+<li><code>wally_aes</code> — Use AES encryption or decryption</li>
+<li><code>wally_aes_cbc</code> — Use AES encryption or decryption in CBC
+mode</li>
+<li><code>wally_hash160</code> — Use RIPEMD-160(SHA-256) hash</li>
+<li><code>wally_scrypt</code> — Use Scrypt key derivation</li>
+<li><code>wally_sha256</code> — Use SHA256 hash</li>
+<li><code>wally_sha256_midstate</code> — Use SHA256 to hash only the
+first chunk of data</li>
+<li><code>wally_sha256d</code> — Conduct a SHA256 double-hash</li>
+<li><code>wally_sha512</code> — Use SHA512 hash</li>
+</ul>
+<p>There are also HMAC functions for the two SHA hashes, which are used
+generate message-authentication-codes based on the hashes. They’re used
+in <a href="https://en.bitcoin.it/wiki/BIP_0032">BIP32</a>, among other
+places.</p>
+<ul>
+<li><code>wally_hmac_sha256</code></li>
+<li><code>wally_hmac_sha512</code></li>
+</ul>
+<p>Additional functions cover PBKDF2 key derivation and elliptic-curve
+math.</p>
+<h2 id="use-address-functions">Use Address Functions</h2>
+<p>Libwally contains a number of functions that can be used to import,
+export, and translate Bitcoin addresses.</p>
+<p>Some convert back and forth between addresses and
+<code>scriptPubKey</code> bytes:</p>
+<ul>
+<li><code>wally_addr_segwit_from_bytes</code> — Convert a witness
+program (in bytes) into a Segwit address</li>
+<li><code>wally_addr_segwit_to_bytes</code> — Convert a Segwit address
+into a <code>scriptPubKey</code> (in bytes)</li>
+<li><code>wally_address_to_scriptpubkey</code> — Convert a legacy
+address into a <code>scriptPubKey</code>(in bytes)</li>
+<li><code>wally_scriptpubkey_to_address</code> — Convert a
+<code>scriptPubKey</code> (in bytes) into a legacy address</li>
+</ul>
+<p>Some relate to the wallet import format (WIF):</p>
+<ul>
+<li><code>wally_wif_from_bytes</code> — Convert a private key (in bytes)
+to a WIF</li>
+<li><code>wally_wif_is_uncompressed</code> — Determines if a WIF is
+uncompressed</li>
+<li><code>wally_wif_to_address</code> — Derive a P2PKH address from a
+WIF</li>
+<li><code>wally_wif_to_bytes</code> — Convert a WIF to a private key (in
+bytes)</li>
+<li><code>wally_wif_to_public_key</code> — Derive a public key (in
+bytes) from a WIF</li>
+</ul>
+<h2 id="use-bip32-functions">Use BIP32 Functions</h2>
+<p>There are additional BIP32 HD-wallet functions, beyond what was
+covered in <a href="17_3_Using_BIP32_in_Libwally.md">§17.3: Using BIP32
+in Libwally</a>.</p>
+<ul>
+<li><code>bip32_key_get_fingerprint</code> — Generate a BIP32
+fingerprint for an extended key</li>
+<li><code>bip32_key_serialize</code> — Transform an extended key into
+serialized bytes</li>
+<li><code>bip32_key_strip_private_key</code> — Convert an extended
+private key to an extended public key</li>
+<li><code>bip32_key_unserialize</code> — Transform serialized bytes into
+an extended key</li>
+</ul>
+<p>There are also numerous various depending on whether you want to
+allocate memory or have Libwally do the <code>_alloc</code> for you.</p>
+<h2 id="use-bip38-functions">Use BIP38 Functions</h2>
+<p><a
+href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a>
+allows for the creation of password-protected private key. We do not
+teach it because we consider inserting this sort of human factor into
+key management dangerous. See <a
+href="https://www.smartcustody.com/index.html">#SmartCustody</a>.</p>
+<p>The main functions are:</p>
+<ul>
+<li><code>bip38_from_private_key</code> — Encode a private key using
+BIP38</li>
+<li><code>bip38_to_private_key</code> — Decode a private key using
+BIP38</li>
+</ul>
+<h2 id="use-bip39-functions">Use BIP39 Functions</h2>
+<p>A few BIP39 mnemonic-word functions were just overviewed in <a
+href="17_2_Using_BIP39_in_Libwally.md">§17.2: Using BIP39 in
+Libwally</a>:</p>
+<ul>
+<li><code>bip39_get_languages</code> — See a list of supported
+languages</li>
+<li><code>bit39_get_word</code> — Retrieve a specific word from a
+language’s word list</li>
+<li><code>bip39_get_wordlist</code> — See a list of words for a
+language</li>
+</ul>
+<h2 id="use-psbt-functions">Use PSBT Functions</h2>
+<p>Listings of most PSBT functions can be found in <a
+href="17_4_Using_PSBTs_in_Libwally.md">17.4: Using PSBTs in
+Libwally</a>.</p>
+<h2 id="use-script-functions">Use Script Functions</h2>
+<p><a href="17_5_Using_Scripts_in_Libwally.md">§17.5: Using Scripts in
+Libwally</a> just barely touched upon Libwally’s Scripts functions.</p>
+<p>There’s another function that lets you determine the sort of script
+found in a transaction:</p>
+<ul>
+<li><code>wally_scriptpubkey_get_type</code> — Determine a transaction’s
+script type.</li>
+</ul>
+<p>Then there are a slew of functions that create
+<code>scriptPubKey</code> from bytes, <code>scriptSig</code> from
+signatures, and Witnesses from bytes or signatures.</p>
+<ul>
+<li><code>wally_script_push_from_bytes</code></li>
+<li><code>wally_scriptpubkey_csv_2of2_then_1_from_bytes</code></li>
+<li><code>wally_scriptpubkey_csv_2of3_then_2_from_bytes</code></li>
+<li><code>wally_scriptpubkey_multisig_from_bytes</code></li>
+<li><code>wally_scriptpubkey_op_return_from_bytes</code></li>
+<li><code>wally_scriptpubkey_p2pkh_from_bytes</code></li>
+<li><code>wally_scriptpubkey_p2sh_from_bytes</code></li>
+<li><code>wally_scriptsig_multisig_from_bytes</code></li>
+<li><code>wally_scriptsig_p2pkh_from_der</code></li>
+<li><code>wally_scriptsig_p2pkh_from_sig</code></li>
+<li><code>wally_witness_multisig_from_bytes</code></li>
+<li><code>wally_witness_p2wpkh_from_der</code></li>
+<li><code>wally_witness_p2wpkh_from_sig</code></li>
+<li><code>wally_witness_program_from_bytes</code></li>
+</ul>
+<h2 id="use-transaction-functions">Use Transaction Functions</h2>
+<p>We also just barely touched upon the functions that can be used to
+create and convert functions in <a
+href="17_5_Using_Scripts_in_Libwally.md">§17.5</a>.</p>
+<p>There are numerous informational functions, some of the more
+interesting of which are:</p>
+<ul>
+<li><code>wally_tx_get_length</code></li>
+<li><code>wally_tx_get_total_output_satoshi</code></li>
+<li><code>wally_tx_get_weight</code></li>
+</ul>
+<p>There also are functions that affect a <code>wally_tx</code>, a
+<code>wally_tx_input</code>, a <code>wally_tx_output</code>, or a
+<code>wally_tx_witness_stack</code> and that create signatures.</p>
+<h2 id="use-elements-functions">Use Elements Functions</h2>
+<p>Libwally can be compiled to be used with Blockstream’s Elements,
+which includes access to its assets functions.</p>
+<h2 id="summary-using-other-functions-in-libwally">Summary: Using Other
+Functions in Libwally</h2>
+<p>There is much more that you can do with Libwally, more than can be
+covered in this chapter or even listed in this section. Notably, you can
+perform cryptographic functions, encode private keys, build complete
+transactions, and use Elements. The <a
+href="https://wally.readthedocs.io/en/latest/">Libwally docs</a> are the
+place to go for more information, though as of this writing they are
+both limited and out-of-date. The Libwally header files are a backup if
+the docs are incomplete or wrong.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Finish learning about “Programming Bitcoin with Libwally” in <a
+href="17_7_Integrating_Libwally_and_Bitcoin-CLI.md">§17.7: Integrating
+Libwally and Bitcoin-CLI</a>.</p>
+</body>
+</html>

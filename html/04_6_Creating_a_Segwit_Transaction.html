@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>04_6_Creating_a_Segwit_Transaction</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="creating-a-segwit-transaction">4.6: Creating a SegWit
+Transaction</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>Once upon a time, the Bitcoin heavens shook with the blocksize wars.
+Fees were skyrocketing, and users were worried about scaling. The
+Bitcoin Core developers were reluctant to simply increase the blocksize,
+but they came upon a compromise: SegWit, the Segregated Witness.
+Segregated Witness is a fancy way of saying “Separated Signature”. It
+creates new sorts of transactions that remove signatures to the end of
+the transaction. By combining this with increased block sizes that only
+are visible to upgraded nodes, SegWit resolved the scaling problems for
+Bitcoin at the time (and also resolved a nasty malleability bug that had
+previously made even better scaling with layer-2 protocols like
+Lightning impractical).</p>
+<p>The catch? SegWit uses different addresses, some of which are
+compatible with older nodes, and some of which are not.</p>
+<blockquote>
+<p>:warning: <strong>VERSION WARNING:</strong> SegWit was introduced in
+BitCoin 0.16.0 with what was described at the time as “full support”.
+With that said, there were some flaws in its integration with
+<code>bitcoin-cli</code> at the time which prevented signing from
+working correctly on new P2SH-SegWit addresses. The
+non-backward-compatible Bech32 address was also introduced in Bitcoin
+0.16.0 and was made the default addresstype in Bitcoin 0.19.0. All of
+this functionality should now fully work with regard to
+<code>bitcoin-cli</code> functions (and thus this tutorial).</p>
+</blockquote>
+<blockquote>
+<p>The catch comes in interacting with the wider world. Everyone should
+be able to send to a P2SH-SegWit address because it was purposefully
+built to support backward compatibility by wrapping the SegWit
+functionality in a Bitcoin Script. The same isn’t true for Bech32
+addresses: if someone tells you that they’re unable to send to your
+Bech32 address, this is why, and you need to generate a
+<code>legacy</code> or P2SH-SegWit address for their usage. (Many sites,
+particularly exchanges, can also not generate or receive on SegWit
+addresses, particularly Bech32 addresses, but that’s a whole different
+issue and doesn’t affect your usage of them.)</p>
+</blockquote>
+<h2 id="understand-a-segwit-transaction">Understand a SegWit
+Transaction</h2>
+<p>In classic transactions, signature (witness) information was stored
+toward the middle of the transaction, while in SegWit transactions, it’s
+at the bottom. This goes hand-in-hand with the blocksize increases that
+were introduced in the SegWit upgrade. The blocksize was increased from
+1M to a variable amount based on how many SegWit transactions are in a
+block, starting as low as 1M (no SegWit transactions) and going as high
+as 4M (all SegWit transactions). This variable size was created to
+accomodate classic nodes, so that everything remains backward
+compatible. If a classic node sees a SegWit transaction, it throws out
+the witness information (resulting in a smaller sized block, under the
+old 1M limit), while if a new node sees a SegWit transaction, it keeps
+the witness information (resulting in a larger sized block, up to the
+new 4M limit).</p>
+<p>So that’s the what and how of SegWit transactions. Not that you need
+to know any of it to use them. Most transactions on the Bitcoin network
+are now SegWit. They’re what you’re going to natively use for more
+transactions and receipts of money. The details are no more relevant at
+this point than the details of how most of Bitcoin works.</p>
+<h2 id="create-a-segwit-address">Create a SegWit Address</h2>
+<p>You create a SegWit address the same way as any other address, with
+the <code>getnewaddress</code> and the <code>getrawchangeaddress</code>
+commands.</p>
+<p>If you need to create an address for someone who can’t send to the
+newer Bech32 addresses, then use the <code>p2sh-segwit</code>
+addresstype:</p>
+<pre><code>$ bitcoin-cli -named getnewaddress address_type=p2sh-segwit
+2N5h2r4karVqN7uFtpcn8xnA3t5cbpszgyN</code></pre>
+<p>Seeing an address with a “2” prefix means that you did it right.</p>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> “3” for Mainnet.</p>
+</blockquote>
+<p>However, if the person you’re interacting with has a fully mature
+client, they’ll be able to send to a Bech32 address, which you create
+using the commands in the default way:</p>
+<pre><code>$ bitcoin-cli getnewaddress
+tb1q5gnwrh7ss5mmqt0qfan85jdagmumnatcscwpk6</code></pre>
+<p>As we’ve already seen, change addresses generated from within
+<code>bitcoin-cli</code> interact fine with Bech32 addresses, so there’s
+no point in using the <code>legacy</code> flag there either:</p>
+<pre><code>$ bitcoin-cli getrawchangeaddress
+tb1q05wx5tyadm8qe83exdqdyqvqqzjt3m38vfu8ff</code></pre>
+<p>Here, note that the unique “tb1” prefix denoted Bech32.</p>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> “bc1” for mainnet.</p>
+</blockquote>
+<p>Bitcoin-cli doesn’t care which address type you’re using. You can run
+a command like <code>listaddressgroupings</code> and it will freely mix
+addresses of the different types:</p>
+<pre><code>$ bitcoin-cli listaddressgroupings
+[
+  [
+    [
+      &quot;mfsiRhxbQxcD7HLS4PiAim99oeGyb9QY7m&quot;,
+      0.01000000,
+      &quot;&quot;
+    ]
+  ],
+  [
+    [
+      &quot;mi25UrzHnvn3bpEfFCNqJhPWJn5b77a5NE&quot;,
+      0.00000000,
+      &quot;&quot;
+    ],
+    [
+      &quot;tb1q6dak4e9fz77vsulk89t5z92l2e0zm37yvre4gt&quot;,
+      0.00000000
+    ]
+  ],
+  [
+    [
+      &quot;mjehC2KHzXcBDcwTd4LhZ2GzyzrZ3Kd3ff&quot;,
+      0.00022000,
+      &quot;&quot;
+    ]
+  ],
+  [
+    [
+      &quot;mk9ry5VVy8mrA8SygxSQQUDNSSXyGFot6h&quot;,
+      0.00000000
+    ],
+    [
+      &quot;mqjrdY5raxKzXQf5t2VvVvzhvFAgersu9B&quot;,
+      0.00000000
+    ],
+    [
+      &quot;mwJL7cRiW2bUnY81r1thSu3D4jtMmwyU6d&quot;,
+      0.00000000,
+      &quot;&quot;
+    ],
+    [
+      &quot;tb1q57p0f3hpuad9kf8n6e6adugmt6lnkg2zzr592r&quot;,
+      0.00007800
+    ]
+  ],
+  [
+    [
+      &quot;mpVLL7iqPr4d7BJkEG54mcdm7WmrAhaW6q&quot;,
+      0.01000000,
+      &quot;&quot;
+    ]
+  ],
+  [
+    [
+      &quot;tb1q5gnwrh7ss5mmqt0qfan85jdagmumnatcscwpk6&quot;,
+      0.01000000,
+      &quot;&quot;
+    ]
+  ]
+]</code></pre>
+<h2 id="send-a-segwit-transaction-the-easy-way">Send a SegWit
+Transaction The Easy Way</h2>
+<p>So how do you send a Segwit transaction? Exactly like any other
+transaction. It doesn’t matter if the UTXO is SegWit, the address is
+SegWit, or some combination thereof. You can expect
+<code>bitcoin-cli</code> to do the right thing. Though you can tell the
+differences via the addresses, they don’t matter for interacting with
+things at the <code>bitcoin-cli</code> or RPC level. (And this is one of
+the advantages of using the command line and the RPC interface, as
+suggested in this tutorial: experts have already done the hard work for
+you, including things like how to send to both legacy and Bech32
+addresses. You just get to use that functionality to your own
+advantage.)</p>
+<p>Here’s an example of sending to a SegWit address, the easy way:</p>
+<pre><code>$ bitcoin-cli sendtoaddress tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx 0.005
+854a833b667049ac811b4cf1cad40fa7f8dce8b0f4c1018a58b84559b6e05f42</code></pre>
+<p>If you look at your transaction, you can see the use of the Bech32
+address:</p>
+<pre><code>$ bitcoin-cli -named gettransaction txid=&quot;854a833b667049ac811b4cf1cad40fa7f8dce8b0f4c1018a58b84559b6e05f42&quot; verbose=true
+{
+  &quot;amount&quot;: -0.00500000,
+  &quot;fee&quot;: -0.00036600,
+  &quot;confirmations&quot;: 0,
+  &quot;trusted&quot;: true,
+  &quot;txid&quot;: &quot;854a833b667049ac811b4cf1cad40fa7f8dce8b0f4c1018a58b84559b6e05f42&quot;,
+  &quot;walletconflicts&quot;: [
+  ],
+  &quot;time&quot;: 1592948795,
+  &quot;timereceived&quot;: 1592948795,
+  &quot;bip125-replaceable&quot;: &quot;no&quot;,
+  &quot;details&quot;: [
+    {
+      &quot;address&quot;: &quot;tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx&quot;,
+      &quot;category&quot;: &quot;send&quot;,
+      &quot;amount&quot;: -0.00500000,
+      &quot;vout&quot;: 1,
+      &quot;fee&quot;: -0.00036600,
+      &quot;abandoned&quot;: false
+    }
+  ],
+  &quot;hex&quot;: &quot;0200000002114d5a4c3b847bc796b2dc166ca7120607b874aa6904d4a43dd5f9e0ea79d4ba010000006a47304402200a3cc08b9778e7b616340d4cf7841180321d2fa019e43f25e7f710d9a628b55c02200541fc200a07f2eb073ad8554357777d5f1364c5a96afe5e77c6185d66a40fa7012103ee18c598bafc5fbea72d345329803a40ebfcf34014d0e96aac4f504d54e7042dfeffffffa71321e81ef039af490251379143f7247ad91613c26c8f3e3404184218361733000000006a47304402200dd80206b57beb5fa38a3c3578f4b0e40d56d4079116fd2a6fe28e5b8ece72310220298a8c3a1193ea805b27608ff67a2d8b01e347e33a4222edfba499bb1b64a31601210339c001b00dd607eeafd4c117cfcf86be8efbb0ca0a33700cffc0ae0c6ee69d7efeffffff026854160000000000160014d591091b8074a2375ed9985a9c4b18efecfd416520a1070000000000160014751e76e8199196d454941c45d1b3a323f1433bd6c60e1b00&quot;,
+  &quot;decoded&quot;: {
+    &quot;txid&quot;: &quot;854a833b667049ac811b4cf1cad40fa7f8dce8b0f4c1018a58b84559b6e05f42&quot;,
+    &quot;hash&quot;: &quot;854a833b667049ac811b4cf1cad40fa7f8dce8b0f4c1018a58b84559b6e05f42&quot;,
+    &quot;version&quot;: 2,
+    &quot;size&quot;: 366,
+    &quot;vsize&quot;: 366,
+    &quot;weight&quot;: 1464,
+    &quot;locktime&quot;: 1773254,
+    &quot;vin&quot;: [
+      {
+        &quot;txid&quot;: &quot;bad479eae0f9d53da4d40469aa74b8070612a76c16dcb296c77b843b4c5a4d11&quot;,
+        &quot;vout&quot;: 1,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;304402200a3cc08b9778e7b616340d4cf7841180321d2fa019e43f25e7f710d9a628b55c02200541fc200a07f2eb073ad8554357777d5f1364c5a96afe5e77c6185d66a40fa7[ALL] 03ee18c598bafc5fbea72d345329803a40ebfcf34014d0e96aac4f504d54e7042d&quot;,
+          &quot;hex&quot;: &quot;47304402200a3cc08b9778e7b616340d4cf7841180321d2fa019e43f25e7f710d9a628b55c02200541fc200a07f2eb073ad8554357777d5f1364c5a96afe5e77c6185d66a40fa7012103ee18c598bafc5fbea72d345329803a40ebfcf34014d0e96aac4f504d54e7042d&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      },
+      {
+        &quot;txid&quot;: &quot;33173618421804343e8f6cc21316d97a24f7439137510249af39f01ee82113a7&quot;,
+        &quot;vout&quot;: 0,
+        &quot;scriptSig&quot;: {
+          &quot;asm&quot;: &quot;304402200dd80206b57beb5fa38a3c3578f4b0e40d56d4079116fd2a6fe28e5b8ece72310220298a8c3a1193ea805b27608ff67a2d8b01e347e33a4222edfba499bb1b64a316[ALL] 0339c001b00dd607eeafd4c117cfcf86be8efbb0ca0a33700cffc0ae0c6ee69d7e&quot;,
+          &quot;hex&quot;: &quot;47304402200dd80206b57beb5fa38a3c3578f4b0e40d56d4079116fd2a6fe28e5b8ece72310220298a8c3a1193ea805b27608ff67a2d8b01e347e33a4222edfba499bb1b64a31601210339c001b00dd607eeafd4c117cfcf86be8efbb0ca0a33700cffc0ae0c6ee69d7e&quot;
+        },
+        &quot;sequence&quot;: 4294967294
+      }
+    ],
+    &quot;vout&quot;: [
+      {
+        &quot;value&quot;: 0.01463400,
+        &quot;n&quot;: 0,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 d591091b8074a2375ed9985a9c4b18efecfd4165&quot;,
+          &quot;hex&quot;: &quot;0014d591091b8074a2375ed9985a9c4b18efecfd4165&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1q6kgsjxuqwj3rwhkenpdfcjccalk06st9z0k0kh&quot;
+          ]
+        }
+      },
+      {
+        &quot;value&quot;: 0.00500000,
+        &quot;n&quot;: 1,
+        &quot;scriptPubKey&quot;: {
+          &quot;asm&quot;: &quot;0 751e76e8199196d454941c45d1b3a323f1433bd6&quot;,
+          &quot;hex&quot;: &quot;0014751e76e8199196d454941c45d1b3a323f1433bd6&quot;,
+          &quot;reqSigs&quot;: 1,
+          &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+          &quot;addresses&quot;: [
+            &quot;tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx&quot;
+          ]
+        }
+      }
+    ]
+  }
+}</code></pre>
+<p>In fact, both of the <code>vouts</code> use Bech32 addresses: your
+recipient and the automatically generated change address.</p>
+<p>But when we backtrack our <code>vin</code>, we discover that came
+from a legacy address. Because it doesn’t matter:</p>
+<pre><code>$ bitcoin-cli -named gettransaction txid=&quot;33173618421804343e8f6cc21316d97a24f7439137510249af39f01ee82113a7&quot;
+{
+  &quot;amount&quot;: 0.01000000,
+  &quot;confirmations&quot;: 43,
+  &quot;blockhash&quot;: &quot;00000000000000e2365d2f814d1774b063d9a04356f482010cdfdd537b1a24bb&quot;,
+  &quot;blockheight&quot;: 1773212,
+  &quot;blockindex&quot;: 103,
+  &quot;blocktime&quot;: 1592937103,
+  &quot;txid&quot;: &quot;33173618421804343e8f6cc21316d97a24f7439137510249af39f01ee82113a7&quot;,
+  &quot;walletconflicts&quot;: [
+  ],
+  &quot;time&quot;: 1592936845,
+  &quot;timereceived&quot;: 1592936845,
+  &quot;bip125-replaceable&quot;: &quot;no&quot;,
+  &quot;details&quot;: [
+    {
+      &quot;address&quot;: &quot;mpVLL7iqPr4d7BJkEG54mcdm7WmrAhaW6q&quot;,
+      &quot;category&quot;: &quot;receive&quot;,
+      &quot;amount&quot;: 0.01000000,
+      &quot;label&quot;: &quot;&quot;,
+      &quot;vout&quot;: 0
+    }
+  ],
+  &quot;hex&quot;: &quot;020000000001016a66efa334f06e2c54963e48d049a35d7a1bda44633b7464621cae302f35174a0100000017160014f17b16c6404e85165af6f123173e0705ba31ec25feffffff0240420f00000000001976a914626ab1ca41d98f597d18d1ff8151e31a40d4967288acd2125d000000000017a914d5e76abfe5362704ff6bbb000db9cdfa43cd2881870247304402203b3ba83f51c1895b5f639e9bfc40124715e2495ef2c79d4e49c0f8f70fbf2feb02203d50710abe3cf37df4d2a73680dadf3cecbe4f2b5d0b276dbe7711d0c2fa971a012102e64f83ee1c6548bcf44cb965ffdb803f30224459bd2e57a5df97cb41ba476b119b0e1b00&quot;
+}</code></pre>
+<h2 id="send-a-segwit-transaction-the-hard-way">Send a SegWit
+Transaction The Hard Way</h2>
+<p>You can similarly fund a transaction with a Bech32 address with no
+difference to the techniques you’ve learned so far. Here’s an exactly of
+doing so with a complete raw transaction:</p>
+<pre><code>$ changeaddress=$(bitcoin-cli getrawchangeaddress)
+$ echo $changeaddress
+tb1q4xje3mx9xn7f8khv7p69ekfn0q72kfs8x3ay4j
+$ bitcoin-cli listunspent
+[
+...
+  {
+    &quot;txid&quot;: &quot;003bfdca5578c0045a76768281f05d5e6f57774be399a76f387e2a0e99e4e452&quot;,
+    &quot;vout&quot;: 0,
+    &quot;address&quot;: &quot;tb1q5gnwrh7ss5mmqt0qfan85jdagmumnatcscwpk6&quot;,
+    &quot;label&quot;: &quot;&quot;,
+    &quot;scriptPubKey&quot;: &quot;0014a226e1dfd08537b02de04f667a49bd46f9b9f578&quot;,
+    &quot;amount&quot;: 0.01000000,
+    &quot;confirmations&quot;: 5,
+    &quot;spendable&quot;: true,
+    &quot;solvable&quot;: true,
+    &quot;desc&quot;: &quot;wpkh([d6043800/0&#39;/0&#39;/5&#39;]0327dbe2d58d9ed2dbeca28cd26e18f48aa94c127fa6fb4b60e4188f6360317640)#hd66hknp&quot;,
+    &quot;safe&quot;: true
+  }
+]
+$ recipient=tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx
+$ utxo_txid=$(bitcoin-cli listunspent | jq -r &#39;.[2] | .txid&#39;)
+$ utxo_vout=$(bitcoin-cli listunspent | jq -r &#39;.[2] | .vout&#39;)
+$ echo $utxo_txid $utxo_vout
+003bfdca5578c0045a76768281f05d5e6f57774be399a76f387e2a0e99e4e452 0
+$ rawtxhex=$(bitcoin-cli -named createrawtransaction inputs=&#39;&#39;&#39;[ { &quot;txid&quot;: &quot;&#39;$utxo_txid&#39;&quot;, &quot;vout&quot;: &#39;$utxo_vout&#39; } ]&#39;&#39;&#39; outputs=&#39;&#39;&#39;{ &quot;&#39;$recipient&#39;&quot;: 0.002, &quot;&#39;$changeaddress&#39;&quot;: 0.007 }&#39;&#39;&#39;)
+$ signedtx=$(bitcoin-cli -named signrawtransactionwithwallet hexstring=$rawtxhex | jq -r &#39;.hex&#39;)
+$ bitcoin-cli -named sendrawtransaction hexstring=$signedtx
+e02568b706b21bcb56fcf9c4bb7ba63fdbdec1cf2866168c4f50bc0ad693f26c</code></pre>
+<p>It all works exactly the same as other sorts of transactions!</p>
+<h3 id="recognize-the-new-descriptor">Recognize the New Descriptor</h3>
+<p>If you look at the <code>desc</code> field, you’ll note that the
+SegWit address has a different style descriptor than those encountered
+in <a href="03_5_Understanding_the_Descriptor.md">§3.5: Understanding
+the Descriptor</a>. A legacy descriptor described in that section looked
+like this:
+<code>pkh([d6043800/0'/0'/18']03efdee34c0009fd175f3b20b5e5a5517fd5d16746f2e635b44617adafeaebc388)#4ahsl9pk</code>.
+Our new SegWit descriptor instead looks like this:
+<code>wpkh([d6043800/0'/0'/5']0327dbe2d58d9ed2dbeca28cd26e18f48aa94c127fa6fb4b60e4188f6360317640)#hd66hknp"</code>.</p>
+<p>The big thing to note is that function has changed. It was previously
+<code>pkh</code>, which is a standard P2PKH hashed public-key address.
+The SegWit address is instead <code>wpkh</code>, which means that it’s a
+P2WPKH native SegWit address. This underlines the :fire:
+<strong><em>power of descriptors</em></strong>. They describe how to
+create an address from a key or other information, with the functions
+unambiguously defining how to make the address based on its type.</p>
+<h2 id="summary-creating-a-segwit-transaction">Summary: Creating a
+SegWit Transaction</h2>
+<p>There’s really no complexity to creating SegWit transactions.
+Internally, they’re structured differently from legacy transactions, but
+from the command line there’s no difference: you just use an address
+with a different prefix. The only thing to watch for is that some people
+may not be able to send to a Bech32 address if they’re using obsolete
+software.</p>
+<blockquote>
+<p>:fire: <strong><em>What the power of sending coins with
+SegWit?</em></strong></p>
+</blockquote>
+<blockquote>
+<p><em>The Advantages.</em> SegWit transactions are smaller, and so will
+be cheaper to send than legacy transactions due to lower fees. Bech32
+doubles down on this advantage, and also creates addresses that are
+harder to foul up when transcribing — and that’s pretty important, given
+that user error is one of the most likely ways to lose your
+bitcoins.</p>
+</blockquote>
+<blockquote>
+<p><em>The Disadvantages.</em> SegWit addresses may not be supported by
+obsolete Bitcoin software. In particular, people may not be able to send
+to your Bech32 address.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Advance through “bitcoin-cli” with <a
+href="05_0_Controlling_Bitcoin_Transactions.md">Chapter Five:
+Controlling Bitcoin Transactions</a>.</p>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>14_3_Adding_SSH_Hidden_Services</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="chapter-14.3-adding-ssh-hidden-services">Chapter 14.3: Adding
+SSH Hidden Services</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>To date, you’ve used Tor with your Bitcoin services, but you can also
+use it to protect other services on your machine, improving their
+security and privacy. This section demonstrates how by introducing an
+<code>ssh</code> hidden service to login remotely using Tor.</p>
+<h2 id="create-ssh-hidden-services">Create SSH Hidden Services</h2>
+<p>New services are created by adding them to the
+<code>/etc/tor/torrc</code> file:</p>
+<pre><code>$ su 
+# cat &gt;&gt; /etc/tor/torrc &lt;&lt; EOF
+HiddenServiceDir /var/lib/tor/hidden-service-ssh/
+HiddenServicePort 22 127.0.0.1:22
+EOF
+# exit</code></pre>
+<p>Here’s what that means:</p>
+<ul>
+<li>HiddenServiceDir: Indicates that you have a hidden service directory
+with the necessary configuration at this path.</li>
+<li>HiddenServicePort: Indicates the tor port to be used; in the case of
+SSH, this is usually 22.</li>
+</ul>
+<p>After you add the appropriate lines to your <code>torrc</code> file,
+you will need to restart Tor:</p>
+<pre><code>$ sudo /etc/init.d/tor restart</code></pre>
+<p>After the restart, your <code>HiddenServiceDir</code> should have new
+files as follows:</p>
+<pre><code>$ sudo ls -l /var/lib/tor/hidden-service-ssh
+total 16
+drwx--S--- 2 debian-tor debian-tor 4096 Jul 22 14:55 authorized_clients
+-rw------- 1 debian-tor debian-tor   63 Jul 22 14:56 hostname
+-rw------- 1 debian-tor debian-tor   64 Jul 22 14:55 hs_ed25519_public_key
+-rw------- 1 debian-tor debian-tor   96 Jul 22 14:55 hs_ed25519_secret_key</code></pre>
+<p>The file <code>hostname</code> in this directory contains your new
+onion ID:</p>
+<pre><code>$ sudo cat /var/lib/tor/hidden-service-ssh/hostname
+qwkemc3vusd73glx22t3sglf7izs75hqodxsgjqgqlujemv73j73qpid.onion</code></pre>
+<p>You can connect to the <code>ssh</code> hidden service using
+<code>torify</code> and that address:</p>
+<pre><code>$ torify ssh standup@qwkemc3vusd73glx22t3sglf7izs75hqodxsgjqgqlujemv73j73qpid.onion
+The authenticity of host &#39;qwkemc3vusd73glx22t3sglf7izs75hqodxsgjqgqlujemv73j73qpid.onion (127.42.42.0)&#39; can&#39;t be established.
+ECDSA key fingerprint is SHA256:LQiWMtM8qD4Nv7eYT1XwBPDq8fztQafEJ5nfpNdDtCU.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &#39;qwkemc3vusd73glx22t3sglf7izs75hqodxsgjqgqlujemv73j73qpid.onion&#39; (ECDSA) to the list of known hosts.
+standup@qwkemc3vusd73glx22t3sglf7izs75hqodxsgjqgqlujemv73j73qpid.onion&#39;s password: </code></pre>
+<h2 id="summary-adding-ssh-hidden-services">Summary: Adding SSH Hidden
+Services</h2>
+<p>Now that you’ve got Tor installed and know how to use it, you can add
+other services to Tor. You just add lines to your <code>torrc</code> (on
+your server), then connect with <code>torify</code> (on your
+client).</p>
+<blockquote>
+<p>:fire: <strong><em>What’s the power of Other Hidden
+Services?</em></strong> Every time you access a service on your server
+remotely, you leave footprints on the network. Even if the data is
+encrypted by something like SSH (or TLS), lurkers on the network can see
+where you’re connecting from, where you’re connecting to, and what
+service you’re using. Does this matter? This is the question you have to
+ask. But if the answer is “Yes”, you can protect the connection with a
+hidden service.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>For a different sort of privacy, move on to “Using i2p” with <a
+href="15_0_Using_i2p.md">Chapter Fifteen: Using i2p</a>.</p>
+</body>
+</html>

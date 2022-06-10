@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>14_2_Changing_Your_Bitcoin_Hidden_Services</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="chapter-14.2-changing-your-bitcoin-hidden-services">Chapter
+14.2: Changing Your Bitcoin Hidden Services</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>You’ve got a working Tor service, but over time you may wish to reset
+or otherwise adjust it.</p>
+<h2 id="secure-your-hidden-services">Secure Your Hidden Services</h2>
+<p>Tor allows you to limit which clients talk to your hidden services.
+If you did not already authorize your client during your server setup,
+at the earliest opportunity you should do the following:</p>
+<ol type="1">
+<li>Request your Tor V3 Authentication Public Key from your client. (In
+<a
+href="https://github.com/BlockchainCommons/GordianWallet-iOS">GordianWallet</a>,
+it’s available under the settings menu.)</li>
+<li>Go to the appropriate subdirectory for your Bitcoin hidden service,
+which if you used Bitcoin Standup is
+<code>/var/lib/tor/standup/</code>.</li>
+<li>Go to the <code>authorized_clients</code> subdirectory.</li>
+<li>Add a file called <code>[anything].auth</code>. The
+<code>[anything]</code> can really be anything.</li>
+<li>Place the public key (and nothing else) in the file.</li>
+</ol>
+<p>Once you’ve added an <code>.auth</code> file to the
+<code>authorized_client</code> subdirectory, then only authorized
+clients will be able to communicate with that hidden service. You can
+add ~330 different public keys to enable different clients.</p>
+<h2 id="reset-your-bitcoind-onion-address">Reset Your
+<code>bitcoind</code> Onion Address</h2>
+<p>If you ever want to reset your onion address for
+<code>bitcoind</code>, just remove the <code>onion_private_key</code> in
+your data directory, such as <code>~/.bitcoin/testnet</code>:</p>
+<pre><code>$ cd ~/.bitcoin/testnet
+$ rm onion_private_key </code></pre>
+<p>When you restart, a new onion address will be generated:</p>
+<pre><code>2020-07-22T23:52:27Z tor: Got service ID pyrtqyiqbwb3rhe7, advertising service pyrtqyiqbwb3rhe7.onion:18333
+2020-07-22T23:52:27Z tor: Cached service private key to /home/standup/.bitcoin/testnet3/onion_private_key</code></pre>
+<h2 id="reset-your-rpc-onion-address">Reset Your RPC Onion Address</h2>
+<p>If you want to reset your onion address for RPC access, you similarly
+delete the appropriate <code>HiddenServiceDirectory</code> and restart
+Tor:</p>
+<pre><code>$ sudo rm -rf /var/lib/tor/standup/
+$ sudo /etc/init.d/tor restart</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Reseting your RPC onion address
+will disconnect any mobile wallets or other services that you’ve
+connected using the Quicklink API. Do this with extreme caution.</p>
+</blockquote>
+<h2 id="force-bitcoind-to-use-tor">Force <code>bitcoind</code> to Use
+Tor</h2>
+<p>Finally, you can force <code>bitcoind</code> to use onion by adding
+the following to your <code>bitcoin.conf</code>:</p>
+<pre><code>proxy=127.0.0.1:9050
+listen=1
+bind=127.0.0.1
+onlynet=onion</code></pre>
+<p>You will then need to add onion-based seed nodes or other nodes to
+your setup, once more by editing the <code>bitcoin.conf</code>:</p>
+<pre><code>seednode=address.onion
+seednode=address.onion
+seednode=address.onion
+seednode=address.onion
+addnode=address.onion
+addnode=address.onion
+addnode=address.onion
+addnode=address.onion</code></pre>
+<p>Afterward, restart <code>tor</code> and <code>bitcoind</code>.</p>
+<p>You should now be communicating exlusively on Tor. But, unless you
+are in a hostile state, this level of anonymity is probably not
+required. It also is not particularly recommended: you might greatly
+decrease your number of potential peers, inviting problems of censorship
+or even correlation. You may also see lag. And, this setup may give you
+a false sense of anonymity that really doesn’t exist on the Bitcoin
+network.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> This setup is untested! Use at
+your own risk!</p>
+</blockquote>
+<h2 id="summary-changing-your-bitcoin-hidden-services">Summary: Changing
+Your Bitcoin Hidden Services</h2>
+<p>You probably won’t need to fool with your Onion services once you’ve
+verified them, but in case you do, here’s how to reset a Tor address
+that has become compromised or to move over to exclusive-Tor use for
+your <code>bitcoind</code>.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Understanding Tor” with <a
+href="14_3_Adding_SSH_Hidden_Services.md">14.3: Adding SSH Hidden
+Services</a>.</p>
+</body>
+</html>

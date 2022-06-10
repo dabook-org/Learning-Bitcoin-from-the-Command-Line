@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>15_1_i2p_service</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="bitcoin-core-as-an-i2p-invisible-internet-project-service">15.1:
+Bitcoin Core as an I2P (Invisible Internet Project) service</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>Rather than using the proxy-based Tor service to ensure the privacy
+of your Bitcoin communications, you may instead wish to use I2P, which
+is designed to act as a private network within the internet, rather than
+simply offering private access to internet services.</p>
+<h2 id="understand-the-differences">Understand the Differences</h2>
+<p>Tor and I2P both offer private access to online services, but with
+different routing and databases, and with different architectures for
+relays. Since hidden services (such as Bitcoin access) are core to the
+design of I2P, they have also been better optimized:</p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 38%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Tor</th>
+<th style="text-align: right;">I2P</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Routing</td>
+<td style="text-align: center;"><a
+href="https://www.onion-router.net/">Onion</a></td>
+<td style="text-align: right;"><a
+href="https://geti2p.net/en/docs/how/garlic-routing">Garlic</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Network Database</td>
+<td style="text-align: center;">Trusted <a
+href="https://blog.torproject.org/possible-upcoming-attempts-disable-tor-network">Directory
+Servers</a></td>
+<td style="text-align: right;"><a
+href="https://geti2p.net/en/docs/how/network-database">Distributed
+network database</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Relay</td>
+<td style="text-align: center;"><strong>Two-way</strong> encrypted
+connections between each Relay</td>
+<td style="text-align: right;"><strong>One-way</strong> connections
+between every server in its tunnels</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hidden services</td>
+<td style="text-align: center;">Slow</td>
+<td style="text-align: right;">Fast</td>
+</tr>
+</tbody>
+</table>
+<p>A more detailed comparison may be found at <a
+href="https://geti2p.net/en/comparison/tor">geti2p.net</a>.</p>
+<h3
+id="understand-tradeoffs-for-limiting-outgoing-connections">Understand
+Tradeoffs for Limiting Outgoing Connections</h3>
+<p>There are <a
+href="https://bitcoin.stackexchange.com/questions/107060/tor-and-i2p-tradeoffs-in-bitcoin-core">tradeoffs</a>
+if you choose to support only I2P, only Tor, or both. These
+configurations, which limit outgoing clearnet connections, are made in
+Bitcoin Core using the <code>onlynet</code> argument in your
+<code>bitcoin.conf</code>.</p>
+<ul>
+<li><code>onlynet=onion</code>, which limits outgoing connections to
+Tor, can expose a node to Sybil attacks and can create network
+partitioning, because of limited connections between Tornet and the
+clearnet.</li>
+<li><code>onlynet=onion</code> and <code>onlynet=i2p</code> in
+conjunction, which runs Onion service with I2P service is experimental
+for now.</li>
+</ul>
+<h2 id="install-i2p">Install I2P</h2>
+<p>To install I2P, you should make sure your ports are correctly set up
+and then you can continue with your setup process.</p>
+<h3 id="prepare-ports">Prepare Ports</h3>
+<p>To use I2P, you will need to open the following ports, which are
+required by I2P:</p>
+<ol type="1">
+<li><strong>Outbound (Internet facing):</strong> a random port between
+9000 and 31000 is selected. It is best if all these ports are open for
+outbound connections, which doesn’t affect your security.</li>
+</ol>
+<ul>
+<li>You can check firewall status using
+<code>sudo ufw status verbose</code>, which shouldn’t deny outgoing
+connections by default.</li>
+</ul>
+<ol start="2" type="1">
+<li>Inbound (Internet facing): optional. A variety of inbound ports are
+listed in the <a href="https://geti2p.net/en/faq#ports">I2P
+docs</a>.</li>
+</ol>
+<ul>
+<li>For maximum privacy, it is preferable to disable accepting incoming
+connections.</li>
+</ul>
+<h3 id="run-i2p">Run I2P</h3>
+<p>The following will run Bitcoin Core I2P services:</p>
+<ol type="1">
+<li><p>Install <code>i2pd</code> on Ubuntu:</p>
+<pre><code>sudo add-apt-repository ppa:purplei2p/i2pd
+sudo apt-get update
+sudo apt-get install i2pd</code></pre>
+<p>For installing on other OSes, see <a
+href="https://i2pd.readthedocs.io/en/latest/user-guide/install/">these
+docs</a></p></li>
+<li><p><a
+href="https://i2pd.readthedocs.io/en/latest/user-guide/run/">Run</a> the
+I2P service:</p>
+<pre><code>$ sudo systemctl start i2pd.service</code></pre></li>
+<li><p>Check that I2P is running. You should see it on port 7656:</p>
+<pre><code>$ ss -nlt
+
+State   Recv-Q   Send-Q     Local Address:Port      Peer Address:Port  Process
+
+LISTEN  0        4096           127.0.0.1:7656           0.0.0.0:*</code></pre></li>
+<li><p>Add the following lines in <code>bitcoin.conf</code>:</p>
+<pre><code>i2psam=127.0.0.1:7656
+debug=i2p</code></pre>
+<p>The logging option, <code>debug=i2p</code>, is used to record
+additional information in the debug log about your I2P configuration and
+connections. The default location for this debugging file on Linux is:
+<code>~/.bitcoin/debug.log</code>:</p></li>
+<li><p>Restart <code>bitcoind</code></p>
+<pre><code>$ bitcoind</code></pre></li>
+<li><p>Check <code>debug.log</code> to see if I2P was setup correctly,
+or if any errors appeared in the logs.</p>
+<pre><code>2021-06-15T20:36:16Z i2paccept thread start
+2021-06-15T20:36:16Z I2P: Creating SAM session with 127.0.0.1:7656
+
+2021-06-15T20:36:56Z I2P: SAM session created: session id=3e0f35228b, my address=bmwyyuzyqdc5dcx27s4baltbu6zw7rbqfl2nmclt45i7ng3ul4pa.b32.i2p:18333
+2021-06-15T20:36:56Z AddLocal(bmwyyuzyqdc5dcx27s4baltbu6zw7rbqfl2nmclt45i7ng3ul4pa.b32.i2p:18333,4)</code></pre>
+<p>The I2P address is mentioned in the logs, ending with
+<em>b32.i2p</em>. For example
+<code>bmwyyuzyqdc5dcx27s4baltbu6zw7rbqfl2nmclt45i7ng3ul4pa.b32.i2p:18333</code>.</p></li>
+<li><p>Confirm <code>i2p_private_key</code> was created in the Bitcoin
+Core data directory. The first time Bitcoin Core connects to the I2P
+router, its I2P address (and corresponding private key) will be
+automatically generated and saved in a file named
+<em>i2p_private_key</em>:</p>
+<pre><code>~/.bitcoin/testnet3$ ls
+
+anchors.dat  chainstate         i2p_private_key  settings.json
+banlist.dat  debug.log          mempool.dat      wallets
+blocks       fee_estimates.dat  peers.dat</code></pre></li>
+<li><p>Check that <code>bitcoin-cli -netinfo</code> or
+<code>bitcoin-cli getnetworkinfo</code>returns the I2P address:</p>
+<pre><code>Local addresses
+bmwyyuzyqdc5dcx27s4baltbu6zw7rbqfl2nmclt45i7ng3ul4pa.b32.i2p     port  18333    score      4</code></pre></li>
+</ol>
+<p>You now have your Bitcoin server accessible through the I2P network
+at your new local address.</p>
+<h2
+id="summary-bitcoin-core-as-an-i2p-invisible-internet-project-service">Summary:
+Bitcoin Core as an I2P (Invisible Internet Project) service</h2>
+<p>It is always good to have alternatives for privacy and not depend
+solely on Tor for running Bitcoin Core as a hidden service. Since I2P
+was recently added in Bitcoin Core, not many people use it. Experiment
+with it and report bugs if you find any issues.</p>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> For the official
+i2prouter implementation in Java, visit the <a
+href="https://geti2p.net/en/download">I2P download page</a> and follow
+the instructions for your Operating System. Once installed, open a
+terminal window and type <code>i2prouter start</code>. Then visit
+<code>127.0.0.1:7657</code> in your browser to enable SAM. To do so,
+select: “Configure Homepage”, then “Clients”, and finally select the
+“Play Button” next to SAM application Bridge. On the left side of the
+page, there should be a green light next to “Shared Clients”.</p>
+</blockquote>
+<p>Move on to “Programming with RPC” with <a
+href="16_0_Talking_to_Bitcoind.md">Chapter Sixteen: Talking to Bitcoind
+with C</a>.</p>
+<p>Or, if you’re not a programmer, you can skip to <a
+href="https://github.com/BlockchainCommons/Learning-Bitcoin-from-the-Command-Line/blob/master/19_0_Understanding_Your_Lightning_Setup.md">Chapter
+Nineteen: Understanding Your Lightning Setup</a> to continue your
+command-line education with the Lightning Network.</p>
+</body>
+</html>

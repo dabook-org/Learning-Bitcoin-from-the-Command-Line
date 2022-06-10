@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>09_2_Running_a_Bitcoin_Script</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="running-a-bitcoin-script">9.2: Running a Bitcoin Script</h1>
+<p>Bitcoin Scripts may not initially seem that intuitive, but their
+execution is quite simple, using reverse Polish notation and a
+stack.</p>
+<h2 id="understand-the-scripting-language">Understand the Scripting
+Language</h2>
+<p>A Bitcoin Script has three parts: it has a line of input; it has a
+stack for storage; and it has specific commands for execution.</p>
+<h3 id="understand-the-ordering">Understand the Ordering</h3>
+<p>Bitcoin Scripts are run from left to right. That sounds easy enough,
+because it’s the same way you read. However, it might actually be the
+most non-intuitive element of Bitcoin Script, because it means that
+functions don’t look like you’d expect. Instead, <em>the operands go
+before the operator.</em></p>
+<p>For example, if you were adding together “1” and “2”, your Bitcoin
+Script for that would be <code>1 2 OP_ADD</code>, <em>not</em> “1 + 2”.
+Since we know that OP_ADD operator takes two inputs, we know that the
+two inputs before it are its operands.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Technically, everything in
+Bitcoin Script is an opcode, thus it would be most appropriate to record
+the above example as <code>OP_1 OP_2 OP_ADD</code>. In our examples, we
+don’t worry about how the constants will be evaluated, as that’s a topic
+of translation, as is explained in <a
+href="10_2_Building_the_Structure_of_P2SH.md">§10.2: Building the
+Structure of P2SH</a>. Some writers prefer to also leave the “OP” prefix
+off all operators, but we have opted not to.</p>
+</blockquote>
+<h3 id="understand-the-stack">Understand the Stack</h3>
+<p>It’s actually not quite correct to say that an operator applies to
+the inputs before it. Really, an operator applies to the top inputs in
+Bitcoin’s stack.</p>
+<blockquote>
+<p>:book: <strong><em>What is a stack?</em></strong> A stack is a LIFO
+(last-in-first-out) data structure. It has two access functions: push
+and pop. Push places a new object on top of the stack, pushing down
+everything below it. Pop removes the top object from the stack.</p>
+</blockquote>
+<p>Whenever Bitcoin Script encounters a constant, it pushes it on the
+stack. So the above example of <code>1 2 OP_ADD</code> would actually
+look like this as it was processed:</p>
+<pre><code>Script: 1 2 OP_ADD
+Stack: [ ]
+
+Script: 2 OP_ADD
+Stack: [ 1 ]
+
+Script: OP_ADD
+Stack: [ 1 2 ]</code></pre>
+<p><em>Note that in this and in following examples the top of the stack
+is to the right and the bottom is to the left.</em></p>
+<h3 id="understand-the-opcodes">Understand the Opcodes</h3>
+<p>When a Bitcoin Script encounters an operator, it evaluates it. Each
+operator pops zero or more elements off the stack as inputs, usually one
+or two. It then processes them in a specific way before pushing zero or
+more elements back on the stack, usually one or two.</p>
+<blockquote>
+<p>:book: <strong><em>What is an Opcode?</em></strong> Opcode stands for
+“operation code”. It’s typically associated with machine-language code,
+and is a simple function (or “operator”).</p>
+</blockquote>
+<p>OP_ADD pops two items off the stack (here: 2 then 1), adds then
+together, and pushes the result back on the stack (here: 3).</p>
+<pre><code>Script:
+Running: 1 2 OP_ADD
+Stack: [ 3 ]</code></pre>
+<h2 id="build-up-complexity">Build Up Complexity</h2>
+<p>More complex scripts are created by running more commands in order.
+They need to be carefully evaluated from left to right, so that you can
+understand the state of the stack as each new command is run. It will
+constantly change, as a result of previous operators:</p>
+<pre><code>Script: 3 2 OP_ADD 4 OP_SUB
+Stack: [ ]
+
+Script: 2 OP_ADD 4 OP_SUB
+Stack: [ 3 ]
+
+Script: OP_ADD 4 OP_SUB
+Stack: [ 3 2 ]
+
+Script: 4 OP_SUB
+Running: 3 2 OP_ADD
+Stack: [ 5 ]
+
+Script: OP_SUB
+Stack: [ 5 4 ]
+
+Script: 
+Running: 5 4 OP_SUB
+Stack: [ 1 ]</code></pre>
+<h2 id="understand-the-usage-of-bitcoin-script">Understand the Usage of
+Bitcoin Script</h2>
+<p>That’s pretty much Bitcoin Scripting … other than a few intricacies
+for how this scripting language interacts with Bitcoin itself.</p>
+<h3 id="understand-scriptsig-and-scriptpubkey">Understand scriptSig and
+scriptPubKey</h3>
+<p>As we’ve seen, every input for a Bitcoin transaction contains a
+<code>scriptSig</code> that is used to unlock the
+<code>scriptPubKey</code> for the associated UTXO. They are
+<em>effectively</em> concatenated together, meaning that
+<code>scriptSig</code> and <code>scriptPubKey</code> are run together,
+in that order.</p>
+<p>So, presume that a UTXO were locked with a <code>scriptPubKey</code>
+that read <code>OP_ADD 99 OP_EQUAL</code>, requiring as input two
+numbers that add up to ninety-nine, and presume that the
+<code>scriptSig</code> of <code>1 98</code> were run to unlock it. The
+two scripts would effectively be run in order as
+<code>1 98 OP_ADD 99 OP_EQUAL</code>.</p>
+<p>Evaluate the result:</p>
+<pre><code>Script: 1 98 OP_ADD 99 OP_EQUAL
+Stack: []
+
+Script: 98 OP_ADD 99 OP_EQUAL
+Stack: [ 1 ]
+
+Script: OP_ADD 99 OP_EQUAL
+Stack: [ 1 98 ]
+
+Script: 99 OP_EQUAL
+Running: 1 98 OP_ADD
+Stack: [ 99 ]
+
+Script: OP_EQUAL
+Stack: [ 99 99 ]
+
+Script: 
+Running: 99 99 OP_EQUAL
+Stack: [ True ]</code></pre>
+<p>This abstraction isn’t quite accurate: for security reasons, the
+<code>scriptSig</code> is run, then the contents of the stack are
+transferred for the <code>scriptPubKey</code> to run, but it’s accurate
+enough for understanding how the key of <code>scriptSig</code> fits into
+the lock of <code>scriptPubKey</code>.</p>
+<blockquote>
+<p>:warning: <strong>WARNING</strong> The above is a non-standard
+transaction type. It would not actually be accepted by nodes running
+Bitcoin Core with the standard settings. <a
+href="10_1_Understanding_the_Foundation_of_P2SH.md">§10.1: Building a
+Bitcoin Script with P2SH</a> discusses how you actually <em>could</em>
+run a Bitcoin Script like this, using the power of P2SH.</p>
+</blockquote>
+<h3 id="get-the-results">Get the Results</h3>
+<p>Bitcoin will verify a transaction and allow the UTXO to be respent if
+two criteria are met when running <code>scriptSig</code> and
+<code>scriptPubKey</code>:</p>
+<ol type="1">
+<li>The execution did not get marked as invalid at any point, for
+example with a failed OP_VERIFY or the usage of a disabled opcode.</li>
+<li>The top item in the stack at the end of execution is true
+(non-zero).</li>
+</ol>
+<p>In the above example, the transaction would succeed because the stack
+has a <code>True</code> at its top. But, it would be just as permissible
+to end with a full stack and the number <code>42</code> on top.</p>
+<h2 id="summary-running-a-bitcoin-script">Summary: Running a Bitcoin
+Script</h2>
+<p>To process a Bitcoin Script, a <code>scriptSig</code> is run followed
+by the <code>scriptPubKey</code> that it’s unlocking. These commands are
+run in order, from left to right, with constants being pushed onto a
+stack and operators popping elements off that stack, then pushing
+results back onto it. If the Script doesn’t halt in the middle and if
+the item on top of the stack at the end is non-zero, then the UTXO is
+unlocked.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Introducing Bitcoin Scripts” with <a
+href="09_3_Testing_a_Bitcoin_Script.md">§9.3: Testing a Bitcoin
+Script</a>.</p>
+</body>
+</html>

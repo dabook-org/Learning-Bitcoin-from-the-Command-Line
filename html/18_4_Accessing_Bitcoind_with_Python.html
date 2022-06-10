@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>18_4_Accessing_Bitcoind_with_Python</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="accessing-bitcoind-with-python">18.4: Accessing Bitcoind with
+Python</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>This section explains how to interact with <code>bitcoind</code>
+using the Python programming language and the <a
+href="https://github.com/jgarzik/python-bitcoinrpc">Python-BitcoinRPC</a>.</p>
+<h2 id="set-up-python">Set Up Python</h2>
+<p>If you already have Bitcoin Core installed, you should have Python 3
+available as well. You can check this by running:</p>
+<p><code>$ python3 --version</code></p>
+<p>If it returns a version number (e.g., <code>3.7.3</code> or
+<code>3.8.3</code>) then you have python3 installed.</p>
+<p>However, if you somehow do not have Python installed, you’ll need
+build it from source as follows. Please see the <a
+href="17_4_Accessing_Bitcoind_with_Python.md#variant-build-python-from-source">“Building
+Python from Source”</a> variant before continuing.</p>
+<h3 id="set-up-bitcoinrpc">Set Up BitcoinRPC</h3>
+<p>Whether you used an existing Python or built it from source, you’re
+now ready to install the <code>python-bitcoinrpc</code> library:</p>
+<pre><code>$ pip3 install python-bitcoinrpc</code></pre>
+<p>If you don’t have <code>pip</code> installed, you’ll need to run the
+following:</p>
+<pre><code>$ sudo apt install python3-pip</code></pre>
+<p>(Then repeat the <code>pip3 install python-bitcoinrpc</code>
+instructions.)</p>
+<h3 id="create-a-bitcoinrpc-project">Create a BitcoinRPC Project</h3>
+<p>You’ll generally need to include appropriate declarations from
+<code>bitcoinrpc</code> in your Bitcoin projects in Python. The
+following will give you access to the RPC based commands:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bitcoinrpc.authproxy <span class="im">import</span> AuthServiceProxy, JSONRPCException</span></code></pre></div>
+<p>You may also find the following useful:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pprint <span class="im">import</span> pprint</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logging</span></code></pre></div>
+<p><code>pprint</code> will pretty print the <code>json</code> response
+from <code>bitcoind</code>.</p>
+<p><code>logging</code> will print out the call you make to
+<code>bitcoind</code> and <code>bitcoind</code>’s respose, which is
+useful when you make a bunch of calls together. If you don’t want the
+excessive output in the terminal just comment out the
+<code>logging</code> block.</p>
+<h2 id="build-your-connection">Build Your Connection</h2>
+<p>You are now ready to start interacting with <code>bitcoind</code> by
+establishing a connection. Create a file called <code>btcrpc.py</code>
+and type the following:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>logging.basicConfig()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>logging.getLogger(<span class="st">&quot;BitcoinRPC&quot;</span>).setLevel(logging.DEBUG)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># rpc_user and rpc_password are set in the bitcoin.conf file</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>rpc_user <span class="op">=</span> <span class="st">&quot;StandUp&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>rpc_pass <span class="op">=</span> <span class="st">&quot;6305f1b2dbb3bc5a16cd0f4aac7e1eba&quot;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>rpc_host <span class="op">=</span> <span class="st">&quot;127.0.0.1&quot;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>rpc_client <span class="op">=</span> AuthServiceProxy(<span class="ss">f&quot;http://</span><span class="sc">{</span>rpc_user<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>rpc_pass<span class="sc">}</span><span class="ss">@</span><span class="sc">{</span>rpc_host<span class="sc">}</span><span class="ss">:18332&quot;</span>, timeout<span class="op">=</span><span class="dv">120</span>)</span></code></pre></div>
+<p>The arguments in the URL are
+<code>&lt;rpc_username&gt;:&lt;rpc_password&gt;@&lt;host_IP_address&gt;:&lt;port&gt;</code>.
+As usual, the <code>user</code> and <code>pass</code> are found in your
+<code>~/.bitcoin/bitcoin.conf</code>, while the <code>host</code> is
+your localhost, and the port is <code>18332</code> for testnet. The
+<code>timeout</code> argument is specified since sockets timeout under
+heavy load on the mainnet. If you get
+<code>socket.timeout: timed out</code> response, be patient and increase
+the <code>timeout</code>.</p>
+<blockquote>
+<p>:link: <strong>MAINNET VS TESTNET:</strong> The port would be 8332
+for a mainnet setup.</p>
+</blockquote>
+<h3 id="make-an-rpc-call">Make an RPC Call</h3>
+<p>If <code>rpc_client</code> is successfully initialized, you’ll be
+able to send off RPC commands to your bitcoin node.</p>
+<p>In order to use an RPC method from <code>python-bitcoinrpc</code>,
+you’ll use <code>rpc_client</code> object that you created, which
+provides most of the functionality that can be accessed through
+<code>bitcoin-cli</code>, using the same method names.</p>
+<p>For example, the following will retrieve the blockcount of your
+node:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>block_count <span class="op">=</span> rpc_client.getblockcount()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Block Count:&quot;</span>, block_count)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------</span><span class="ch">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p>You should see the following output with <code>logging</code> enabled
+:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">DEBUG:BitcoinRPC:-3-</span><span class="op">&gt;</span> getblockcount []</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">DEBUG:BitcoinRPC:</span><span class="op">&lt;</span>-3- 1773020</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Block</span> Count: 1773020</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------</span></span></code></pre></div>
+<h3 id="make-an-rpc-call-with-arguments">Make an RPC Call with
+Arguments</h3>
+<p>You can use that blockcount as an argument to retrieve the blockhash
+of a block and also to retrieve details of that block.</p>
+<p>This is done by send your <code>rpc_client</code> object commands
+with an argument:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>blockhash <span class="op">=</span> rpc_client.getblockhash(block_count)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>block <span class="op">=</span> rpc_client.getblock(blockhash)</span></code></pre></div>
+<p>The <code>getblockhash</code> will return a single value, while the
+<code>getblock</code> will return an associative array of information
+about the block, which includes an array under <code>block['tx']</code>
+providing details on each transaction within the block:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>nTx <span class="op">=</span> block[<span class="st">&#39;nTx&#39;</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> nTx <span class="op">&gt;</span> <span class="dv">10</span>:</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    it_txs <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    list_tx_heading <span class="op">=</span> <span class="st">&quot;First 10 transactions: &quot;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    it_txs <span class="op">=</span> nTx</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    list_tx_heading <span class="op">=</span> <span class="ss">f&quot;All the </span><span class="sc">{</span>it_txs<span class="sc">}</span><span class="ss"> transactions: &quot;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;BLOCK: &quot;</span>, block_count)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-------------&quot;</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Block Hash...: &quot;</span>, blockhash)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Merkle Root..: &quot;</span>, block[<span class="st">&#39;merkleroot&#39;</span>])</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Block Size...: &quot;</span>, block[<span class="st">&#39;size&#39;</span>])</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Block Weight.: &quot;</span>, block[<span class="st">&#39;weight&#39;</span>])</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Nonce........: &quot;</span>, block[<span class="st">&#39;nonce&#39;</span>])</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Difficulty...: &quot;</span>, block[<span class="st">&#39;difficulty&#39;</span>])</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Number of Tx.: &quot;</span>, nTx)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(list_tx_heading)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------&quot;</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> i <span class="op">&lt;</span> it_txs:</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(i, <span class="st">&quot;:&quot;</span>, block[<span class="st">&#39;tx&#39;</span>][i])</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    i <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------</span><span class="ch">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<h3 id="run-your-code">Run Your Code</h3>
+<p>You can retrieve <a href="src/18_4_getinfo.py">the src code</a> and
+run it with <code>python3</code>:</p>
+<pre><code>$ python3 getinfo.py
+---------------------------------------------------------------
+Block Count: 1831106
+---------------------------------------------------------------
+---------------------------------------------------------------
+BLOCK:  1831106
+-------------
+Block Hash...:  00000000000003b2ea7c2cdfffd86156ad1f5606ab58e128940a2534d1348b04
+Merkle Root..:  056a547fe59208167eef86fa694263728fb684119254b340c1f86bdd423a8082
+Block Size...:  52079
+Block Weight.:  128594
+Nonce........:  1775583700
+Difficulty...:  4194304
+Number of Tx.:  155
+First 10 transactions: 
+---------------------
+0 : d228d55112e3aa26265b0118cfdc98345c229d20fe074b9afb87107c03ce11b5
+1 : 92822e8e34fafb472b87c99ea3f3e16440452b3f361ed86c6fa62175173fb750
+2 : fa7c67600c14d4aa350a9674688f1429577954f4a6c5e4639d06c8964824f647
+3 : 3a91d1527e308e5603dafde7ab17824f441a73a779d2571d073466dc9e8451b2
+4 : 30fd0e5527b1522e7b26a4818b9edac80fe47c0c39fc34705478a49e684708d0
+5 : 24c5372b38c78cbaf5b0b305925502a491bc0c1b5758f50c0bd335abb6ae85f5
+6 : be70e125a5793efc5e32051fecba0668df971bdf371138c8261201c2a46b2d38
+7 : 41ebf52c847a59ba0aeb4425c74e89a01e91defa86a82785ff53ed4668054561
+8 : dc8211b4ce122f87692e7c203672e3eb1ffc44c0a307eafcc560323fcc5fae78
+9 : 59e2d8e11cad287eacf3207e64a373f65059286b803ef0981510193ae29cbc8c
+---------------------------------------------------------------</code></pre>
+<h2 id="look-up-funds">Look Up Funds</h2>
+<p>You can similarly retrieve your wallet’s information with the
+<code>getwalletinfo</code> RPC:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>wallet_info <span class="op">=</span> rpc_client.getwalletinfo()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------&quot;</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Wallet Info:&quot;</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-----------&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>pprint(wallet_info)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;---------------------------------------------------------------</span><span class="ch">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p>You should have an output similar to the following with
+<code>logging</code> disabled:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Wallet</span> Info:</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">-----------</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">{</span><span class="st">&#39;avoid_reuse&#39;</span><span class="ex">:</span> False,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;balance&#39;</span><span class="ex">:</span> Decimal<span class="er">(</span><span class="st">&#39;0.07160443&#39;</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;hdseedid&#39;</span><span class="ex">:</span> <span class="st">&#39;6dko666b1cc0d69b7eb0539l89eba7b6390kdj02&#39;</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;immature_balance&#39;</span><span class="ex">:</span> Decimal<span class="er">(</span><span class="st">&#39;0E-8&#39;</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;keypoololdest&#39;</span><span class="ex">:</span> 1542245729,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;keypoolsize&#39;</span><span class="ex">:</span> 999,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;keypoolsize_hd_internal&#39;</span><span class="ex">:</span> 1000,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;paytxfee&#39;</span><span class="ex">:</span> Decimal<span class="er">(</span><span class="st">&#39;0E-8&#39;</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;private_keys_enabled&#39;</span><span class="ex">:</span> True,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;scanning&#39;</span><span class="ex">:</span> False,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;txcount&#39;</span><span class="ex">:</span> 9,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;unconfirmed_balance&#39;</span><span class="ex">:</span> Decimal<span class="er">(</span><span class="st">&#39;0E-8&#39;</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;walletname&#39;</span><span class="ex">:</span> <span class="st">&#39;&#39;</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a> <span class="st">&#39;walletversion&#39;</span><span class="ex">:</span> 169900}</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------</span></span></code></pre></div>
+<p>Other informational commands such as <code>getblockchaininfo</code>,
+<code>getnetworkinfo</code>, <code>getpeerinfo</code>, and
+<code>getblockchaininfo</code> will work similarly.</p>
+<p>Other commands can give you specific information on select elements
+within your wallet.</p>
+<h3 id="retrieve-an-array">Retrieve an Array</h3>
+<p>The <code>listtransactions</code> RPC allows you to look at the most
+recent 10 transactions on your system (or some arbitrary set of
+transactions using the <code>count</code> and <code>skip</code>
+arguments). It shows how an RPC command can return an easy-to-manipulate
+array:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>tx_list <span class="op">=</span> rpc_client.listtransactions()</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pprint(tx_list)</span></code></pre></div>
+<h3 id="explore-a-utxo">Explore a UTXO</h3>
+<p>You can similarly use <code>listunspent</code> to get an array of
+UTXOs on your system:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Exploring UTXOs&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">## List UTXOs</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>utxos <span class="op">=</span> rpc_client.listunspent()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Utxos: &quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;-----&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>pprint(utxos)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;------------------------------------------</span><span class="ch">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<p>In order to manipulate an array like the one returned from
+<code>listtransactions</code> or <code>listunspent</code>, you just grab
+the appropriate item from the appropriate element of the array:</p>
+<pre><code>## Select a UTXO - first one selected here
+utxo_txid = utxos[0][&#39;txid&#39;]</code></pre>
+<p>For <code>listunspent</code>, you get a <code>txid</code>. You can
+retrieve information about it with <code>gettransaction</code>, then
+decode that with <code>decoderawtransaction</code>:</p>
+<pre><code>utxo_hex = rpc_client.gettransaction(utxo_txid)[&#39;hex&#39;]
+
+utxo_tx_details = rpc_client.decoderawtransaction(utxo_hex)
+
+print(&quot;Details of Utxo with txid:&quot;, utxo_txid)
+print(&quot;---------------------------------------------------------------&quot;)
+print(&quot;UTXO Details:&quot;)
+print(&quot;------------&quot;)
+pprint(utxo_tx_details)
+print(&quot;---------------------------------------------------------------\n&quot;)</code></pre>
+<p>This code is available at <a
+href="src/18_4_walletinfo.py">walletinfo.py</a>.</p>
+<pre><code>$ python3 walletinfo.py 
+---------------------------------------------------------------
+Wallet Info:
+-----------
+{&#39;avoid_reuse&#39;: False,
+ &#39;balance&#39;: Decimal(&#39;0.01031734&#39;),
+ &#39;hdseedid&#39;: &#39;da5a1b058deb9e51ecffef1b0ddc069a5dfb2c5f&#39;,
+ &#39;immature_balance&#39;: Decimal(&#39;0E-8&#39;),
+ &#39;keypoololdest&#39;: 1596567843,
+ &#39;keypoolsize&#39;: 1000,
+ &#39;keypoolsize_hd_internal&#39;: 999,
+ &#39;paytxfee&#39;: Decimal(&#39;0E-8&#39;),
+ &#39;private_keys_enabled&#39;: True,
+ &#39;scanning&#39;: False,
+ &#39;txcount&#39;: 6,
+ &#39;unconfirmed_balance&#39;: Decimal(&#39;0E-8&#39;),
+ &#39;walletname&#39;: &#39;&#39;,
+ &#39;walletversion&#39;: 169900}
+---------------------------------------------------------------
+
+Utxos: 
+-----
+[{&#39;address&#39;: &#39;mv9cjEnS2o1EygBMdrz99LzhM8KeEMoXDg&#39;,
+  &#39;amount&#39;: Decimal(&#39;0.00001000&#39;),
+  &#39;confirmations&#39;: 1180,
+  &#39;desc&#39;: &quot;pkh([ce0c7e14/0&#39;/0&#39;/25&#39;]02d0541b9211aecd25913f7fdecfc1b469215fa326d52067b1b3f7efbd12316472)#n06pq9q5&quot;,
+  &#39;label&#39;: &#39;-addresstype&#39;,
+  &#39;safe&#39;: True,
+  &#39;scriptPubKey&#39;: &#39;76a914a080d1a10f5e7a02d0a291f118982ed19e8cfcd788ac&#39;,
+  &#39;solvable&#39;: True,
+  &#39;spendable&#39;: True,
+  &#39;txid&#39;: &#39;84207ffec658ae29ad1fdd330d8a13613303c3cf281ce628fadeb7636ffb535e&#39;,
+  &#39;vout&#39;: 0},
+ {&#39;address&#39;: &#39;tb1qrcf8c29966tvqxhwrtd2se3rj6jeqtll3r46a4&#39;,
+  &#39;amount&#39;: Decimal(&#39;0.01029734&#39;),
+  &#39;confirmations&#39;: 1180,
+  &#39;desc&#39;: &quot;wpkh([ce0c7e14/0&#39;/1&#39;/26&#39;]02c581259ba7e6aef6d7ea23adb08f7c7f10c4c678f2e097a4074639e7685d4805)#j3pctfhf&quot;,
+  &#39;safe&#39;: True,
+  &#39;scriptPubKey&#39;: &#39;00141e127c28a5d696c01aee1adaa8662396a5902fff&#39;,
+  &#39;solvable&#39;: True,
+  &#39;spendable&#39;: True,
+  &#39;txid&#39;: &#39;84207ffec658ae29ad1fdd330d8a13613303c3cf281ce628fadeb7636ffb535e&#39;,
+  &#39;vout&#39;: 1},
+ {&#39;address&#39;: &#39;mzDxbtYY3LBBBJ6HhaBAtnHv6c51BRBTLE&#39;,
+  &#39;amount&#39;: Decimal(&#39;0.00001000&#39;),
+  &#39;confirmations&#39;: 1181,
+  &#39;desc&#39;: &quot;pkh([ce0c7e14/0&#39;/0&#39;/23&#39;]0377bdd176f985b4af2f6bdbb22c2925b6007b6c07ba171f75e65990c002615e98)#3y6ef6vu&quot;,
+  &#39;label&#39;: &#39;-addresstype&#39;,
+  &#39;safe&#39;: True,
+  &#39;scriptPubKey&#39;: &#39;76a914cd339342b06042bb986a45e73d56db46acc1e01488ac&#39;,
+  &#39;solvable&#39;: True,
+  &#39;spendable&#39;: True,
+  &#39;txid&#39;: &#39;1679bee019c61608340b79810377be2798efd4d2ec3ace0f00a1967af70666b9&#39;,
+  &#39;vout&#39;: 1}]
+------------------------------------------
+
+Details of Utxo with txid: 84207ffec658ae29ad1fdd330d8a13613303c3cf281ce628fadeb7636ffb535e
+---------------------------------------------------------------
+UTXO Details:
+------------
+{&#39;hash&#39;: &#39;0c6c27f58f122329bbc53a91f290b35ce23bd2708706b21a04cdc387dc8e2fd9&#39;,
+ &#39;locktime&#39;: 1831103,
+ &#39;size&#39;: 225,
+ &#39;txid&#39;: &#39;84207ffec658ae29ad1fdd330d8a13613303c3cf281ce628fadeb7636ffb535e&#39;,
+ &#39;version&#39;: 2,
+ &#39;vin&#39;: [{&#39;scriptSig&#39;: {&#39;asm&#39;: &#39;&#39;, &#39;hex&#39;: &#39;&#39;},
+          &#39;sequence&#39;: 4294967294,
+          &#39;txid&#39;: &#39;1679bee019c61608340b79810377be2798efd4d2ec3ace0f00a1967af70666b9&#39;,
+          &#39;txinwitness&#39;: [&#39;3044022014b3e2359fb46d8cbc4cd30fa991b455edfa4b419a4c64a53fcdfc79e3ca89db022010cefc3268bc252d55f1982c426328b709b47d02332def9e2efb3b12de2cf0d301&#39;,
+                          &#39;0351b470e87b44e8e9607acf09b8d4543c51c93c17dc741176319e60202091f2be&#39;],
+          &#39;vout&#39;: 0}],
+ &#39;vout&#39;: [{&#39;n&#39;: 0,
+           &#39;scriptPubKey&#39;: {&#39;addresses&#39;: [&#39;mv9cjEnS2o1EygBMdrz99LzhM8KeEMoXDg&#39;],
+                            &#39;asm&#39;: &#39;OP_DUP OP_HASH160 &#39;
+                                   &#39;a080d1a10f5e7a02d0a291f118982ed19e8cfcd7 &#39;
+                                   &#39;OP_EQUALVERIFY OP_CHECKSIG&#39;,
+                            &#39;hex&#39;: &#39;76a914a080d1a10f5e7a02d0a291f118982ed19e8cfcd788ac&#39;,
+                            &#39;reqSigs&#39;: 1,
+                            &#39;type&#39;: &#39;pubkeyhash&#39;},
+           &#39;value&#39;: Decimal(&#39;0.00001000&#39;)},
+          {&#39;n&#39;: 1,
+           &#39;scriptPubKey&#39;: {&#39;addresses&#39;: [&#39;tb1qrcf8c29966tvqxhwrtd2se3rj6jeqtll3r46a4&#39;],
+                            &#39;asm&#39;: &#39;0 1e127c28a5d696c01aee1adaa8662396a5902fff&#39;,
+                            &#39;hex&#39;: &#39;00141e127c28a5d696c01aee1adaa8662396a5902fff&#39;,
+                            &#39;reqSigs&#39;: 1,
+                            &#39;type&#39;: &#39;witness_v0_keyhash&#39;},
+           &#39;value&#39;: Decimal(&#39;0.01029734&#39;)}],
+ &#39;vsize&#39;: 144,
+ &#39;weight&#39;: 573}
+---------------------------------------------------------------</code></pre>
+<h2 id="create-an-address">Create an Address</h2>
+<p>Creating a new address with Python 3 just requires the use of an RPC
+like <code>getnewaddress</code> or <code>getrawchangeaddress</code>.</p>
+<pre><code>new_address = rpc_client.getnewaddress(&quot;Learning-Bitcoin-from-the-Command-Line&quot;)
+new_change_address = rpc_client.getrawchangeaddress()</code></pre>
+<p>In this example, you give the <code>getnewaddress</code> command an
+argument: the <code>Learning-Bitcoin-from-the-Command-Line</code>
+label.</p>
+<h2 id="send-a-transaction">Send a Transaction</h2>
+<p>Creating a transaction in Python 3 requires combining some of the
+previous examples (of creating addresses and retrieving UTXOs) with some
+new RPC commands for creating, signing, and sending a transaction — much
+as you’ve done previously from the command line.</p>
+<p>There are five steps:</p>
+<ol start="0" type="1">
+<li>Create two addresses, one that will act as recipient and the other
+for change.</li>
+<li>Select a UTXO and set transaction details.</li>
+<li>Create a raw transaction.</li>
+<li>Sign the raw transaction with the private key of the UTXO.</li>
+<li>Broadcast the transaction on the bitcoin testnet.</li>
+</ol>
+<h3 id="select-utxo-set-transaction-details">1. Select UTXO &amp; Set
+Transaction Details</h3>
+<p>In the folowing code snippet you first select the UTXO which we want
+to spend. Then you get its address, transaction id, and the vector index
+of the output.</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>utxos <span class="op">=</span> rpc_client.listunspent()</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>selected_utxo <span class="op">=</span> utxos[<span class="dv">0</span>]  <span class="co"># again, selecting the first utxo here</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>utxo_address <span class="op">=</span> selected_utxo[<span class="st">&#39;address&#39;</span>]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>utxo_txid <span class="op">=</span> selected_utxo[<span class="st">&#39;txid&#39;</span>]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>utxo_vout <span class="op">=</span> selected_utxo[<span class="st">&#39;vout&#39;</span>]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>utxo_amt <span class="op">=</span> <span class="bu">float</span>(selected_utxo[<span class="st">&#39;amount&#39;</span>])</span></code></pre></div>
+<p>Next, you also retrieve the recipient address to which you want to
+send the bitcoins, calculate the amount of bitcoins you want to send,
+and calculate the miner fee and the change amount. Here, the amount is
+arbitrarily split in two and a miner fee is arbitrarily set.</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>recipient_address <span class="op">=</span> new_address</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>recipient_amt <span class="op">=</span> utxo_amt <span class="op">/</span> <span class="dv">2</span>  <span class="co"># sending half coins to recipient</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>miner_fee <span class="op">=</span> <span class="fl">0.00000300</span>        <span class="co"># choose appropriate fee based on your tx size</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>change_address <span class="op">=</span> new_change_address</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>change_amt <span class="op">=</span> <span class="bu">float</span>(<span class="st">&#39;</span><span class="sc">%.8f</span><span class="st">&#39;</span><span class="op">%</span>((utxo_amt <span class="op">-</span> recipient_amt) <span class="op">-</span> miner_fee))</span></code></pre></div>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Obviously a real program would
+make more sophisticated choices about what UTXO to use, what to do with
+the funds, and what miner’s fee to pay.</p>
+</blockquote>
+<h3 id="create-raw-transaction">2. Create Raw Transaction</h3>
+<p>Now you have all the information to send a transaction, but before
+you can send one, you have to create a transaction.</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>txids_vouts <span class="op">=</span> [{<span class="st">&quot;txid&quot;</span>: utxo_txid, <span class="st">&quot;vout&quot;</span>: utxo_vout}]</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>addresses_amts <span class="op">=</span> {<span class="ss">f&quot;</span><span class="sc">{</span>recipient_address<span class="sc">}</span><span class="ss">&quot;</span>: recipient_amt, <span class="ss">f&quot;</span><span class="sc">{</span>change_address<span class="sc">}</span><span class="ss">&quot;</span>: change_amt}</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>unsigned_tx_hex <span class="op">=</span> rpc_client.createrawtransaction(txids_vouts, addresses_amts)</span></code></pre></div>
+<p>Remember that the format of the <code>createrawtransaction</code>
+command is:</p>
+<p><code>$ bitcoin-cli createrawtransaction '[{"txid": &lt;utxo_txid&gt;, "vout": &lt;vector_id&gt;}]' '{"&lt;address&gt;": &lt;amount&gt;}'</code></p>
+<p>The <code>txids_vouts</code> is thus a list and the
+<code>addresses_amts</code> is a python dictionary, to match with the
+format of <code>createrawtransaction</code>.</p>
+<p>If you want to see more about the details of the transaction that
+you’ve created, you can use <code>decoderawtransaction</code>, either in
+Python 3 or with <code>bitcoin-cli</code>.</p>
+<h3 id="sign-raw-transaction">3. Sign Raw Transaction</h3>
+<p>Signing a transaction is often the trickiest part of sending a
+transaction programmatically. Here you retrieve a private key from an
+address with <code>dumpprivkey</code> and place it in an array:</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>address_priv_key <span class="op">=</span> []  <span class="co"># list of priv keys of each utxo</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>address_priv_key.append(rpc_client.dumpprivkey(utxo_address))</span></code></pre></div>
+<p>You can then use that array (which should contain the private keys of
+every UTXO that is being spent) to sign your
+<code>unsigned_tx_hex</code>:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>signed_tx <span class="op">=</span> rpc_client.signrawtransactionwithkey(unsigned_tx_hex, address_priv_key)</span></code></pre></div>
+<p>This returns a JSON object with the signed transaction’s hex, and
+whether it was signed completely or not:</p>
+<h3 id="broadcast-transaction">4. Broadcast Transaction</h3>
+<p>Finally, you are ready to broadcast the signed transaction on the
+bitcoin network:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>send_tx <span class="op">=</span> rpc_client.sendrawtransaction(signed_tx[<span class="st">&#39;hex&#39;</span>])</span></code></pre></div>
+<h3 id="run-your-code-1">Run Your Code</h3>
+<p>The <a href="src/18_4_sendtx.py">sample code</a> is full of
+<code>print</code> statements to demonstrate all of the data available
+at every point:</p>
+<pre><code>$ python3 sendtx.py 
+Creating a Transaction
+---------------------------------------------------------------
+Transaction Details:
+-------------------
+UTXO Address.......:  mv9cjEnS2o1EygBMdrz99LzhM8KeEMoXDg
+UTXO Txid..........:  84207ffec658ae29ad1fdd330d8a13613303c3cf281ce628fadeb7636ffb535e
+Vector ID of Output:  0
+UTXO Amount........:  1e-05
+Tx Amount..........:  5e-06
+Recipient Address..:  tb1qca0elxxqzw5xc0s3yq5qhapzzj90ka0zartu6y
+Change Address.....:  tb1qrveukqrvqm9h6fua99xvcxgnvdx507dg8e8hrt
+Miner Fee..........:  3e-06
+Change Amount......:  2e-06
+---------------------------------------------------------------
+
+---------------------------------------------------------------
+Unsigned Transaction Hex:  02000000015e53fb6f63b7defa28e61c28cfc3033361138a0d33dd1fad29ae58c6fe7f20840000000000ffffffff02f401000000000000160014c75f9f98c013a86c3e1120280bf422148afb75e2c8000000000000001600141b33cb006c06cb7d279d294ccc1913634d47f9a800000000
+---------------------------------------------------------------
+
+---------------------------------------------------------------
+Signed Transaction: 
+----------------------
+{&#39;complete&#39;: True,
+ &#39;hex&#39;: &#39;02000000015e53fb6f63b7defa28e61c28cfc3033361138a0d33dd1fad29ae58c6fe7f2084000000006a47304402205da9b2234ea057c9ef3b7794958db6c650c72dedff1a90d2915147a5f6413f2802203756552aba0dd8ebd71b0f28341becc01b28d8b28af063d7c8ce89f9c69167f8012102d0541b9211aecd25913f7fdecfc1b469215fa326d52067b1b3f7efbd12316472ffffffff02f401000000000000160014c75f9f98c013a86c3e1120280bf422148afb75e2c8000000000000001600141b33cb006c06cb7d279d294ccc1913634d47f9a800000000&#39;}
+---------------------------------------------------------------
+
+---------------------------------------------------------------
+TXID of sent transaction:  187f8baa222f9f37841d966b6bad59b8131cfacca861cbe9bfc8656bd16a44cc</code></pre>
+<h2 id="summary-accessing-bitcoind-with-python">Summary: Accessing
+Bitcoind with Python</h2>
+<p>Accessing Bitcoind with Python is very easy while using the
+<code>python-bitcoinrpc</code> library. The first thing to always do is
+to establish a connection with your <code>bitcoind</code> instance, then
+you can call all of the bitcoin API calls as described in the
+bitcoin-core documentation. This makes it easy to create small or large
+programs to manage your own node, check balances, or create cool
+applications on top, as you access the full power of
+<code>bitcoin-cli</code>.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Learn more about “Talking to Bitcoin in Other Languages” in <a
+href="18_5_Accessing_Bitcoind_with_Rust.md">18.5: Accessing Bitcoin with
+Rust</a>.</p>
+<h2 id="variant-build-python-from-source">Variant: Build Python from
+Source</h2>
+<p>If you need to install Python 3 from source, follow these
+instructions, then continue with <a
+href="18_4_Accessing_Bitcoind_with_Python.md#create-a-bitcoinrpc-project">“Create
+a BitcoinRPC Project”</a>.</p>
+<h3 id="install-dependencies">1. Install Dependencies</h3>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt-get install build-essential checkinstall</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev</span></code></pre></div>
+<h3 id="download-extract-python">2. Download &amp; Extract Python</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> wget https://www.python.org/ftp/python/3.8.3/Python-3.8.3.tgz</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> tar <span class="at">-xzf</span> Python-3.8.3.tgz</span></code></pre></div>
+<h3 id="compile-python-source-check-installation">3. Compile Python
+Source &amp; Check Installation:</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> cd Python-3.8.3</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo ./configure <span class="at">--enable-optimizations</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo make <span class="at">-j</span> 8  <span class="co"># enter the number of cores of your system you want to use to speed up the build process.</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> sudo make altinstall</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> python3.8 <span class="at">--version</span></span></code></pre></div>
+<p>After you get the version output, remove the source file:</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode sh"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rm Python-3.8.3.tgz</span></code></pre></div>
+</body>
+</html>

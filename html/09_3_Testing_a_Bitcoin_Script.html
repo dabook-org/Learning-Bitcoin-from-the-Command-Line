@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>09_3_Testing_a_Bitcoin_Script</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="testing-a-bitcoin-script">9.3: Testing a Bitcoin Script</h1>
+<p>Bitcoin Scripting allows for considerable additional control over
+Bitcoin transactions, but it’s also somewhat dangerous. As we’ll
+describe in <a
+href="10_1_Understanding_the_Foundation_of_P2SH.md">§10.1</a>, the
+actual Scripts are somewhat isolated from the Bitcoin network, which
+means that it’s possible to write a script and have it accepted by the
+network even if it’s impossible to redeem from that script! So, you need
+to thoroughly test your Scripts before you put your money into them.</p>
+<p>This chapter thus describes a prime method for testing Bitcoin
+Scripts, which we’ll also be using for occasional examples throughout
+the rest of this section.</p>
+<h2 id="install-btcdeb">Install btcdeb</h2>
+<p>The Bitcoin Script Debugger (<code>btcdeb</code>) by <span
+class="citation" data-cites="kallewoof">@kallewoof</span> is one of the
+most reliable methods we’ve found for debugging Bitcoin Scripts. It
+does, however, require setting up C++ and a few other accessories on
+your machine, so we’ll also offer a few other options toward the end of
+this chapter.</p>
+<p>First, you need to clone the <code>btcdeb</code> GitHub repository,
+which will also require installing <code>git</code> if you don’t yet
+have it.</p>
+<pre><code>$ sudo apt-get install git
+$ git clone https://github.com/bitcoin-core/btcdeb.git</code></pre>
+<p>Note that when you run <code>git clone</code> it will copy
+<code>btcdeb</code> into your current directory. We’ve chosen to do so
+in our <code>~standup</code> directory.</p>
+<pre><code>$ ls
+bitcoin-0.20.0-x86_64-linux-gnu.tar.gz  btcdeb  laanwj-releases.asc  SHA256SUMS.asc</code></pre>
+<p>Afterward, you must install required C++ and other packages.</p>
+<pre><code>$ sudo apt-get install autoconf libtool g++ pkg-config make</code></pre>
+<p>You should also install readline, as this makes the debugger a lot
+easier to use by supporting history using up/down arrows, left-right
+movement, autocompletion using tab, and other good user interfaces.</p>
+<pre><code>$ sudo apt-get install libreadline-dev</code></pre>
+<p>You’re now ready to compile and install <code>btcdeb</code>:</p>
+<pre><code>$ cd btcdeb
+$ ./autogen.sh
+$ ./configure
+$ make
+$ sudo make install</code></pre>
+<p>After all of that, you should have a copy of <code>btcdeb</code>:</p>
+<pre><code>$ which btcdeb
+/usr/local/bin/btcdeb</code></pre>
+<h2 id="use-btcdeb">Use btcdeb</h2>
+<p><code>btcdeb</code> works like a standard debugger. It takes a script
+(as well as any number of stack entries) as a startup argument. You then
+can <code>step</code> through the script.</p>
+<p>If you instead start it up with no arguments, you simply get an
+interpreter where you may issue <code>exec [opcode]</code> commands to
+perform actions directly.</p>
+<h3 id="use-btcdeb-for-an-addition-example">Use btcdeb for an Addition
+Example</h3>
+<p>The following example shows the use of <code>btcdeb</code> for the
+addition example from the previous section, <code>1 2 OP_ADD</code></p>
+<pre><code>$ btcdeb &#39;[1 2 OP_ADD]&#39; 
+btcdeb 0.2.19 -- type `btcdeb -h` for start up options
+warning: ambiguous input 1 is interpreted as a numeric value; use OP_1 to force into opcode
+warning: ambiguous input 2 is interpreted as a numeric value; use OP_2 to force into opcode
+miniscript failed to parse script; miniscript support disabled
+valid script
+3 op script loaded. type `help` for usage information
+script  |  stack 
+--------+--------
+1       | 
+2       | 
+OP_ADD  | 
+#0000 1</code></pre>
+<p>It shows our initial script, running top to bottom, and also shows
+what will be executed next in the script.</p>
+<p>We type <code>step</code> and it advances one step by taking the
+first item in the script and pushing it onto the stack:</p>
+<pre><code>btcdeb&gt; step
+        &lt;&gt; PUSH stack 01
+script  |  stack 
+--------+--------
+2       | 01
+OP_ADD  | 
+#0001 2</code></pre>
+<p>And again:</p>
+<pre><code>btcdeb&gt; step
+        &lt;&gt; PUSH stack 02
+script  |  stack 
+--------+--------
+OP_ADD  |      02
+        | 01
+#0002 OP_ADD</code></pre>
+<p>Now we execute the the <code>OP_ADD</code> and there’s great
+excitement because that opcode pops the first two items off the stack,
+adds them together, then pushes their sum onto the stack.</p>
+<pre><code>btcdeb&gt; step
+        &lt;&gt; POP  stack
+        &lt;&gt; POP  stack
+        &lt;&gt; PUSH stack 03
+script  |  stack 
+--------+--------
+        | 03</code></pre>
+<p>And that’s where our script ends, with nothing more to execute and a
+<code>03</code> sitting on top of our stack as the result of the
+Script.</p>
+<blockquote>
+<p><strong>NOTE:</strong> <code>btcdeb</code> allows you to repeat the
+previous command by hitting enter. We will be doing this in subsequent
+examples, so don’t be surprised about <code>btcdeb&gt;</code> prompts
+with nothing as input. It is simply repeating the previous (often
+<code>step</code>) command.</p>
+</blockquote>
+<h3 id="use-btcdeb-for-a-subtraction-example">Use btcdeb for a
+Subtraction Example</h3>
+<p>The previous section also included a slightly more complex
+subtraction example of Scripting: <code>3 2 OP_ADD 4 OP_SUB</code>.
+Here’s what that looks like:</p>
+<pre><code>$ btcdeb &#39;[3 2 OP_ADD 4 OP_SUB]&#39;
+btcdeb 0.2.19 -- type `btcdeb -h` for start up options
+warning: ambiguous input 3 is interpreted as a numeric value; use OP_3 to force into opcode
+warning: ambiguous input 2 is interpreted as a numeric value; use OP_2 to force into opcode
+warning: ambiguous input 4 is interpreted as a numeric value; use OP_4 to force into opcode
+miniscript failed to parse script; miniscript support disabled
+valid script
+5 op script loaded. type `help` for usage information
+script  |  stack 
+--------+--------
+3       | 
+2       | 
+OP_ADD  | 
+4       | 
+OP_SUB  | 
+#0000 3
+btcdeb&gt; step
+        &lt;&gt; PUSH stack 03
+script  |  stack 
+--------+--------
+2       | 03
+OP_ADD  | 
+4       | 
+OP_SUB  | 
+#0001 2
+btcdeb&gt; 
+        &lt;&gt; PUSH stack 02
+script  |  stack 
+--------+--------
+OP_ADD  |      02
+4       | 03
+OP_SUB  | 
+#0002 OP_ADD
+btcdeb&gt; 
+        &lt;&gt; POP  stack
+        &lt;&gt; POP  stack
+        &lt;&gt; PUSH stack 05
+script  |  stack 
+--------+--------
+4       | 05
+OP_SUB  | 
+#0003 4
+btcdeb&gt; 
+        &lt;&gt; PUSH stack 04
+script  |  stack 
+--------+--------
+OP_SUB  |      04
+        | 05
+#0004 OP_SUB
+btcdeb&gt; 
+        &lt;&gt; POP  stack
+        &lt;&gt; POP  stack
+        &lt;&gt; PUSH stack 01
+script  |  stack 
+--------+--------
+        | 01</code></pre>
+<p>We’ll be returning to <code>btcdeb</code> from time to time, and it
+will remain an excellent tool for testing your own scripts.</p>
+<h3 id="use-the-power-of-btcdeb">Use the Power of btcdeb</h3>
+<p><code>btcdeb</code> also has a few more powerful functions, such as
+<code>print</code> and <code>stack</code>, which show you the script and
+the stack at any time.</p>
+<p>For example, in the above script, once you’ve advanced to the
+<code>OP_ADD</code> command, you can see the following:</p>
+<pre><code>btcdeb&gt; print
+    #0000 3
+    #0001 2
+ -&gt; #0002 OP_ADD
+    #0003 4
+    #0004 OP_SUB
+btcdeb&gt; stack
+&lt;01&gt;    02  (top)
+&lt;02&gt;    03</code></pre>
+<p>Using these commands can make it easier to see what’s going on and
+where you are.</p>
+<h2 id="test-a-script-online">Test a Script Online</h2>
+<p>There are also a few web simulators that you can use to test scripts
+online. They can be superior to a command-line tool by offering a more
+graphical output, but we also find that they tend to have
+shortcomings.</p>
+<p>In the past we’ve tried to give extensive guidelines on using sites
+such as the <a href="http://www.crmarsh.com/script-playground/">Script
+Playground</a> or the <a
+href="https://bitcoin-script-debugger.visvirial.com/">Bitcoin Online
+Script Debugger</a>, but they become out of date and/or disappeared too
+quickly to keep up with them.</p>
+<p>Assume that these debuggers have the nice advantage of showing things
+visually and explicitly telling you whether a script succeeds (unlocks)
+or fails (stays locked). Assume that they have disadvantages with
+signatures, where many of them either always return <code>true</code>
+for signature tests or else have very cumbersome mechanisms for
+incorporating them.</p>
+<h2 id="test-a-script-with-bitcoin">Test a Script with Bitcoin</h2>
+<p>Even with a great tool like <code>btcdeb</code> or transient
+resources like the various online script testers, you’re not working
+with the real thing. You can’t guarantee that they follow Bitcoin’s
+consensus rules, which means you can’t guarantee their results. For
+example, the Script Playground explicitly says that it ignores a bug
+that’s implicit in Bitcoin multisignatures. This means that any multisig
+code that you successfully test on the Script Playground will break in
+the real world.</p>
+<p>So the only way to <em>really</em> test Bitcoin Scripts is to try
+them out on Testnet.</p>
+<p>And how do you do that? As it happens that’s the topic of <a
+href="10_0_Embedding_Bitcoin_Scripts_in_P2SH_Transactions.md">chapter
+10</a>, which looks into introducing these abstract scripts to the real
+world of Bitcoin by embedding them in P2SH transactions. (But even then,
+you will probably need an API to push your P2SH transaction onto the
+Bitcoin network, so full testing will still be a ways in the
+future.)</p>
+<p><em>Whatever</em> other testing methods you’ve used, testing a script
+on Testnet should be your final test <em>before</em> you put your Script
+on Mainnet. Don’t trust that your code is right; don’t just eyeball it.
+Don’t even trust whatever simulators or debuggers you’ve been using.
+Doing so is another great way to lose funds on Bitcoin.</p>
+<h2 id="summary-testing-a-bitcoin-script">Summary: Testing a Bitcoin
+Script</h2>
+<p>You should install <code>btcdeb</code> as a command-line tool to test
+out your Bitcoin Scripts. As of this writing, it produces accurate
+results that can step through the entire scripting process. You can also
+look at some online sites for a more visual representation. When you’re
+all done, you’re going to need to go to testnet to make sure things are
+working accurately, before you deploy more generally.</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Introducing Bitcoin Scripts” with our first real-life
+example: <a href="09_4_Scripting_a_P2PKH.md">§9.4: Scripting a
+P2PKH</a>.</p>
+</body>
+</html>

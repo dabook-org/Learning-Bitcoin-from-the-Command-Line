@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>14_1_Verifying_Your_Tor_Setup</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="verifying-your-tor-setup">14.1: Verifying Your Tor Setup</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>If you did a standard installation with <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup">Bitcoin
+Standup</a> then you should have Tor set up as part of your Bitcoin
+node: Tor is installed and has created hidden services for the Bitcoin
+RPC ports; while an onion address has also been created for
+<code>bitcoind</code>. This section talks about what all of that is and
+what to do with it.</p>
+<blockquote>
+<p>:book: <strong><em>What is Tor?</em></strong> Tor is a low-latency
+anonymity and overlay network based on onion routing and path-building
+design for enabling anonymous communication. It’s free and open-source
+software with the name derived from the acronym for the original
+software project name: “The Onion Router”.</p>
+</blockquote>
+<blockquote>
+<p>:book: <strong><em>Why Use Tor for Bitcoin?</em></strong> The Bitcoin
+network is a peer-to-peer network that listens for transactions and
+propagates them using a public IP address. When connecting to the
+network not using Tor, you would share your IP address, which could
+expose your location, your uptime, and others details to third parties —
+which is an undesirable privacy practice. To protect yourself online you
+should use tools like Tor to hide your connection details. Tor allows
+you to improve your privacy online as your data is cryptographically
+encoded and goes through different nodes, each one decoding a single
+layer (hence the onion metaphor).</p>
+</blockquote>
+<h2 id="understand-tor">Understand Tor</h2>
+<p>So how does Tor work?</p>
+<p>When a user wants to connect to an Internet server, Tor tries to
+build a path formed by at least three Tor relay nodes, called Guard,
+Middle, and Exit. While building this path, symmetric encryption keys
+are negotiated; when a message moves along the path, each relay then
+strips off its layer of encryption. In this way, the message arrives at
+the final destination in its original form, and each party only knows
+the previous and the next hop and cannot determine origin or
+destination.</p>
+<p>Here’s what a connection looks like without Tor:</p>
+<pre><code>20:58:03.804787 IP bitcoin.36300 &gt; lb-140-82-114-25-iad.github.com.443: Flags [P.], seq 1:30, ack 25, win 501, options [nop,nop,TS val 3087919981 ecr 802303366], length 29</code></pre>
+<p>Contrariwise, with Tor much less information about the actual
+machines is transmitted:</p>
+<pre><code>21:06:52.744602 IP bitcoin.58776 &gt; 195-xxx-xxx-x.rev.pxxxxxm.eu.9999: Flags [P.], seq 264139:265189, ack 3519373, win 3410, options [nop,nop,TS val 209009853 ecr 3018177498], length 1050
+21:06:52.776968 IP 195-xxx-xxx-x.rev.pxxxxxm.eu.9999 &gt; bitcoin.58776: Flags [.], ack 265189, win 501, options [nop,nop,TS val 3018177533 ecr 209009853], length 0</code></pre>
+<p>Bottom line: Tor encrypts your data in such a way that it hides your
+origin, your destination, and what services you’re using, whereas a
+standard encryption protocol like TLS <em>only</em> protects what your
+data contains.</p>
+<h3 id="understand-the-tor-network-architecture">Understand the Tor
+Network Architecture</h3>
+<p>The basic architecture of the Tor network is made up of the following
+components:</p>
+<ul>
+<li><strong>Tor Client (OP or Onion Proxy).</strong> A Tor client
+installs local software that acts as an onion proxy. It packages
+application data into cells that are all the same size (512 bytes),
+which it then sends to the Tor network. A cell is the basic unit of Tor
+transmission.</li>
+<li><strong>Onion Node (OR or Onion Router).</strong> An onion node
+transmits cells coming from the Tor client and from online servers.
+There are three types of onion nodes: input (Guard), intermediate nodes
+(Middle), and output nodes (Exit).</li>
+<li><strong>Directory Server.</strong> A Directory server stores
+information about onion routers and onion servers (hidden services),
+such as their public keys.</li>
+<li><strong>Onion Server (hidden server).</strong> An onion server
+supports TCP applications such as web pages or IRC as services.</li>
+</ul>
+<h3 id="understand-the-limitations-of-tor">Understand the Limitations of
+Tor</h3>
+<p>Tor isn’t a perfect tool. Because information from the Tor network is
+decrypted at the exit nodes before being sent to its final destinations,
+theoretically an observer could collect sufficient metadata to
+compromise anonymity and potentially identify users.</p>
+<p>There are also studies that suggest that possible exploits of
+Bitcoin’s anti-DoS protection could allow an attacker to force other
+users who use Tor to connect exclusively through his Tor Exit nodes or
+to his Bitcoin peers, isolating the client from the rest of the Bitcoin
+network and exposing them to censorship, correlation, and other
+attacks.</p>
+<p>Similarly, Bitcoin Tor users could be fingerprint-attacked by setting
+an address cookie on their nodes. This would also allow correlation and
+thus deanonymization.</p>
+<p>Meanwhile, even over Tor, Bitcoin is only a pseudoanonymous service
+due to the many dangers of correlation that stem from the permanent
+ledger itself. This means that Bitcoin usage over Tor is actually more
+likely to be <em>deanonymized</em> than other services (and could lead
+to the deanonymization of other activities).</p>
+<p>With that said, Tor is generally considered safer than the
+alternative, which is non-anonymous browsing.</p>
+<h2 id="verify-your-tor-setup">Verify Your Tor Setup</h2>
+<p>So how do you verify that you’ve enabled Tor? If you installed with
+Bitcoin Standup, the following will verify that Tor is running on your
+system</p>
+<pre><code>$ sudo -u debian-tor tor --verify-config</code></pre>
+<p>If Tor is installed correctly you should output like this:</p>
+<pre><code>Jun 26 21:52:09.230 [notice] Tor 0.4.3.5 running on Linux with Libevent 2.0.21-stable, OpenSSL 1.0.2n, Zlib 1.2.11, Liblzma 5.2.2, and Libzstd N/A.
+Jun 26 21:52:09.230 [notice] Tor can&#39;t help you if you use it wrong! Learn how to be safe at https://www.torproject.org/download/download#warning
+Jun 26 21:52:09.230 [notice] Read configuration file &quot;/etc/tor/torrc&quot;.
+Configuration was valid</code></pre>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> This just means that Tor is
+running, not that its being used for all (or any) connections.</p>
+</blockquote>
+<h3 id="verify-your-tor-setup-for-rpc">Verify Your Tor Setup for
+RPC</h3>
+<p>The most important purpose of Tor, as installed by Bitcoin Standup,
+is to offer hidden services for the RPC ports that are used to send
+command-line style commands to <code>bitcoind</code>.</p>
+<blockquote>
+<p>:book: <strong><em>What is a Tor Hidden Service?</em></strong> A
+hidden service (aka “an onion service”) is a service that is accessible
+via Tor. Connection made to that service <em>using the Onion
+Network</em> will be anonymized.</p>
+</blockquote>
+<p>The Tor config file is found at <code>/etc/tor/torrc</code>. If you
+look at it, you should see the following services to protect your RPC
+ports:</p>
+<pre><code>HiddenServiceDir /var/lib/tor/standup/
+HiddenServiceVersion 3
+HiddenServicePort 1309 127.0.0.1:18332
+HiddenServicePort 1309 127.0.0.1:18443
+HiddenServicePort 1309 127.0.0.1:8332</code></pre>
+<blockquote>
+<p>:link: <strong>TESTNET vs MAINNET:</strong> Mainnet RPC is run on
+port 8332, testnet on port 18332.</p>
+</blockquote>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> The
+<code>HiddenServiceDir</code> is where all the files are kept for this
+particular service. If you need to lookup your onion address, access
+keys, or add authorized clients, this is where to do so!</p>
+</blockquote>
+<p>The easy way to test your RPC Hidden Service is to use the <a
+href="https://github.com/BlockchainCommons/Bitcoin-Standup/blob/master/Docs/Quick-Connect-API.md">QuickConnect
+API</a> built into Bitcoin Standup. Just download the QR code found at
+<code>/qrcode.png</code> and scan it using a wallet or node that support
+QuickConnect, such as <a
+href="https://github.com/BlockchainCommons/FullyNoded-2">The Gordian
+Wallet</a>. When you scan the QR, you should see the wallet sync up with
+your node; it’s doing so using the RPC hidden services.</p>
+<p>The hard way to test your RPC Hidden Service is to send a
+<code>bitcoin-cli</code> command with <code>torify</code>, which allows
+you to translate a normal UNIX command to a Tor-protected command. It’s
+difficult because you need to grab three pieces of information.</p>
+<ol type="1">
+<li><strong>Your Hidden Service Port.</strong> This comes from
+<code>/etc/tor/torrc/</code>. By default, it’s port 1309.</li>
+<li><strong>Your Tor Address.</strong> This is in the
+<code>hostname</code> file in the <code>HiddenServiceDir</code>
+directory defined in <code>/etc/tor/torrc</code>. By default the file is
+thus <code>/var/lib/tor/standup/hostname</code>. It’s protected, so
+you’ll need to <code>sudo</code> to access it:</li>
+</ol>
+<pre><code>$ sudo more /var/lib/tor/standup/hostname
+mgcym6je63k44b3i5uachhsndayzx7xi4ldmwrm7in7yvc766rykz6yd.onion</code></pre>
+<ol start="3" type="1">
+<li><strong>Your RPC Password.</strong> This is in
+<code>~/.bitcoin/bitcoin.conf</code></li>
+</ol>
+<p>When you have all of that information you can issue a
+<code>bitcoin-cli</code> command using <code>torify</code> and
+specifying the <code>-rpcconnect</code> as your onion address, the
+<code>-rpcport</code> as your hidden service port, and the
+<code>-rpcpassword</code> as your password:</p>
+<pre><code>$ torify bitcoin-cli -rpcconnect=mgcym6je63k44b3i5uachhsndayzx7xi4ldmwrm7in7yvc766rykz6yd.onion -rpcport=1309 -rpcuser=StandUp -rpcpassword=685316cc239c24ba71fd0969fa55634f getblockcount</code></pre>
+<h3 id="verify-your-tor-setup-for-bitcoind">Verify Your Tor Setup for
+Bitcoind</h3>
+<p>Bitcoin Standup also ensures that your <code>bitcoind</code> is set
+up to optionally communicate on an onion address.</p>
+<p>You can verify the initial setup of Tor for <code>bitcoind</code> by
+grepping for “tor” in the <code>debug.log</code> in your data
+directory:</p>
+<pre><code>$ grep &quot;tor:&quot; ~/.bitcoin/testnet3/debug.log
+2021-06-09T14:07:04Z tor: ADD_ONION successful
+2021-06-09T14:07:04Z tor: Got service ID vazr3k6bgnfafmdpcmbegoe5ju5kqyz4tk7hhntgaqscam2qupdtk2yd, advertising service vazr3k6bgnfafmdpcmbegoe5ju5kqyz4tk7hhntgaqscam2qupdtk2yd.onion:18333
+2021-06-09T14:07:04Z tor: Cached service private key to /home/standup/.bitcoin/testnet3/onion_v3_private_key</code></pre>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> Bitcoin Core does not
+support v2 addresses anymore. Tor v2 support was removed in <a
+href="https://github.com/bitcoin/bitcoin/pull/22050">#22050</a></p>
+</blockquote>
+<blockquote>
+<p><strong>TESTNET vs MAINNET:</strong> Mainnet <code>bitcoind</code>
+responds on port 8333, testnet on port 18333.</p>
+</blockquote>
+<p>You can verify that a Tor hidden service has been created for Bitcoin
+with the <code>getnetworkinfo</code> RPC call:</p>
+<pre><code>$ bitcoin-cli getnetworkinfo
+...
+ &quot;localaddresses&quot;: [
+    {
+      &quot;address&quot;: &quot;173.255.245.83&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;2600:3c01::f03c:92ff:fe86:f26&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;vazr3k6bgnfafmdpcmbegoe5ju5kqyz4tk7hhntgaqscam2qupdtk2yd.onion&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 4
+    }
+  ],
+...</code></pre>
+<p>This shows three addresses to access your Bitcoin server, an IPv4
+address (<code>173.255.245.83</code>), an IPv6 address
+(<code>2600:3c01::f03c:92ff:fe86:f26</code>), and a Tor address
+(<code>vazr3k6bgnfafmdpcmbegoe5ju5kqyz4tk7hhntgaqscam2qupdtk2yd.onion</code>).</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Obviously: never reveal your Tor
+address in a way that’s associated with your name or other PII!</p>
+</blockquote>
+<p>You can see similar information with <code>getnetworkinfo</code>.</p>
+<pre><code> bitcoin-cli getnetworkinfo
+{
+  &quot;version&quot;: 200000,
+  &quot;subversion&quot;: &quot;/Satoshi:0.20.0/&quot;,
+  &quot;protocolversion&quot;: 70015,
+  &quot;localservices&quot;: &quot;0000000000000408&quot;,
+  &quot;localservicesnames&quot;: [
+    &quot;WITNESS&quot;,
+    &quot;NETWORK_LIMITED&quot;
+  ],
+  &quot;localrelay&quot;: true,
+  &quot;timeoffset&quot;: 0,
+  &quot;networkactive&quot;: true,
+  &quot;connections&quot;: 10,
+  &quot;networks&quot;: [
+    {
+      &quot;name&quot;: &quot;ipv4&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;&quot;,
+      &quot;proxy_randomize_credentials&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;ipv6&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;&quot;,
+      &quot;proxy_randomize_credentials&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;onion&quot;,
+      &quot;limited&quot;: false,
+      &quot;reachable&quot;: true,
+      &quot;proxy&quot;: &quot;127.0.0.1:9050&quot;,
+      &quot;proxy_randomize_credentials&quot;: true
+    }
+  ],
+  &quot;relayfee&quot;: 0.00001000,
+  &quot;incrementalfee&quot;: 0.00001000,
+  &quot;localaddresses&quot;: [
+    {
+      &quot;address&quot;: &quot;173.255.245.83&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;2600:3c01::f03c:92ff:fe86:f26&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 1
+    },
+    {
+      &quot;address&quot;: &quot;vazr3k6bgnfafmdpcmbegoe5ju5kqyz4tk7hhntgaqscam2qupdtk2yd.onion&quot;,
+      &quot;port&quot;: 18333,
+      &quot;score&quot;: 4
+    }
+  ],
+  &quot;warnings&quot;: &quot;&quot;
+}</code></pre>
+<p>This hidden service will allow anonymous connections to your
+<code>bitcoind</code> over the Bitcoin Network.</p>
+<blockquote>
+<p>:warning: <strong>WARNING:</strong> Running Tor and having a Tor
+hidden service doesn’t force either you or your peers to use Tor.</p>
+</blockquote>
+<h3 id="verify-your-tor-setup-for-peers">Verify Your Tor Setup for
+Peers</h3>
+<p>Using the RPC command <code>getpeerinfo</code>, you can see what
+nodes are connected to your node and check whether they are connected
+with Tor.</p>
+<pre><code>$ bitcoin-cli getpeerinfo</code></pre>
+<p>Some might be connected via Tor:</p>
+<pre><code>...
+{
+    &quot;id&quot;: 9,
+    &quot;addr&quot;: &quot;nkv.......xxx.onion:8333&quot;,
+    &quot;addrbind&quot;: &quot;127.0.0.1:51716&quot;,
+    &quot;services&quot;: &quot;000000000000040d&quot;,
+    &quot;servicesnames&quot;: [
+      &quot;NETWORK&quot;,
+      &quot;BLOOM&quot;,
+      &quot;WITNESS&quot;,
+      &quot;NETWORK_LIMITED&quot;
+    ],
+    &quot;relaytxes&quot;: true,
+    &quot;lastsend&quot;: 1593981053,
+    &quot;lastrecv&quot;: 1593981057,
+    &quot;bytessent&quot;: 1748,
+    &quot;bytesrecv&quot;: 41376,
+    &quot;conntime&quot;: 1593980917,
+    &quot;timeoffset&quot;: -38,
+    &quot;pingwait&quot;: 81.649295,
+    &quot;version&quot;: 70015,
+    &quot;subver&quot;: &quot;/Satoshi:0.20.0/&quot;,
+    &quot;inbound&quot;: false,
+    &quot;addnode&quot;: false,
+    &quot;startingheight&quot;: 637875,
+    &quot;banscore&quot;: 0,
+    &quot;synced_headers&quot;: -1,
+    &quot;synced_blocks&quot;: -1,
+    &quot;inflight&quot;: [
+    ],
+    &quot;whitelisted&quot;: false,
+    &quot;permissions&quot;: [
+    ],
+    &quot;minfeefilter&quot;: 0.00000000,
+    &quot;bytessent_per_msg&quot;: {
+      &quot;addr&quot;: 55,
+      &quot;feefilter&quot;: 32,
+      &quot;getaddr&quot;: 24,
+      &quot;getheaders&quot;: 1053,
+      &quot;inv&quot;: 280,
+      &quot;ping&quot;: 32,
+      &quot;pong&quot;: 32,
+      &quot;sendcmpct&quot;: 66,
+      &quot;sendheaders&quot;: 24,
+      &quot;verack&quot;: 24,
+      &quot;version&quot;: 126
+    },
+    &quot;bytesrecv_per_msg&quot;: {
+      &quot;addr&quot;: 30082,
+      &quot;feefilter&quot;: 32,
+      &quot;getdata&quot;: 280,
+      &quot;getheaders&quot;: 1053,
+      &quot;headers&quot;: 106,
+      &quot;inv&quot;: 9519,
+      &quot;ping&quot;: 32,
+      &quot;pong&quot;: 32,
+      &quot;sendcmpct&quot;: 66,
+      &quot;sendheaders&quot;: 24,
+      &quot;verack&quot;: 24,
+      &quot;version&quot;: 126
+    }
+  }
+...</code></pre>
+<p>Some might not, such as this IPv6 connection:</p>
+<pre><code>...
+  {
+    &quot;id&quot;: 17,
+    &quot;addr&quot;: &quot;[2001:638:a000:4140::ffff:191]:18333&quot;,
+    &quot;addrlocal&quot;: &quot;[2600:3c01::f03c:92ff:fe86:f26]:36344&quot;,
+    &quot;addrbind&quot;: &quot;[2600:3c01::f03c:92ff:fe86:f26]:36344&quot;,
+    &quot;services&quot;: &quot;0000000000000409&quot;,
+    &quot;servicesnames&quot;: [
+      &quot;NETWORK&quot;,
+      &quot;WITNESS&quot;,
+      &quot;NETWORK_LIMITED&quot;
+    ],
+    &quot;relaytxes&quot;: true,
+    &quot;lastsend&quot;: 1595447081,
+    &quot;lastrecv&quot;: 1595447067,
+    &quot;bytessent&quot;: 12250453,
+    &quot;bytesrecv&quot;: 2298711417,
+    &quot;conntime&quot;: 1594836414,
+    &quot;timeoffset&quot;: -1,
+    &quot;pingtime&quot;: 0.165518,
+    &quot;minping&quot;: 0.156638,
+    &quot;version&quot;: 70015,
+    &quot;subver&quot;: &quot;/Satoshi:0.20.0/&quot;,
+    &quot;inbound&quot;: false,
+    &quot;addnode&quot;: false,
+    &quot;startingheight&quot;: 1780784,
+    &quot;banscore&quot;: 0,
+    &quot;synced_headers&quot;: 1781391,
+    &quot;synced_blocks&quot;: 1781391,
+    &quot;inflight&quot;: [
+    ],
+    &quot;whitelisted&quot;: false,
+    &quot;permissions&quot;: [
+    ],
+    &quot;minfeefilter&quot;: 0.00001000,
+    &quot;bytessent_per_msg&quot;: {
+      &quot;addr&quot;: 4760,
+      &quot;feefilter&quot;: 32,
+      &quot;getaddr&quot;: 24,
+      &quot;getdata&quot;: 8151183,
+      &quot;getheaders&quot;: 1085,
+      &quot;headers&quot;: 62858,
+      &quot;inv&quot;: 3559475,
+      &quot;ping&quot;: 162816,
+      &quot;pong&quot;: 162816,
+      &quot;sendcmpct&quot;: 132,
+      &quot;sendheaders&quot;: 24,
+      &quot;tx&quot;: 145098,
+      &quot;verack&quot;: 24,
+      &quot;version&quot;: 126
+    },
+    &quot;bytesrecv_per_msg&quot;: {
+      &quot;addr&quot;: 33877,
+      &quot;block&quot;: 2291124374,
+      &quot;feefilter&quot;: 32,
+      &quot;getdata&quot;: 9430,
+      &quot;getheaders&quot;: 1085,
+      &quot;headers&quot;: 60950,
+      &quot;inv&quot;: 2019175,
+      &quot;ping&quot;: 162816,
+      &quot;pong&quot;: 162816,
+      &quot;sendcmpct&quot;: 66,
+      &quot;sendheaders&quot;: 24,
+      &quot;tx&quot;: 5136622,
+      &quot;verack&quot;: 24,
+      &quot;version&quot;: 126
+    }
+  }
+...</code></pre>
+<p>Having a Tor address for your <code>bitcoind</code> is probably
+somewhat less useful than having a Tor address for your RPC connections.
+That’s in part because it’s not recommended to try and send all your
+Bitcoin connections via Tor, and in part because protecting your RPC
+commands is really what’s important: you’re much more likely to be doing
+that remotely, from a software wallet like The Gordian Wallet, while
+your server itself is more likely to be sitting in your office,
+basement, or bunker.</p>
+<p>Nonetheless, there are ways to make <code>bitcoind</code> use Tor
+more, as discussed in the next section.</p>
+<h2 id="summary-verifying-your-tor-setup">Summary: Verifying Your Tor
+Setup</h2>
+<p>Tor is a software package installed at part of Bitcoin Standup that
+allows you to exchange communications anonymously. It will protect both
+your RPC ports (8332 or 18332) and your <code>bitcoind</code> ports
+(8333 or 18333) — but you have to actively connect to the onion address
+to use them! Tor is a building stone of privacy and security for your
+Bitcoin setup, and you can verify it’s available and linked to Bitcoin
+with a few simple commands.</p>
+<blockquote>
+<p>:fire: <strong><em>What is the power of Tor?</em></strong> Many
+attacks on Bitcoin users depend on knowing who the victim is and that
+they’re transacting Bitcoins. Tor can protect you from that by hiding
+both where you are and what you’re doing. It’s particularly important if
+you want to connect to your own node remotely via a software wallet, and
+can be crucial if you do so in some country where you might not feel
+that your Bitcoin usage is appreciated or protected. If you must take
+your Bitcoin services on the road, make sure that your wallet fully
+supports Tor and exchanges all RPC commands with your server using that
+protocol.</p>
+</blockquote>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Understanding Tor” with <a
+href="14_2_Changing_Your_Bitcoin_Hidden_Services.md">§14.2: Changing
+Your Bitcoin Hidden Services</a>.</p>
+</body>
+</html>

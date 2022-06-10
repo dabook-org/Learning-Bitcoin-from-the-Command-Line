@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>09_5_Scripting_a_P2WPKH</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<h1 id="scripting-a-p2wpkh">9.5: Scripting a P2WPKH</h1>
+<blockquote>
+<p>:information_source: <strong>NOTE:</strong> This section has been
+recently added to the course and is an early draft that may still be
+awaiting review. Caveat reader.</p>
+</blockquote>
+<p>P2PKHs are fine for explaining the fundamental way that Bitcoin
+Scripts work, but what about native SegWit P2WPKH scripts, which are
+increasingly becoming the majority of Bitcoin transactions? As it turns
+out, P2WPKH addresses don’t use Bitcoin Scripts like traditional Bitcoin
+addresses do, and so this section is really a digression from the
+scripting of this chapter — but an important one, because it outlines
+the <em>other</em> major way in which Bitcoins can be transacted.</p>
+<h2 id="view-a-p2wpkh-script">View a P2WPKH Script</h2>
+<p>It’s easy enough to see what a P2WPKH script looks like. The
+following raw transaction was created by spending a P2WPKH UTXO and then
+sending the money on to a P2WPKH change address — just as we did with a
+legacy address in <a
+href="09_1_Understanding_the_Foundation_of_Transactions.md">§9.1</a>.</p>
+<pre><code>$ bitcoin-cli -named decoderawtransaction hexstring=$signedtx
+{
+  &quot;txid&quot;: &quot;bdf8f12768a9870d41ac280f8bb4f8ecd9d2fa66fffc75606811f5751c17cb3a&quot;,
+  &quot;hash&quot;: &quot;ec09c84cae48694bec7fd3461b3c5b38a76829c56e9d876037bf2484d443174b&quot;,
+  &quot;version&quot;: 2,
+  &quot;size&quot;: 191,
+  &quot;vsize&quot;: 110,
+  &quot;weight&quot;: 437,
+  &quot;locktime&quot;: 0,
+  &quot;vin&quot;: [
+    {
+      &quot;txid&quot;: &quot;3f5417bc7a3a4144d715f3f006d35ea2b405f06091cbb9ce492e04ccefe02b18&quot;,
+      &quot;vout&quot;: 0,
+      &quot;scriptSig&quot;: {
+        &quot;asm&quot;: &quot;&quot;,
+        &quot;hex&quot;: &quot;&quot;
+      },
+      &quot;txinwitness&quot;: [
+        &quot;3044022064f633ccfc4e937ef9e3edcaa9835ea9a98d31fbea1622c1d8a38d4e7f8f6cb602204bffef45a094de1306f99da055bd5a603a15c277a59a48f40a615aa4f7e5038001&quot;,
+        &quot;03839e6035b33e37597908c83a2f992ec835b093d65790f43218cb49ffe5538903&quot;
+      ],
+      &quot;sequence&quot;: 4294967295
+    }
+  ],
+  &quot;vout&quot;: [
+    {
+      &quot;value&quot;: 0.00090000,
+      &quot;n&quot;: 0,
+      &quot;scriptPubKey&quot;: {
+        &quot;asm&quot;: &quot;0 92a0db923b3a13eb576a40c4b35515aa30206cba&quot;,
+        &quot;hex&quot;: &quot;001492a0db923b3a13eb576a40c4b35515aa30206cba&quot;,
+        &quot;reqSigs&quot;: 1,
+        &quot;type&quot;: &quot;witness_v0_keyhash&quot;,
+        &quot;addresses&quot;: [
+          &quot;tb1qj2sdhy3m8gf7k4m2grztx4g44gczqm96y6sszv&quot;
+        ]
+      }
+    }
+  ]
+}</code></pre>
+<p>There are probably two surprising things here: (1) There’s no
+<code>scriptSig</code> to unlock the previous transaction; and (2) the
+<code>scriptPubKey</code> to lock the new transaction is just
+<code>0 92a0db923b3a13eb576a40c4b35515aa30206cb</code>.</p>
+<p>That’s, quite simply, because P2WPKH works differently!</p>
+<h2 id="understand-a-p2wpkh-transaction">Understand a P2WPKH
+Transaction</h2>
+<p>A P2WPKH transaction contains all the same information as a classic
+P2PKH transaction, but it places it in weird places, not within a
+traditional Bitcoin Script — and, that’s the exact point of SegWit
+transactions, to pull the “witness” information, which is to say the
+public keys and signatures, out of the transaction to support a change
+to block size.</p>
+<p>But, if you look carefully, you’ll see that the empty
+<code>scriptSig</code> has been replaced with two entries in a new
+<code>txinwitness</code> section. If you examine their sizes and
+formatting, they should seem familiar: they’re a signature and public
+key. Similarly, if you look in the <code>scriptPubKey</code>, you’ll see
+that it’s made up of a <code>0</code> (actually: <code>OP_0</code>, it’s
+the SegWit version number) and another long number, which is the
+public-key hash.</p>
+<p>Here’s a comparison of our two examples: | Type | PubKeyHash | PubKey
+| Signature | |—————-|———-|————-|———| | SegWit |
+92a0db923b3a13eb576a40c4b35515aa30206cba |
+03839e6035b33e37597908c83a2f992ec835b093d65790f43218cb49ffe5538903 |
+3044022064f633ccfc4e937ef9e3edcaa9835ea9a98d31fbea1622c1d8a38d4e7f8f6cb602204bffef45a094de1306f99da055bd5a603a15c277a59a48f40a615aa4f7e5038001
+| | non-SegWit | 06b5c6ba5330cdf738a2ce91152bfd0e71f9ec39 |
+0315a0aeb37634a71ede72d903acae4c6efa77f3423dcbcd6de3e13d9fd989438b |
+04402201cc39005b076cb06534cd084fcc522e7bf937c4c9654c1c9dfba68b92cbab7d1022066f273178febc7a37568e2e9f4dec980a2e9a95441abe838c7ef64c39d85849c
+|</p>
+<p>So how does this work? It depends on old code interpreting this as a
+valid transaction and new code knowing to check the new “witness”
+information</p>
+<h3 id="read-a-segwit-script-on-an-old-machine">Read a SegWit Script on
+an Old Machine</h3>
+<p>If a node has not been upgraded to support SegWit, then it does its
+usual trick of concatenating the <code>scriptSig</code> and the
+<code>scriptPubKey</code>. This produces:
+<code>0 92a0db923b3a13eb576a40c4b35515aa30206cba</code> (because there’s
+only a <code>scriptPubKey</code>). Running that will produce a stack
+with everything on it in reverse order:</p>
+<pre><code>$ btcdeb &#39;[0 92a0db923b3a13eb576a40c4b35515aa30206cba]&#39;
+btcdeb 0.2.19 -- type `btcdeb -h` for start up options
+miniscript failed to parse script; miniscript support disabled
+valid script
+2 op script loaded. type `help` for usage information
+script                                   |  stack 
+-----------------------------------------+--------
+0                                        | 
+92a0db923b3a13eb576a40c4b35515aa30206cba | 
+#0000 0
+btcdeb&gt; step
+        &lt;&gt; PUSH stack 
+script                                   |  stack 
+-----------------------------------------+--------
+92a0db923b3a13eb576a40c4b35515aa30206cba | 0x
+#0001 92a0db923b3a13eb576a40c4b35515aa30206cba
+btcdeb&gt; step
+        &lt;&gt; PUSH stack 92a0db923b3a13eb576a40c4b35515aa30206cba
+script                                   |                                   stack 
+-----------------------------------------+-----------------------------------------
+                                         | 92a0db923b3a13eb576a40c4b35515aa30206cba
+                                         | 0x</code></pre>
+<p>Bitcoin Scripts are considered successful if there’s something in the
+Stack, and it’s non-zero, so SegWit scripts automatically succeed on old
+nodes as long as the <code>scriptPubKey</code> is correctly created with
+a non-zero pub-key hash. This is called an “anyone-can-spend”
+transaction, because old nodes verified them as correct without any need
+for signatures.</p>
+<blockquote>
+<p>:book: <strong><em>Why can’t old nodes steal SegWit
+UTXOs?</em></strong> SegWit was enabled on the Bitcoin network when 95%
+of miners signalled that they were ready to start using it. That means
+that only 5% of nodes at that point might have registered
+anyone-can-spend SegWit transactions as valid without going through the
+proper work of checking the <code>txinwitness</code>. If they
+incorrectly incorporated an invalid anyone-can-spend UTXO into a block,
+the other 95% of nodes would refuse to validate that block, and so it
+would quickly be orphaned rather than being added to the “main”
+blockchain. (Certainly, 51% of nodes could choose to stop interpreting
+SegWit transactions correctly, but 51% of nodes can do anything on a
+consensus network like a blockchain.)</p>
+</blockquote>
+<p>Because old nodes always see SegWit scripts as correct, they will
+always verify them, even without understanding their content.</p>
+<h3 id="read-a-segwit-script-on-a-new-machine">Read a SegWit Script on a
+New Machine</h3>
+<p>A machine that understands how SegWit work does the exact same things
+that it would with an old P2PKH script, but it doesn’t use a script per
+se: it just knows that it needs to hash the public key in the
+<code>txinwitness</code>, check that against the hashed key after the
+version number in the <code>scriptPubKey</code> and then run
+<code>OP_CHECKSIG</code> on the signature and public key in the
+<code>txinwitness</code>.</p>
+<p>So, it’s another way of doing the same thing, but without having the
+scripts built into the transactions. (The process is built into the node
+software instead.)</p>
+<h2 id="summary-scripting-a-pay-to-witness-public-key-hash">Summary:
+Scripting a Pay to Witness Public Key Hash</h2>
+<p>To a large extent you <em>don’t</em> script a P2WPKH. Instead,
+Bitcoin Core creates the transaction in a different way, placing the
+witness information in a different place rather than a traditional
+<code>scriptSig</code>. That means that P2WPKHs are a digression from
+the Bitcoin Scripts of this part of the book, because they’re an
+expansion of Bitcoin that steps away from traditional Scripting.</p>
+<p>However, SegWit was also a clever usage of Bitcoin Scripts. Knowing
+that there would be nodes that didn’t upgrade and needing to stay
+backward compatible, the developers created the P2WPKH format so that it
+generated a script that always validated on old nodes (while still
+having that script provide information to new nodes in the form of a
+version number and a hashed public key).</p>
+<p>When you’re programming from the command line, you fundamentally
+don’t have to worry about this, other than knowing that you won’t find
+traditional scripts in raw SegWit transactions (which, again, was the
+point).</p>
+<h2 id="whats-next">What’s Next?</h2>
+<p>Continue “Bitcoin Scripting” with <a
+href="10_0_Embedding_Bitcoin_Scripts_in_P2SH_Transactions.md">Chapter
+10: Embedding Bitcoin Scripts in P2SH Transactions</a>.</p>
+</body>
+</html>
