@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>16.2: Programming Bitcoind in C with RPC Libraries</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+</head>
+<body class="article data-line-1">
+<div id="header">
+<h1>16.2: Programming Bitcoind in C with RPC Libraries</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="quoteblock data-line-3">
+<blockquote>
+<div class="paragraph data-line-5">
+<p>Caveat reader.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph data-line-8">
+<p><a href="16_1_Accessing_Bitcoind_with_C.html">§16.1</a> laid out the methodology for creating C programs using RPC and JSON libraries.
+We&#8217;re now going to show the potential of those C libraries by laying out a simplistic, first cut of an actual Bitcoin program.</p>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-11">
+<h2 id="_plan_for_your_code">Plan for Your Code</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-13">
+<p>This section will create a simplistic first cut version of <code>sendtoaddress</code>, which will allow a user to send money to an address as long as he has a big enough UTXO.
+Here&#8217;s what we need to do:</p>
+</div>
+<div class="olist arabic data-line-16">
+<ol class="arabic">
+<li class="data-line-16">
+<p>Request an address and an amount</p>
+</li>
+<li class="data-line-17">
+<p>Set an arbitrary fee</p>
+</li>
+<li class="data-line-18">
+<p>Prepare Your RPC</p>
+</li>
+<li class="data-line-19">
+<p>Find a UTXO that&#8217;s large enough for the amount + the fee</p>
+</li>
+<li class="data-line-20">
+<p>Create a change address</p>
+</li>
+<li class="data-line-21">
+<p>Create a raw transaction that sends from the UTXO to the address and the change address</p>
+</li>
+<li class="data-line-22">
+<p>Sign the transaction</p>
+</li>
+<li class="data-line-23">
+<p>Send the transaction</p>
+</li>
+</ol>
+</div>
+<div class="sect2 data-line-25">
+<h3 id="_plan_for_your_future">Plan for Your Future</h3>
+<div class="paragraph data-line-27">
+<p>Since this is your first functional C program, we&#8217;re going to try and keep it simple (KISS).
+If we were producing an actual production program, we&#8217;d at least want to do the following:</p>
+</div>
+<div class="olist arabic data-line-30">
+<ol class="arabic">
+<li class="data-line-30">
+<p>Test and/or sanitize the inputs</p>
+</li>
+<li class="data-line-31">
+<p>Calculate a fee automatically</p>
+</li>
+<li class="data-line-32">
+<p>Think logically about which valid UTXO to use</p>
+</li>
+<li class="data-line-33">
+<p>Combine multiple UTXOs if necessary</p>
+</li>
+<li class="data-line-34">
+<p>Watch for more errors in the <code>libbitcoinrpc</code> or <code>jansson</code> commands</p>
+</li>
+<li class="data-line-35">
+<p>Watch for errors in the RPC responses</p>
+</li>
+</ol>
+</div>
+<div class="paragraph data-line-37">
+<p>If you want to continue to expand this example, addressing the inadequacies of this example program would be a great place to start.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-39">
+<h2 id="_write_your_transaction_software">Write Your Transaction Software</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-41">
+<p>Your now ready to undertake that plan step by step</p>
+</div>
+<div class="sect2 data-line-43">
+<h3 id="_step_1_request_an_address_and_an_amount">Step 1: Request an Address and an Amount</h3>
+<div class="paragraph data-line-45">
+<p>Inputting the information is easy enough via command line arguments:</p>
+</div>
+<div class="listingblock data-line-47">
+<div class="content">
+<pre>if (argc != 3) {
+
+  printf("ERROR: Only %i arguments! Correct usage is '%s [recipient] [amount]'\n",argc-1,argv[0]);
+  exit(-1);
+
+}
+
+char *tx_recipient = argv[1];
+float tx_amount = atof(argv[2]);
+
+printf("Sending %4.8f BTC to %s\n",tx_amount,tx_recipient);</pre>
+</div>
+</div>
+<div class="quoteblock data-line-61">
+<blockquote>
+
+</blockquote>
+</div>
+</div>
+<div class="sect2 data-line-65">
+<h3 id="_step_2_set_an_arbitrary_fee">Step 2: Set an Arbitrary Fee</h3>
+<div class="paragraph data-line-67">
+<p>This example just an arbitrary 0.0005 BTC fee to ensure that the test transactions goes through quickly:</p>
+</div>
+<div class="listingblock data-line-69">
+<div class="content">
+<pre>float tx_fee = 0.0005;
+float tx_total = tx_amount + tx_fee;</pre>
+</div>
+</div>
+<div class="quoteblock data-line-74">
+<blockquote>
+
+</blockquote>
+</div>
+</div>
+<div class="sect2 data-line-78">
+<h3 id="_step_3_prepare_your_rpc">Step 3: Prepare Your RPC</h3>
+<div class="paragraph data-line-80">
+<p>Obviously, you&#8217;re going to need to get all of your variables ready again, as discussed in <a href="16_1_Accessing_Bitcoind_with_C.html">§16.1: Accessing Bitcoind with C</a>.
+You also need to initialize your library, connect your RPC client, and prepare your response object:</p>
+</div>
+<div class="listingblock data-line-83">
+<div class="content">
+<pre>bitcoinrpc_global_init();
+rpc_client = bitcoinrpc_cl_init_params ("bitcoinrpc", "YOUR-RPC-PASSWD", "127.0.0.1", 18332);
+btcresponse = bitcoinrpc_resp_init();</pre>
+</div>
+</div>
+</div>
+<div class="sect2 data-line-89">
+<h3 id="_step_4_find_a_utxo">Step 4: Find a UTXO</h3>
+<div class="paragraph data-line-91">
+<p>To find a UTXO you must call the <code>listunspent</code> RPC:</p>
+</div>
+<div class="listingblock data-line-93">
+<div class="content">
+<pre>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_LISTUNSPENT);
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);</pre>
+</div>
+</div>
+<div class="paragraph data-line-98">
+<p>However, the real work comes in decoding the response.
+The previous section noted that the <code>jansson</code> library was "somewhat clunky" and this is why: you have to create (and clear) a very large set of <code>json_t</code> objects in order to dig down to what you want.</p>
+</div>
+<div class="paragraph data-line-101">
+<p>First, you must retrieve the <code>result</code> field from JSON:</p>
+</div>
+<div class="listingblock data-line-103">
+<div class="content">
+<pre>json_t *lu_response = NULL;
+json_t *lu_result = NULL;
+
+lu_response = bitcoinrpc_resp_get (btcresponse);
+lu_result = json_object_get(lu_response,"result");</pre>
+</div>
+</div>
+<div class="quoteblock data-line-111">
+<blockquote>
+<div class="paragraph data-line-113">
+<p>Here&#8217;s another place for better error checking for production code.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph data-line-116">
+<p>Then, you go into a loop, examining each unspent transaction, which appears as an element in your JSON result array:</p>
+</div>
+<div class="listingblock data-line-118">
+<div class="content">
+<pre>int i;
+
+const char *tx_id = 0;
+int tx_vout = 0;
+double tx_value = 0.0;
+
+for (i = 0 ; i &lt; json_array_size(lu_result) ; i++) {
+
+  json_t *lu_data = NULL;
+  lu_data = json_array_get(lu_result, i);
+
+  json_t *lu_value = NULL;
+  lu_value = json_object_get(lu_data,"amount");
+  tx_value = json_real_value(lu_value);</pre>
+</div>
+</div>
+<div class="paragraph data-line-135">
+<p>Is the UTXO large enough to pay out your transaction?
+If so, grab it!</p>
+</div>
+<div class="quoteblock data-line-138">
+<blockquote>
+<div class="paragraph data-line-140">
+<p>It probably wouldn&#8217;t just grab the first thing it saw that worked.</p>
+</div>
+</blockquote>
+</div>
+<div class="listingblock data-line-143">
+<div class="content">
+<pre>  if (tx_value &gt; tx_total) {
+
+    json_t *lu_txid = NULL;
+    lu_txid = json_object_get(lu_data,"txid");
+    tx_id = strdup(json_string_value(lu_txid));
+
+    json_t *lu_vout = NULL;
+    lu_vout = json_object_get(lu_data,"vout");
+    tx_vout = json_integer_value(lu_vout);
+
+    json_decref(lu_value);
+    json_decref(lu_txid);
+    json_decref(lu_vout);
+    json_decref(lu_data);
+    break;
+
+  }</pre>
+</div>
+</div>
+<div class="paragraph data-line-163">
+<p>You should clear your main JSON elements as well:</p>
+</div>
+<div class="listingblock data-line-165">
+<div class="content">
+<pre>}
+
+json_decref(lu_result);
+json_decref(lu_response);</pre>
+</div>
+</div>
+<div class="quoteblock data-line-172">
+<blockquote>
+
+</blockquote>
+</div>
+<div class="paragraph data-line-176">
+<p>If you didn&#8217;t find any large-enough UTXOs, you&#8217;ll have to report that sad fact to the user &#8230;&#8203;
+and perhaps suggest that they should use a better program that will correctly merge UTXOs.</p>
+</div>
+<div class="listingblock data-line-179">
+<div class="content">
+<pre>if (!tx_id) {
+
+  printf("Very Sad: You don't have any UTXOs larger than %f\n",tx_total);
+  exit(-1);
+}</pre>
+</div>
+</div>
+<div class="quoteblock data-line-187">
+<blockquote>
+<div class="paragraph data-line-188">
+<p><strong>WARNING:</strong> A real program would use subroutines for this sort of lookup, so that you could confidentally call various RPCs from a library of C functions.
+We&#8217;re just going to blob it all into <code>main</code> as part of our KISS philosophy of simple examples.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2 data-line-192">
+<h3 id="_step_5_create_a_change_address">Step 5: Create a Change Address</h3>
+<div class="paragraph data-line-194">
+<p>Repeat the standard RPC-lookup methodology to get a change address:</p>
+</div>
+<div class="listingblock data-line-196">
+<div class="content">
+<pre>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_GETRAWCHANGEADDRESS);
+
+if (!rpc_method) {
+
+  printf("ERROR: Unable to initialize listunspent method!\n");
+  exit(-1);
+
+}
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+
+if (btcerror.code != BITCOINRPCE_OK) {
+
+printf("Error: listunspent error code %d [%s]\n", btcerror.code,btcerror.msg);
+
+  exit(-1);
+
+}
+
+lu_response = bitcoinrpc_resp_get (btcresponse);
+lu_result = json_object_get(lu_response,"result");
+char *changeaddress = strdup(json_string_value(lu_result));</pre>
+</div>
+</div>
+<div class="paragraph data-line-221">
+<p>The only difference is in what particular information is extracted from the JSON object.</p>
+</div>
+<div class="quoteblock data-line-223">
+<blockquote>
+
+</blockquote>
+</div>
+</div>
+<div class="sect2 data-line-227">
+<h3 id="_step_6_create_a_raw_transaction">Step 6: Create a Raw Transaction</h3>
+<div class="paragraph data-line-229">
+<p>Creating the actual raw transaction is the other tricky part of programming your <code>sendtoaddress</code> replacement.
+That&#8217;s because it requires the creation of a complex JSON object as a paramter.</p>
+</div>
+<div class="paragraph data-line-232">
+<p>To correctly create these parameters, you&#8217;ll need to review what the <code>createrawtransaction</code> RPC expects.
+Fortunately, this is easy to determine using the <code>bitcoin-cli help</code> functionality:</p>
+</div>
+<div class="literalblock data-line-235">
+<div class="content">
+<pre>$ bitcoin-cli help createrawtransaction
+createrawtransaction [{"txid":"id","vout":n},...] {"address":amount,"data":"hex",...} ( locktime )</pre>
+</div>
+</div>
+<div class="paragraph data-line-238">
+<p>To review, your inputs will be a JSON array containing one JSON object for each UTXO.
+Then the outputs will all be in one JSON object.
+It&#8217;s easiest to create these JSON elements from the inside out, using <code>jansson</code> commands.</p>
+</div>
+<div class="sect3 data-line-242">
+<h4 id="_step_6_1_create_the_input_parameters">Step 6.1: Create the Input Parameters</h4>
+<div class="paragraph data-line-244">
+<p>To create the input object for your UTXO, use <code>json_object</code>, then fill it with key-values using either <code>json_object_set_new</code> (for newly created references) or <code>json_object_set</code> (for existing references):</p>
+</div>
+<div class="listingblock data-line-246">
+<div class="content">
+<pre>json_t *inputtxid = NULL;
+inputtxid = json_object();
+
+json_object_set_new(inputtxid,"txid",json_string(tx_id));
+json_object_set_new(inputtxid,"vout",json_integer(tx_vout));</pre>
+</div>
+</div>
+<div class="paragraph data-line-254">
+<p>You&#8217;ll note that you again have to translate each C variable type into a JSON variable type using the appropriate function, such as <code>json_string</code> or <code>json_integer</code>.</p>
+</div>
+<div class="paragraph data-line-256">
+<p>To create the overall input array for all your UTXOs, use <code>json_array</code>, then fill it up with objects using <code>json_array_append</code>:</p>
+</div>
+<div class="listingblock data-line-258">
+<div class="content">
+<pre>json_t *inputparams = NULL;
+inputparams = json_array();
+json_array_append(inputparams,inputtxid);</pre>
+</div>
+</div>
+</div>
+<div class="sect3 data-line-264">
+<h4 id="_step_6_2_create_the_output_parameters">Step 6.2: Create the Output Parameters</h4>
+<div class="paragraph data-line-266">
+<p>To create the output array for your transaction, follow the same format, creating a JSON object with <code>json_object</code>, then filling it with <code>json_object_set</code>:</p>
+</div>
+<div class="listingblock data-line-268">
+<div class="content">
+<pre>json_t *outputparams = NULL;
+outputparams = json_object();
+
+char tx_amount_string[32];
+sprintf(tx_amount_string,"%.8f",tx_amount);
+char tx_change_string[32];
+sprintf(tx_change_string,"%.8f",tx_value - tx_total);
+
+json_object_set(outputparams, tx_recipient, json_string(tx_amount_string));
+json_object_set(outputparams, changeaddress, json_string(tx_change_string));</pre>
+</div>
+</div>
+<div class="quoteblock data-line-281">
+<blockquote>
+<div class="paragraph data-line-283">
+<p>Unfortunately, this exposes one of the major problems with integrating the <code>jansson</code> library and Bitcoin.
+Bitcoin is only valid to eight significant digits past the decimal point.
+You might recall that .00000001 BTC is a satoshi, and that&#8217;s the smallest possible division of a Bitcoin.
+Doubles in C offer more significant digits than that, though they&#8217;re often imprecise out past eight decimals.
+If you try to convert straight from your double value in C (or a float value, for that matter) to a Bitcoin value, the imprecision will often create a Bitcoin value with more than eight significant digits.
+Before Bitcoin Core 0.12 this appears to work, and you could use <code>json_real</code>.
+But as of Bitcoin Core 0.12, if you try to give <code>createrawtransaction</code> a Bitcoin value with too many significant digits, you&#8217;ll instead get an error and the transaction will not be created.
+As a result, if the Bitcoin value has <em>ever</em> become a double or float, you must reformat it to eight significant digits past the digit before feeding it in as a string.
+This is obviously a kludge, so you should make sure it continues to work in future versions of Bitcoin Core.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect3 data-line-294">
+<h4 id="_step_6_3_create_the_parameter_array">Step 6.3: Create the Parameter Array</h4>
+<div class="paragraph data-line-296">
+<p>To finish creating your parameters, simply bundle them all up in a JSON array:</p>
+</div>
+<div class="listingblock data-line-298">
+<div class="content">
+<pre>json_t *params = NULL;
+params = json_array();
+json_array_append(params,inputparams);
+json_array_append(params,outputparams);</pre>
+</div>
+</div>
+</div>
+<div class="sect3 data-line-305">
+<h4 id="_step_6_4_make_the_rpc_call">Step 6.4 Make the RPC Call</h4>
+<div class="paragraph data-line-307">
+<p>Use the normal method to create your RPC call:</p>
+</div>
+<div class="listingblock data-line-309">
+<div class="content">
+<pre>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_CREATERAWTRANSACTION);</pre>
+</div>
+</div>
+<div class="paragraph data-line-313">
+<p>However, now you must feed it your parameters.
+This simply done with <code>bitcoinrpc_method_set_params</code>:</p>
+</div>
+<div class="listingblock data-line-316">
+<div class="content">
+<pre>if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, "Error: Could not set params for createrawtransaction");
+
+}</pre>
+</div>
+</div>
+<div class="paragraph data-line-324">
+<p>Afterward, run the RPC and get the results as usual:</p>
+</div>
+<div class="listingblock data-line-326">
+<div class="content">
+<pre>bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+
+lu_response = bitcoinrpc_resp_get(btcresponse);
+lu_result = json_object_get(lu_response,"result");
+
+char *tx_rawhex = strdup(json_string_value(lu_result));</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2 data-line-335">
+<h3 id="_step_7_sign_the_transaction">Step 7. Sign the Transaction</h3>
+<div class="paragraph data-line-337">
+<p>It&#8217;s a lot easier to assign a simple parameter to a function.
+You just create a JSON array, then assign the parameter to the array:</p>
+</div>
+<div class="listingblock data-line-340">
+<div class="content">
+<pre>params = json_array();
+json_array_append_new(params,json_string(tx_rawhex));</pre>
+</div>
+</div>
+<div class="paragraph data-line-345">
+<p>Sign the transaction by following the typical rigamarole for creating an RPC call:</p>
+</div>
+<div class="listingblock data-line-347">
+<div class="content">
+<pre>rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_SIGNRAWTRANSACTION);
+if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, "Error: Could not set params for signrawtransaction");
+
+}
+
+json_decref(params);
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+lu_response = bitcoinrpc_resp_get(btcresponse);</pre>
+</div>
+</div>
+<div class="paragraph data-line-361">
+<p>Again, using <code>jansson</code> to access the output can be a little tricky.
+Here you have to remember that <code>hex</code> is part of a JSON object, not a standalone result, as was the case when you created the raw transaction.
+Of course, you can always access this information from command line help: <code>bitcoin-cli help signrawtransaction</code>:</p>
+</div>
+<div class="listingblock data-line-365">
+<div class="content">
+<pre>lu_result = json_object_get(lu_response,"result");
+json_t *lu_signature = json_object_get(lu_result,"hex");
+char *tx_signrawhex = strdup(json_string_value(lu_signature));
+json_decref(lu_signature);</pre>
+</div>
+</div>
+<div class="quoteblock data-line-372">
+<blockquote>
+<div class="paragraph data-line-374">
+<p>That&#8217;s especially true for <code>signrawtransaction</code>, because you might end up with a partially signed transaction.
+Worse, if you don&#8217;t check the errors in the JSON object, you&#8217;ll just see the <code>hex</code> and not realize that it&#8217;s either unsigned or partially signed.</p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2 data-line-378">
+<h3 id="_step_8_send_the_transaction">Step 8. Send the Transaction</h3>
+<div class="paragraph data-line-380">
+<p>You can now send your transaction, using all of the previous techniques:</p>
+</div>
+<div class="listingblock data-line-382">
+<div class="content">
+<pre>params = json_array();
+json_array_append_new(params,json_string(tx_signrawhex));
+
+rpc_method = bitcoinrpc_method_init(BITCOINRPC_METHOD_SENDRAWTRANSACTION);
+
+if (bitcoinrpc_method_set_params(rpc_method, params) != BITCOINRPCE_OK) {
+
+  fprintf (stderr, "Error: Could not set params for sendrawtransaction");
+
+}
+
+json_decref(params);
+
+bitcoinrpc_call(rpc_client, rpc_method, btcresponse, &amp;btcerror);
+lu_response = bitcoinrpc_resp_get(btcresponse);
+lu_result = json_object_get(lu_response,"result");
+
+char *tx_newid = strdup(json_string_value(lu_result));
+
+printf("Txid: %s\n",tx_newid);</pre>
+</div>
+</div>
+<div class="paragraph data-line-405">
+<p>The entire code, with a <em>little</em> more error-checking appears in the Appendix.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-407">
+<h2 id="_test_your_code">Test Your Code</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-409">
+<p>The complete code can be found in the <a href="src/16_2_sendtoaddress.c" data-href="src/16_2_sendtoaddress.c">src directory</a>.</p>
+</div>
+<div class="paragraph data-line-411">
+<p>Compile this as usual:</p>
+</div>
+<div class="literalblock data-line-413">
+<div class="content">
+<pre>$ cc sendtoaddress.c -lbitcoinrpc -ljansson -o sendtoaddress</pre>
+</div>
+</div>
+<div class="paragraph data-line-415">
+<p>You can then use it to send funds to an address:</p>
+</div>
+<div class="listingblock data-line-417">
+<div class="content">
+<pre>./sendtoaddress tb1qynx7f8ulv4sxj3zw5gqpe56wxleh5dp9kts7ns .001
+Txid: b93b19396f8baa37f5f701c7ca59d3128144c943af5294aeb48e3eb4c30fa9d2</pre>
+</div>
+</div>
+<div class="paragraph data-line-422">
+<p>You can see information on this transaction that we sent <a href="https://live.blockcypher.com/btc-testnet/tx/b93b19396f8baa37f5f701c7ca59d3128144c943af5294aeb48e3eb4c30fa9d2/" data-href="https://live.blockcypher.com/btc-testnet/tx/b93b19396f8baa37f5f701c7ca59d3128144c943af5294aeb48e3eb4c30fa9d2/">here</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-424">
+<h2 id="_summary_programming_bitcoind_with_c">Summary: Programming Bitcoind with C</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-426">
+<p>With access to a C library, you can create much more fully featured programs than it was reasonable to do so with shell scripts.
+But, it can take a lot of work!
+Even at 316 lines of code, <code>sendtoaddress.c</code> doesn&#8217;t cover nearly all of the intricacies requires to safely and intelligently transact bitcoins.</p>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-430">
+<h2 id="_whats_next">What&#8217;s Next?</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-432">
+<p>Learn more about "Talking to Bitcoind with C" in <a href="16_3_Receiving_Bitcoind_Notifications_with_C.html">16.3: Receiving Notifications in C with ZMQ Libraries</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-11 10:06:32 -0400
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.17">
+<title>20.3: Closing a Channel</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+</head>
+<body class="article data-line-1">
+<div id="header">
+<h1>20.3: Closing a Channel</h1>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="quoteblock data-line-3">
+<blockquote>
+<div class="paragraph data-line-5">
+<p>Caveat reader.</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph data-line-8">
+<p>In this chapter you&#8217;ll learn how to close a channel using <code>lightning-cli close</code> command-line interface.
+Closing a channel means you and your counterparty will send their agreed-upon channel balance to the blockchain, whereby you must pay blockchain transaction fees and wait for the transaction to be mined.
+A closure can be cooperative or non-cooperative, but it works either way.</p>
+</div>
+<div class="paragraph data-line-12">
+<p>In order to close a channel, you first need to know the ID of the remote node;
+you can retrieve it in one of two ways.</p>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-15">
+<h2 id="_find_your_channels_by_funds">Find your Channels by Funds</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-17">
+<p>You can use the <code>lightning-cli listfunds</code> command to see your channels.
+This RPC command displays all funds available, either in unspent <code>outputs</code> (UTXOs) in the internal wallet or locked up in currently open <code>channels</code>.</p>
+</div>
+<div class="listingblock data-line-20">
+<div class="content">
+<pre>c$ lightning-cli --testnet listfunds
+{
+   "outputs": [
+      {
+         "txid": "66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d",
+         "output": 1,
+         "value": 99847,
+         "amount_msat": "99847000msat",
+         "scriptpubkey": "00142fe02e5be9283e8c5bcb93ae61421baf8cb64f9c",
+         "address": "tb1q9lszuklf9qlgck7tjwhxzssm47xtvnuu4jslf8",
+         "status": "confirmed",
+         "blockheight": 1862856,
+         "reserved": false
+      }
+   ],
+   "channels": [
+      {
+         "peer_id": "032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543",
+         "connected": true,
+         "state": "CHANNELD_NORMAL",
+         "short_channel_id": "1862856x29x0",
+         "channel_sat": 89987,
+         "our_amount_msat": "89987000msat",
+         "channel_total_sat": 100000,
+         "amount_msat": "100000000msat",
+         "funding_txid": "66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d",
+         "funding_output": 0
+      }
+   ]
+}
+
+  "message_flags": 1,
+  "channel_flags": 2,
+  "active": true,
+  "last_update": 1595508075,
+  "base_fee_millisatoshi": 1000,
+  "fee_per_millionth": 1,
+  "delay": 40,
+  "htlc_minimum_msat": "1000msat",
+  "htlc_maximum_msat": "280000000msat",
+  "features": ""
+}</pre>
+</div>
+</div>
+<div class="paragraph data-line-65">
+<p>You could retrieve the ID of the 0th channel into a variable like this:</p>
+</div>
+<div class="listingblock data-line-67">
+<div class="content">
+<pre>c$ nodeidremote=$(lightning-cli --testnet listfunds | jq '.channels[0] | .peer_id')</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-71">
+<h2 id="_find_your_channels_with_jq">Find your Channels with JQ</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-73">
+<p>The other way to find channels to close is to the use the <code>listchannels</code> command.
+It returns data on channels that are known to the node.
+Because channels may be bidirectional, up to two nodes will be returned for each channel (one for each direction).</p>
+</div>
+<div class="paragraph data-line-77">
+<p>However, Lightning&#8217;s gossip network is very effective, and so in a short time you will come to know about thousands of channels.
+That&#8217;s great for sending payments across the Lightning Network, but less useful for discovering your own channels.
+To do so requires a bit of <code>jq</code> work.</p>
+</div>
+<div class="paragraph data-line-81">
+<p>First, you need to know your own node ID, which can be retrieved with <code>getinfo</code>:</p>
+</div>
+<div class="listingblock data-line-83">
+<div class="content">
+<pre>c$ nodeid=$(lightning-cli --testnet getinfo | jq .id)
+c$ echo $nodeid
+"03240a4878a9a64aea6c3921a434e573845267b86e89ab19003b0c910a86d17687"
+c$</pre>
+</div>
+</div>
+<div class="paragraph data-line-90">
+<p>You can then use that to look through <code>listchannels</code> for any channels where your node is either the source or the destination:</p>
+</div>
+<div class="listingblock data-line-92">
+<div class="content">
+<pre>c$ lightning-cli --testnet listchannels | jq '.channels[] | select(.source == '$nodeid' or .destination == '$nodeid')'
+{
+  "source": "03240a4878a9a64aea6c3921a434e573845267b86e89ab19003b0c910a86d17687",
+  "destination": "032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543",
+  "short_channel_id": "1862856x29x0",
+  "public": true,
+  "satoshis": 100000,
+  "amount_msat": "100000000msat",
+  "message_flags": 1,
+  "channel_flags": 0,
+  "active": true,
+  "last_update": 1602639570,
+  "base_fee_millisatoshi": 1,
+  "fee_per_millionth": 10,
+  "delay": 6,
+  "htlc_minimum_msat": "1msat",
+  "htlc_maximum_msat": "99000000msat",
+  "features": ""
+}</pre>
+</div>
+</div>
+<div class="paragraph data-line-114">
+<p>There&#8217;s our old favorite <code>032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543</code> again, as the destination.</p>
+</div>
+<div class="paragraph data-line-116">
+<p>Once you know what you&#8217;ve got, you can store it in a variable:</p>
+</div>
+<div class="listingblock data-line-118">
+<div class="content">
+<pre>c$ nodeidremote=$(lightning-cli --testnet listchannels | jq '.channels[] | select(.source == '$nodeid' or .destination == '$nodeid') | .destination')</pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-122">
+<h2 id="_close_a_channel">Close a Channel</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-124">
+<p>Now that you have a remote node ID, you&#8217;re ready to use the <code>lightning-cli close</code> command to close a channel.
+By default, it will attempt to close the channel cooperatively with the peer;
+if you want to close it unilaterally set the <code>unilateraltimeout</code> argument with the number of seconds to wait.
+(If you set it to 0 and the peer is online, a mutual close is still attempted.) For this example, you will attempt a mutual close.</p>
+</div>
+<div class="listingblock data-line-129">
+<div class="content">
+<pre>c$ lightning-cli --testnet close $nodeidremote 0
+{
+   "tx": "02000000011d3cf2126ae36e12be3aee893b385ed6a2e19b1da7f4e579e3ef15ca234d69660000000000ffffffff021c27000000000000160014d39feb57a663803da116402d6cb0ac050bf051d9cc5e01000000000016001451c88b44420940c52a384bd8a03888e3676c150900000000",
+   "txid": "f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f",
+   "type": "mutual"
+}</pre>
+</div>
+</div>
+<div class="paragraph data-line-138">
+<p>The closing transaction on-chain is <a href="https://blockstream.info/testnet/tx/f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f" data-href="https://blockstream.info/testnet/tx/f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f">f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f</a>.</p>
+</div>
+<div class="paragraph data-line-140">
+<p>It&#8217;s this closing transaction that actually disburses the funds that were traded back and forth through Lightning transactions.
+This can be seen by examining the transaction:</p>
+</div>
+<div class="literalblock data-line-143">
+<div class="content">
+<pre>$ bitcoin-cli --named getrawtransaction txid=f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f verbose=1
+{
+  "txid": "f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f",
+  "hash": "3a6b3994932ae781bab80e159314bad06fc55d3d33453a1d663f9f9415c9719c",
+  "version": 2,
+  "size": 334,
+  "vsize": 169,
+  "weight": 673,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid": "66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d",
+      "vout": 0,
+      "scriptSig": {
+        "asm": "",
+        "hex": ""
+      },
+      "txinwitness": [
+        "",
+        "304402207f8048e29192ec86019bc83be8b4cac5d1fc682374538bed0707f58192d41c390220512ebcde122d53747feedd70c09153a40c56d09a5fec02e47642afdbb20aa2ac01",
+        "3045022100d686a16084b60800fa0f6b14c25dca1c13d10a55c5fb7c6a3eb1c5f4a2fb20360220555f5b6e672cf9ef82941f7d46ee03dd52e0e848b9f094a41ff299deb8207cab01",
+        "522102f7589fd8366252cdbb37827dff65e3304abd5d17bbab57460eff71a9e32bc00b210343b980dff4f2723e0db99ac72d0841aad934b51cbe556ce3a1b257b34059a17052ae"
+      ],
+      "sequence": 4294967295
+    }
+  ],
+  "vout": [
+    {
+      "value": 0.00010012,
+      "n": 0,
+      "scriptPubKey": {
+        "asm": "0 d39feb57a663803da116402d6cb0ac050bf051d9",
+        "hex": "0014d39feb57a663803da116402d6cb0ac050bf051d9",
+        "reqSigs": 1,
+        "type": "witness_v0_keyhash",
+        "addresses": [
+          "tb1q6w07k4axvwqrmggkgqkkev9vq59lq5we5fcrzn"
+        ]
+      }
+    },
+    {
+      "value": 0.00089804,
+      "n": 1,
+      "scriptPubKey": {
+        "asm": "0 51c88b44420940c52a384bd8a03888e3676c1509",
+        "hex": "001451c88b44420940c52a384bd8a03888e3676c1509",
+        "reqSigs": 1,
+        "type": "witness_v0_keyhash",
+        "addresses": [
+          "tb1q28ygk3zzp9qv223cf0v2qwygudnkc9gfp30ud4"
+        ]
+      }
+    }
+  ],
+  "hex": "020000000001011d3cf2126ae36e12be3aee893b385ed6a2e19b1da7f4e579e3ef15ca234d69660000000000ffffffff021c27000000000000160014d39feb57a663803da116402d6cb0ac050bf051d9cc5e01000000000016001451c88b44420940c52a384bd8a03888e3676c1509040047304402207f8048e29192ec86019bc83be8b4cac5d1fc682374538bed0707f58192d41c390220512ebcde122d53747feedd70c09153a40c56d09a5fec02e47642afdbb20aa2ac01483045022100d686a16084b60800fa0f6b14c25dca1c13d10a55c5fb7c6a3eb1c5f4a2fb20360220555f5b6e672cf9ef82941f7d46ee03dd52e0e848b9f094a41ff299deb8207cab0147522102f7589fd8366252cdbb37827dff65e3304abd5d17bbab57460eff71a9e32bc00b210343b980dff4f2723e0db99ac72d0841aad934b51cbe556ce3a1b257b34059a17052ae00000000",
+  "blockhash": "000000000000002a214b1ffc3a67c64deda838dd24d12154c15d3a6f1137e94d",
+  "confirmations": 1,
+  "time": 1602713519,
+  "blocktime": 1602713519
+}</pre>
+</div>
+</div>
+<div class="paragraph data-line-204">
+<p>The input of the transaction is <code>66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d</code>, which was the funding transaction in <a href="19_3_Setting_Up_a_Channel.html">§19.3</a>.
+The transaction then has two outputs, one for the remote node and the other for the local c-lightning wallet.
+The output on index 0 corresponds to the remote node with a value of 0.00010012 BTC;
+and the output on index 1 corresponds to the local node with a value of 0.00089804 BTC.</p>
+</div>
+<div class="paragraph data-line-209">
+<p>Lightning will similarly show 89804 satoshis returned as a new UTXO in its wallet:</p>
+</div>
+<div class="literalblock data-line-211">
+<div class="content">
+<pre>$ lightning-cli --network=testnet listfunds
+{
+   "outputs": [
+      {
+         "txid": "66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d",
+         "output": 1,
+         "value": 99847,
+         "amount_msat": "99847000msat",
+         "scriptpubkey": "00142fe02e5be9283e8c5bcb93ae61421baf8cb64f9c",
+         "address": "tb1q9lszuklf9qlgck7tjwhxzssm47xtvnuu4jslf8",
+         "status": "confirmed",
+         "blockheight": 1862856,
+         "reserved": false
+      },
+      {
+         "txid": "f68de52d80a1076e36c677ef640539c50e3d03f77f9f9db4f13048519489593f",
+         "output": 1,
+         "value": 89804,
+         "amount_msat": "89804000msat",
+         "scriptpubkey": "001451c88b44420940c52a384bd8a03888e3676c1509",
+         "address": "tb1q28ygk3zzp9qv223cf0v2qwygudnkc9gfp30ud4",
+         "status": "confirmed",
+         "blockheight": 1863006,
+         "reserved": false
+      }
+   ],
+   "channels": [
+      {
+         "peer_id": "032a7572dc013b6382cde391d79f292ced27305aa4162ec3906279fc4334602543",
+         "connected": false,
+         "state": "ONCHAIN",
+         "short_channel_id": "1862856x29x0",
+         "channel_sat": 89987,
+         "our_amount_msat": "89987000msat",
+         "channel_total_sat": 100000,
+         "amount_msat": "100000000msat",
+         "funding_txid": "66694d23ca15efe379e5f4a71d9be1a2d65e383b89ee3abe126ee36a12f23c1d",
+         "funding_output": 0
+      }
+   ]
+}</pre>
+</div>
+</div>
+<div class="sect2 data-line-253">
+<h3 id="_understand_the_types_of_closing_channels">Understand the Types of Closing Channels.</h3>
+<div class="paragraph data-line-255">
+<p>The <code>close</code> RPC command attempts to close a channel cooperatively with its peer or unilaterally after the <code>unilateraltimeout</code> argument expires.
+This bears some additional discussion, as it goes to the heart of Lightning&#8217;s trustless design:</p>
+</div>
+<div class="paragraph data-line-258">
+<p>Each participant of a channel is able to create as many Lightning payments to their counterparty as their funds allow.
+Most of the time there will be no disagreements between the participants, so there will only be two on-chain transactions, one opening and the other closing the channel.
+However, there may be scenarios in which one peer is not online or does not agree with the final state of the channel or where someone tries to steal funds from the other party.
+This is why there are both cooperative and forced closes.</p>
+</div>
+<div class="sect3 data-line-263">
+<h4 id="_cooperative_close">Cooperative Close</h4>
+<div class="paragraph data-line-265">
+<p>In the case of a cooperative close, both channel participants agree to close the channel and settle the final state to the blockchain.
+Both participants must be online;
+the close is performed by broadcasting an unconditional spend of the funding transaction with an output to each peer.</p>
+</div>
+</div>
+<div class="sect3 data-line-269">
+<h4 id="_force_close">Force Close</h4>
+<div class="paragraph data-line-271">
+<p>In the case of a force close, only one participant is online or the participants disagree on the final state of the channel.
+In this situation, one peer can perform an unilateral close of the channel without the cooperation of the other node.
+It&#8217;s performed by broadcasting a commitment transaction that commits to a previous channel state that both parties have agreed upon.
+This commitment transaction contains the channel state divided in two parts: the balance for each participant and all the pending payments (HTLCs).</p>
+</div>
+<div class="paragraph data-line-276">
+<p>To perform this kind of close, you must specify an <code>unilateraltimeout</code> argument.
+If this value is not zero, the close command will unilaterally close the channel when that number of seconds is reached:</p>
+</div>
+<div class="listingblock data-line-279">
+<div class="content">
+<pre>c$ lightning-cli --network=testnet close $newidremote 60
+{
+   "tx": "0200000001a1091f727e6041cc93fead2ea46b8402133f53e6ab89ab106b49638c11f27cba00000000006a40aa8001df85010000000000160014d22818913daf3b4f86e0bcb302a5a812d1ef6b91c6772d20",
+   "txid": "02cc4c647eb3e06f37fcbde39871ebae4333b7581954ea86b27b85ced6a5c4f7",
+   "type": "unilateral"
+}</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-288">
+<h2 id="_summary_closing_a_channel">Summary: Closing a Channel</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-290">
+<p>When you close a channel you perform an on-chain transaction ending your financial relationship with the remote node  To close a channel, you must take into account its status and the type of closure you want to execute.</p>
+</div>
+</div>
+</div>
+<div class="sect1 data-line-292">
+<h2 id="_whats_next">What&#8217;s Next?</h2>
+<div class="sectionbody">
+<div class="paragraph data-line-294">
+<p>Continue "Using Lightning" with <a href="20_4_Lightning_Network_Review.html">§20.4: Expanding the Lightning Network</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2022-06-11 10:08:38 -0400
+</div>
+</div>
+</body>
+</html>
