@@ -1,0 +1,30 @@
+= Chapter Four: Sending Bitcoin Transactions
+
+This chapter describes three different methods for sending bitcoins to normal P2PKH addresses from the command line, using only the bitcoin-cli interface.
+
+== Objectives for This Chapter
+
+After working through this chapter, a developer will be able to:
+
+* Decide How to Send Money Through Bitcoin
+* Create a Raw Transaction
+* Use Arithmetic to Calculate Fees
+
+Supporting objectives include the ability to:
+
+* Understand Transactions & Transaction Fees
+* Understand Legacy & SegWit Transactions
+* Use Basic Methods to Send Money
+* Use Auto Fee Calculation Methods to Send Money
+* Understand the Dangers of Raw Transactions
+
+== Table of Contents
+
+* xref:04_1_Sending_Coins_The_Easy_Way.adoc[Section One: Sending Coins the Easy Way]
+* xref:04_2_Creating_a_Raw_Transaction.adoc[Section Two: Creating a Raw Transaction]
+ ** xref:04_2__Interlude_Using_JQ.adoc[Interlude: Using JQ]
+* xref:04_3_Creating_a_Raw_Transaction_with_Named_Arguments.adoc[Section Three: Creating a Raw Transaction with Named Arguments]
+* xref:04_4_Sending_Coins_with_a_Raw_Transaction.adoc[Section Four: Sending Coins with Raw Transactions]
+ ** xref:04_4__Interlude_Using_Curl.adoc[Interlude: Using Curl]
+* xref:04_5_Sending_Coins_with_Automated_Raw_Transactions.adoc[Section Five: Sending Coins with Automated Raw Transactions]
+* xref:04_6_Creating_a_Segwit_Transaction.adoc[Section Six: Creating a SegWit Transaction]
